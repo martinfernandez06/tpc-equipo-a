@@ -42,6 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Categoria.cs" />
+    <Compile Include="ClasesFaltantes.cs" />
+    <Compile Include="FormaPago.cs" />
+    <Compile Include="ItemPedido.cs" />
+    <Compile Include="Pedido.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
