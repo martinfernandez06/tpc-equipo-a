@@ -8,7 +8,7 @@ namespace Dominio
 {
     public class Producto { }
     public class Usuario { }
-    public class FormaEntrega { }
-    public class Direccion { }
+  
+
     public class EstadoPedido { }
 }
