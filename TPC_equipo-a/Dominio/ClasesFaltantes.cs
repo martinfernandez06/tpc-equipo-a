@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 namespace Dominio
 {
-    public class Producto { }
-    public class Usuario { }
-  
 
     public class EstadoPedido { }
 }
