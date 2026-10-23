@@ -9,7 +9,9 @@
                         <h4 class="mb-0 fw-bold">Iniciar Sesión</h4>
                     </div>
                     <div class="card-body p-4">
-                        <form id="formLogin">
+                        
+                        <div id="formLogin">
+
                             <!-- mail -->
                             <div class="mb-3">
                                 <label for="txtEmail" class="form-label font-weight-bold">Correo Electrónico</label>
@@ -45,7 +47,7 @@
                                     Ingresar
                                 </a>
                             </div>
-                        </form>
+                        </div>
                     </div>
 
                     <!-- Enlace fin -->
