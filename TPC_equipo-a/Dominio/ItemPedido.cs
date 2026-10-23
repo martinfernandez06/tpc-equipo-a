@@ -8,7 +8,8 @@ namespace Dominio
 {
     public class ItemPedido
     {
-        public int Id { get; set; }
+        // Elimino el Id
+        // No lleva Id propio en la BD la clave es IdPedido + IdProducto.
         public Producto Producto { get; set; }
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
