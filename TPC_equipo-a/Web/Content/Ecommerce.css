@@ -7,7 +7,7 @@
     --color-boton-primario-hover: #3F1FB0; /* color del boton al pasarle el cursor o hacer click en mobiles */
     --color-boton-secundario-oscuro: #8B6CFF; /* botones secundarios sobre fondo oscuro */
     /* TIPOGRAFIAS */
-    --fuente-texto: "Mooli", system-ui, sans-serif; /* texto general del sitio */
+    --fuente-texto: "Mooli", system-ui, sans-serif; /* tipogradfia general del sitio */
 }
 
 body {
@@ -25,7 +25,7 @@ body {
         --bs-dropdown-bg: var(--color-fondo-oscuro); /* Fondo del menu */
         --bs-dropdown-border-color: var(--color-linea); /* Color de las lineas */
         --bs-dropdown-link-color: var(--color-texto-suave); /* Texto */
-        --bs-dropdown-link-hover-color: var(--color-texto-claro); /* Color de la opcion al pasar el mouse/cursor por elcima del texto */
+        --bs-dropdown-link-hover-color: var(--color-texto-claro); /* Color de la opcion al pasar el mouse/cursor por encima del texto */
         --bs-dropdown-link-hover-bg: transparent; /* color del fondo de la opcion con el mouse por encima no tengo variable coloco transparent */
         --bs-dropdown-border-radius: 0; /* bordes del dropdown  */
     }
@@ -39,17 +39,34 @@ body {
     --bs-btn-hover-border-color: var(--color-boton-primario-hover); /* borde al pasarle el mouse, igual al fondo mas oscuro */
     --bs-btn-active-bg: var(--color-boton-primario-hover); /* fondo mientras se esta haciendo click */
     --bs-btn-active-border-color: var(--color-boton-primario-hover); /* borde mientras se esta haciendo click */
-    --bs-btn-border-radius: 0; /* esquinas rectas, sin redondear, estilo plano */
+    --bs-btn-border-radius: 0; 
 }
+
 .btn-ecommerce-secundario {
-    --bs-btn-color: var(--color-boton-secundario-oscuro); /* color del texto del boton */
-    --bs-btn-bg: transparent; /* sin fondo, se ve el navbar por detras, no tengo variable coloco transparent */
-    --bs-btn-border-color: var(--color-boton-secundario-oscuro); /* color del borde, igual al texto */
-    --bs-btn-hover-color: var(--color-texto-claro); /* texto oscuro al pasarle el mouse, porque el fondo se rellena de violeta claro */
-    --bs-btn-hover-bg: transparent; /* fondo violeta claro al pasarle el mouse por encima */
-    --bs-btn-hover-border-color: var(--color-texto-claro); /* borde al pasarle el mouse, igual al fondo */
-    --bs-btn-active-color: var(--color-fondo-oscuro); /* texto mientras se esta haciendo click, igual que el hover */
-    --bs-btn-active-bg: var(--color-boton-secundario-oscuro); /* fondo mientras se esta haciendo click, igual que el hover */
-    --bs-btn-active-border-color: var(--color-boton-secundario-oscuro); /* borde mientras se esta haciendo click, igual que el hover */
-    --bs-btn-border-radius: 0; /* esquinas rectas, sin redondear, estilo plano */
+    --bs-btn-color: var(--color-boton-secundario-oscuro);
+    --bs-btn-bg: transparent; 
+    --bs-btn-border-color: var(--color-boton-secundario-oscuro);
+    --bs-btn-hover-color: var(--color-texto-claro); 
+    --bs-btn-hover-bg: transparent; 
+    --bs-btn-hover-border-color: var(--color-texto-claro); 
+    --bs-btn-active-color: var(--color-texto-claro);
+    --bs-btn-active-bg: transparent; 
+    --bs-btn-active-border-color: var(--color-texto-claro); 
+    --bs-btn-border-radius: 0; 
+}
+
+.footer-ecommerce {
+    background-color: var(--color-fondo-oscuro); /* franja oscura del footer, igual que el navbar */
+    color: var(--color-texto-suave); /* color del texto del footer */
+    padding-block: 2.5rem; /* espacio de arriba y de abajo 2.5rem son unos 40px aprox*/
+}
+
+.form {
+    min-height: 100dvh; /* alto minimo de toda la pantalla, para que el footer no quede subido en las paginas cortas */
+    display: flex; /* activa flexbox para apilar navbar, contenido y footer */
+    flex-direction: column; /* los apila uno abajo del otro */
+}
+
+.body-content {
+    flex: 1; /* el contenido se estira y ocupa el espacio que sobra, asi empuja el footer hasta abajo */
 }

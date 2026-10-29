@@ -22,7 +22,7 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
-    <form runat="server">
+    <form runat="server" class="form">
         <asp:ScriptManager runat="server">
             <Scripts>
                 <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
@@ -85,11 +85,33 @@
         <div class="container body-content">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
-            <hr />
-            <footer>
-                <p>&copy; <%: DateTime.Now.Year %> - Magva</p>
-            </footer>
         </div>
+        <footer class="footer-ecommerce">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-8">
+                        <h3 class="h6">Marca</h3>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h3 class="h6">Tienda</h3>
+                        <ul class="list-unstyled">
+                            <li><a runat="server" href="~/">Inicio</a></li>
+                            <li><a runat="server" href="~/">Catálogo</a></li>
+                            <li><a runat="server" href="~/Carrito">Carrito</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h3 class="h6">Mi cuenta</h3>
+                        <ul class="list-unstyled">
+                            <li><a runat="server" href="~/Login">Ingresar</a></li>
+                            <li><a runat="server" href="~/Registro">Registrarse</a></li>
+                            <li><a runat="server" href="~/MisCompras">Mis pedidos</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <p>&copy; <%: DateTime.Now.Year %> - Magva</p>
+            </div>
+        </footer>
     </form>
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/Scripts/bootstrap.bundle.js") %>
