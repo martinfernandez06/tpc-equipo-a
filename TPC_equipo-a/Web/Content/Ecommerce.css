@@ -8,5 +8,8 @@
 
     /* TIPOGRAFIAS */
     --fuente-texto: "Mooli", system-ui, sans-serif; /* texto general del sitio */
+}
 
+body{
+    font-family: var(--fuente-texto);
 }

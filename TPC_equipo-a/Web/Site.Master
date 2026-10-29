@@ -13,6 +13,12 @@
     </asp:PlaceHolder>
 
     <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <%--Tipografia del sitio--%>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mooli&display=swap" rel="stylesheet" />
+    <%--Estilos propios de Ecommerce--%>
+    <link href="~/Content/Ecommerce.css" rel="stylesheet" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
