@@ -60,6 +60,16 @@ body {
     color: var(--color-texto-suave); /* color del texto del footer */
     padding-block: 2.5rem; /* espacio de arriba y de abajo 2.5rem son unos 40px aprox*/
 }
+    .footer-ecommerce h3 {
+        color: var(--color-texto-claro); /* titulos de las columnas mas claros que los links para que se destaquen */
+    }
+    .footer-ecommerce a {
+        color: var(--color-texto-suave); /* links del footer en gris suave */
+        text-decoration: none; /* saca el subrayado que trae bootstrap */
+    }
+        .footer-ecommerce a:hover {
+            color: var(--color-texto-claro); /* link mas claro al pasarle el mouse por encima */
+        }
 
 .form {
     min-height: 100dvh; /* alto minimo de toda la pantalla, para que el footer no quede subido en las paginas cortas */
