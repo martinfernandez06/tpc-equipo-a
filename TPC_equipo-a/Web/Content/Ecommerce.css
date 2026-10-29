@@ -1,0 +1,12 @@
+﻿:root {
+    --color-fondo-oscuro: #111118; /*Color del fondo del navbar y el footer*/
+    --color-texto-claro: #E8E8F2; /* titulos y texto principal sobre fondo oscuro */
+    --color-texto-suave: #A1A1AA; /* links y textos secundarios sobre fondo oscuro */
+    --color-linea: #52525B; /* linea que separa el footer */
+    --color-boton-primario: #512BD4; /* botones principales, las acciones mas importantes */
+    --color-boton-secundario-oscuro: #8B6CFF; /* botones secundarios sobre fondo oscuro */
+
+    /* TIPOGRAFIAS */
+    --fuente-texto: "Mooli", system-ui, sans-serif; /* texto general del sitio */
+
+}
