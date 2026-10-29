@@ -13,3 +13,9 @@
 body{
     font-family: var(--fuente-texto);
 }
+.navbar-ecommerce{
+    background-color: var(--color-fondo-oscuro);
+    --bs-navbar-color: var(--color-texto-suave);
+    --bs-navbar-hover-color: var(--color-texto-claro);
+    --bs-navbar-brand-color: var(--color-texto-claro);
+}
