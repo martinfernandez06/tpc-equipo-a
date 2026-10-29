@@ -72,10 +72,10 @@
                             <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/Login">Login</a>
+                            <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/Registro">Registro</a>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-ecommerce-primario" runat="server" href="~/Registro">Registrarse</a>
                         </li>
                     </ul>
                 </div>

@@ -4,16 +4,17 @@
     --color-texto-suave: #A1A1AA; /* links y textos secundarios sobre fondo oscuro */
     --color-linea: #52525B; /* linea que separa el footer */
     --color-boton-primario: #512BD4; /* botones principales, las acciones mas importantes */
+    --color-boton-primario-hover: #3F1FB0; /* color del boton al pasarle el cursor o hacer click en mobiles */
     --color-boton-secundario-oscuro: #8B6CFF; /* botones secundarios sobre fondo oscuro */
-
     /* TIPOGRAFIAS */
     --fuente-texto: "Mooli", system-ui, sans-serif; /* texto general del sitio */
 }
 
-body{
+body {
     font-family: var(--fuente-texto);
 }
-.navbar-ecommerce{
+
+.navbar-ecommerce {
     background-color: var(--color-fondo-oscuro);
     --bs-navbar-color: var(--color-texto-suave);
     --bs-navbar-hover-color: var(--color-texto-claro);
@@ -28,3 +29,27 @@ body{
         --bs-dropdown-link-hover-bg: transparent; /* color del fondo de la opcion con el mouse por encima no tengo variable coloco transparent */
         --bs-dropdown-border-radius: 0; /* bordes del dropdown  */
     }
+
+.btn-ecommerce-primario {
+    --bs-btn-color: var(--color-texto-claro); /* color del texto del boton */
+    --bs-btn-bg: var(--color-boton-primario); /* color de fondo del boton */
+    --bs-btn-border-color: var(--color-boton-primario); /* color del borde, igual al fondo para que no se note */
+    --bs-btn-hover-color: var(--color-texto-claro); /* color del texto al pasarle el mouse por encima */
+    --bs-btn-hover-bg: var(--color-boton-primario-hover); /* fondo mas oscuro al pasarle el mouse por encima */
+    --bs-btn-hover-border-color: var(--color-boton-primario-hover); /* borde al pasarle el mouse, igual al fondo mas oscuro */
+    --bs-btn-active-bg: var(--color-boton-primario-hover); /* fondo mientras se esta haciendo click */
+    --bs-btn-active-border-color: var(--color-boton-primario-hover); /* borde mientras se esta haciendo click */
+    --bs-btn-border-radius: 0; /* esquinas rectas, sin redondear, estilo plano */
+}
+.btn-ecommerce-secundario {
+    --bs-btn-color: var(--color-boton-secundario-oscuro); /* color del texto del boton */
+    --bs-btn-bg: transparent; /* sin fondo, se ve el navbar por detras, no tengo variable coloco transparent */
+    --bs-btn-border-color: var(--color-boton-secundario-oscuro); /* color del borde, igual al texto */
+    --bs-btn-hover-color: var(--color-texto-claro); /* texto oscuro al pasarle el mouse, porque el fondo se rellena de violeta claro */
+    --bs-btn-hover-bg: transparent; /* fondo violeta claro al pasarle el mouse por encima */
+    --bs-btn-hover-border-color: var(--color-texto-claro); /* borde al pasarle el mouse, igual al fondo */
+    --bs-btn-active-color: var(--color-fondo-oscuro); /* texto mientras se esta haciendo click, igual que el hover */
+    --bs-btn-active-bg: var(--color-boton-secundario-oscuro); /* fondo mientras se esta haciendo click, igual que el hover */
+    --bs-btn-active-border-color: var(--color-boton-secundario-oscuro); /* borde mientras se esta haciendo click, igual que el hover */
+    --bs-btn-border-radius: 0; /* esquinas rectas, sin redondear, estilo plano */
+}
