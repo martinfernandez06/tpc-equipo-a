@@ -23,13 +23,21 @@ namespace Negocio
             conexion = new SqlConnection(ConfigurationManager.ConnectionStrings["CadenaDB"].ConnectionString);
             comando = new SqlCommand();
         }
+        public void setearParametro(string nombre, object valor)
+        {
+            comando.Parameters.AddWithValue(nombre, valor);
+        }
 
         public void setearConsulta(string consulta)
         {
             comando.CommandType = System.Data.CommandType.Text;
             comando.CommandText = consulta;
         }
-
+        public void setearProcedimiento(string procedimiento)
+        {
+            comando.CommandType = System.Data.CommandType.StoredProcedure;
+            comando.CommandText = procedimiento;
+        }
         public void ejecutarLectura()
         {
             comando.Connection = conexion;
@@ -58,10 +66,6 @@ namespace Negocio
 
                 throw ex;
             }
-        }
-        public void setearParametro(string nombre, object valor)
-        {
-            comando.Parameters.AddWithValue(nombre,valor);
         }
 
         public void cerrarLectura()
