@@ -13,7 +13,7 @@ namespace Negocio
 
             try
             {
-                datos.setConsulta("SELECT Id, Nombre, Descripcion, Activa FROM CATEGORIAS");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Activa FROM CATEGORIAS");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
