@@ -103,6 +103,8 @@
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminPedidos.aspx" />
     <Content Include="AdminProductos.aspx" />
+    <Content Include=".gitignore" />
+    <None Include="conexiones.config" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
