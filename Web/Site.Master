@@ -1,0 +1,115 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="es">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Magva</title>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <%--Tipografia del sitio--%>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mooli&display=swap" rel="stylesheet" />
+    <%--Estilos propios de Ecommerce--%>
+    <link href="~/Content/Ecommerce.css" rel="stylesheet" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+</head>
+<body>
+    <form runat="server" class="form">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--Framework Scripts--%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+                <%--Site Scripts--%>
+            </Scripts>
+        </asp:ScriptManager>
+
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-ecommerce">
+            <div class="container-fluid">
+                <a class="navbar-brand" runat="server" href="~/">Magva</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <%-- Izquierda: lo general --%>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/">Catálogo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/AdminProductos">Admin</a>
+                        </li>
+                    </ul>
+                    <%-- Derecha: lo del usuario --%>
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-ecommerce-primario" runat="server" href="~/Registro">Registrarse</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container body-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <footer class="footer-ecommerce">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-8">
+                        <h3 class="h6">Marca</h3>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h3 class="h6">Tienda</h3>
+                        <ul class="list-unstyled">
+                            <li><a runat="server" href="~/">Inicio</a></li>
+                            <li><a runat="server" href="~/">Catálogo</a></li>
+                            <li><a runat="server" href="~/Carrito">Carrito</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h3 class="h6">Mi cuenta</h3>
+                        <ul class="list-unstyled">
+                            <li><a runat="server" href="~/Login">Ingresar</a></li>
+                            <li><a runat="server" href="~/Registro">Registrarse</a></li>
+                            <li><a runat="server" href="~/MisCompras">Mis pedidos</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <p>&copy; <%: DateTime.Now.Year %> - Magva</p>
+            </div>
+        </footer>
+    </form>
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/Scripts/bootstrap.bundle.js") %>
+    </asp:PlaceHolder>
+</body>
+</html>

@@ -1,0 +1,82 @@
+﻿:root {
+    --color-fondo-oscuro: #111118; /*Color del fondo del navbar y el footer*/
+    --color-texto-claro: #E8E8F2; /* titulos y texto principal sobre fondo oscuro */
+    --color-texto-suave: #A1A1AA; /* links y textos secundarios sobre fondo oscuro */
+    --color-linea: #52525B; /* linea que separa el footer */
+    --color-boton-primario: #512BD4; /* botones principales, las acciones mas importantes */
+    --color-boton-primario-hover: #3F1FB0; /* color del boton al pasarle el cursor o hacer click en mobiles */
+    --color-boton-secundario-oscuro: #8B6CFF; /* botones secundarios sobre fondo oscuro */
+    /* TIPOGRAFIAS */
+    --fuente-texto: "Mooli", system-ui, sans-serif; /* tipogradfia general del sitio */
+}
+
+body {
+    font-family: var(--fuente-texto);
+}
+
+.navbar-ecommerce {
+    background-color: var(--color-fondo-oscuro);
+    --bs-navbar-color: var(--color-texto-suave);
+    --bs-navbar-hover-color: var(--color-texto-claro);
+    --bs-navbar-brand-color: var(--color-texto-claro);
+}
+
+    .navbar-ecommerce .dropdown-menu {
+        --bs-dropdown-bg: var(--color-fondo-oscuro); /* Fondo del menu */
+        --bs-dropdown-border-color: var(--color-linea); /* Color de las lineas */
+        --bs-dropdown-link-color: var(--color-texto-suave); /* Texto */
+        --bs-dropdown-link-hover-color: var(--color-texto-claro); /* Color de la opcion al pasar el mouse/cursor por encima del texto */
+        --bs-dropdown-link-hover-bg: transparent; /* color del fondo de la opcion con el mouse por encima no tengo variable coloco transparent */
+        --bs-dropdown-border-radius: 0; /* bordes del dropdown  */
+    }
+
+.btn-ecommerce-primario {
+    --bs-btn-color: var(--color-texto-claro); /* color del texto del boton */
+    --bs-btn-bg: var(--color-boton-primario); /* color de fondo del boton */
+    --bs-btn-border-color: var(--color-boton-primario); /* color del borde, igual al fondo para que no se note */
+    --bs-btn-hover-color: var(--color-texto-claro); /* color del texto al pasarle el mouse por encima */
+    --bs-btn-hover-bg: var(--color-boton-primario-hover); /* fondo mas oscuro al pasarle el mouse por encima */
+    --bs-btn-hover-border-color: var(--color-boton-primario-hover); /* borde al pasarle el mouse, igual al fondo mas oscuro */
+    --bs-btn-active-bg: var(--color-boton-primario-hover); /* fondo mientras se esta haciendo click */
+    --bs-btn-active-border-color: var(--color-boton-primario-hover); /* borde mientras se esta haciendo click */
+    --bs-btn-border-radius: 0; 
+}
+
+.btn-ecommerce-secundario {
+    --bs-btn-color: var(--color-boton-secundario-oscuro);
+    --bs-btn-bg: transparent; 
+    --bs-btn-border-color: var(--color-boton-secundario-oscuro);
+    --bs-btn-hover-color: var(--color-texto-claro); 
+    --bs-btn-hover-bg: transparent; 
+    --bs-btn-hover-border-color: var(--color-texto-claro); 
+    --bs-btn-active-color: var(--color-texto-claro);
+    --bs-btn-active-bg: transparent; 
+    --bs-btn-active-border-color: var(--color-texto-claro); 
+    --bs-btn-border-radius: 0; 
+}
+
+.footer-ecommerce {
+    background-color: var(--color-fondo-oscuro); /* franja oscura del footer, igual que el navbar */
+    color: var(--color-texto-suave); /* color del texto del footer */
+    padding-block: 2.5rem; /* espacio de arriba y de abajo 2.5rem son unos 40px aprox*/
+}
+    .footer-ecommerce h3 {
+        color: var(--color-texto-claro); /* titulos de las columnas mas claros que los links para que se destaquen */
+    }
+    .footer-ecommerce a {
+        color: var(--color-texto-suave); /* links del footer en gris suave */
+        text-decoration: none; /* saca el subrayado que trae bootstrap */
+    }
+        .footer-ecommerce a:hover {
+            color: var(--color-texto-claro); /* link mas claro al pasarle el mouse por encima */
+        }
+
+.form {
+    min-height: 100dvh; /* alto minimo de toda la pantalla, para que el footer no quede subido en las paginas cortas */
+    display: flex; /* activa flexbox para apilar navbar, contenido y footer */
+    flex-direction: column; /* los apila uno abajo del otro */
+}
+
+.body-content {
+    flex: 1; /* el contenido se estira y ocupa el espacio que sobra, asi empuja el footer hasta abajo */
+}

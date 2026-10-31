@@ -1,0 +1,6 @@
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\bin\Debug\Dominio.dll
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\bin\Debug\Dominio.pdb
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\obj\Debug\Dominio.csproj.AssemblyReference.cache
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\obj\Debug\Dominio.csproj.CoreCompileInputs.cache
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\obj\Debug\Dominio.dll
+C:\Users\phela\OneDrive\Desktop\tpc-equipo-a-main\tpc-equipo-a-main\TPC_equipo-a\Dominio\obj\Debug\Dominio.pdb
