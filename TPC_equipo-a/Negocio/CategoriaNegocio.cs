@@ -59,6 +59,28 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public void modificarCategoria(Categoria modificada)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spModificarCategoria");
+                datos.setearParametro("@Nombre", modificada.Nombre);
+                datos.setearParametro("@Descripcion", modificada.Descripcion);
+                datos.setearParametro("@Id", modificada.Id);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
         public Categoria buscarPorId(int id)
         {
             AccesoDatos datos = new AccesoDatos();

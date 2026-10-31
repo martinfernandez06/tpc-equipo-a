@@ -48,3 +48,15 @@ GO
 EXEC spBuscarCategoriaPorId 1002
 GO
 
+-- Martin -> 31/10/26 1755
+CREATE PROCEDURE spModificarCategoria
+    @Id INT,
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255)
+AS BEGIN
+    UPDATE CATEGORIAS
+    SET Nombre = @Nombre,
+        Descripcion = @Descripcion
+    WHERE Id = @Id
+END
+GO

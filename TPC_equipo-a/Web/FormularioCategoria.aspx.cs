@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Dominio;
+using Negocio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Dominio;
-using Negocio;
+using System.Web.UI.WebControls.WebParts;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Web
 {
@@ -48,8 +50,20 @@ namespace Web
                 nuevaCategoria.Nombre = txtNombre.Text;
                 nuevaCategoria.Descripcion = txtDescripcion.Text;
 
+
                 CategoriaNegocio negocio = new CategoriaNegocio();
-                negocio.agregarCategoria(nuevaCategoria);
+                // si vino id en la url es modificar
+                if (Request.QueryString["id"] != null)
+                {
+                    // le cargo el id viene como texto, lo paso a int para que sepa cual cambiar
+                    nuevaCategoria.Id = int.Parse(Request.QueryString["id"]);
+                    negocio.modificarCategoria(nuevaCategoria);
+                }
+                // si no vino id es una categoria nueva
+                else
+                {
+                    negocio.agregarCategoria(nuevaCategoria);
+                }
 
                 // vuelvo al listado, false para que no corte la ejecucion
                 Response.Redirect("AdminCategorias.aspx", false);
