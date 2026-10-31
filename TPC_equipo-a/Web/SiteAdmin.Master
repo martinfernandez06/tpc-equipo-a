@@ -38,7 +38,13 @@
             <%--Fila--%>
             <div class="row">
                 <div class="col-md-3">
-                    Menu
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminProductos">Productos</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminCategorias">Categorías</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasPago">Formas de pago</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasEntrega">Formas de entrega</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminPedidos">Pedidos</a></li>
+                    </ul>
                 </div>
                 <div class="col-md-9">
                     <asp:ContentPlaceHolder ID="MainContent" runat="server">
