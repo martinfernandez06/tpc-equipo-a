@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace TPC_equipo_a
+namespace Web
 {
     public partial class AdminCategorias : System.Web.UI.Page
     {
