@@ -6,7 +6,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %>  - Panel Admin</title>
+    <title><%: Page.Title %> - Panel Admin</title>
     <webopt:BundleReference runat="server" Path="~/Content/css" />
     <link href="~/Content/Ecommerce.css" rel="stylesheet" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
@@ -33,9 +33,18 @@
                 <%--Site Scripts--%>
             </Scripts>
         </asp:ScriptManager>
-        <div>
-            <asp:ContentPlaceHolder ID="MainContent" runat="server">
-            </asp:ContentPlaceHolder>
+        <%--Div que ocupara todo el ancho--%>
+        <div class="container-fluid">
+            <%--Fila--%>
+            <div class="row">
+                <div class="col-md-3">
+                    Menu
+                </div>
+                <div class="col-md-9">
+                    <asp:ContentPlaceHolder ID="MainContent" runat="server">
+                    </asp:ContentPlaceHolder>
+                </div>
+            </div>
         </div>
     </form>
     <asp:PlaceHolder runat="server">
