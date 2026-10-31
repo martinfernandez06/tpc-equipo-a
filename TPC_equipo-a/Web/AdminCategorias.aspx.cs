@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace TPC_equipo_a
+namespace Web
 {
     public partial class AdminCategorias : System.Web.UI.Page
     {
@@ -23,6 +23,15 @@ namespace TPC_equipo_a
                 dgvCategorias.DataBind();
             }
 
+        }
+        // se ejecuta al tocar editar en una fila
+        protected void dgvCategorias_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // var toma el tipo solo. traigo el id escondido de la fila y lo paso a texto
+            var id = dgvCategorias.SelectedDataKey.Value.ToString();
+
+            // voy al formulario con el id por url el ? le diremos que parametros pasaremos
+            Response.Redirect($"FormularioCategoria.aspx?id={id}",false);
         }
     }
 }

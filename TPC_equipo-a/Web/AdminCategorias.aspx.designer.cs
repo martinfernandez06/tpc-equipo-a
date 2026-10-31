@@ -7,7 +7,7 @@
 // </generado automáticamente>
 //------------------------------------------------------------------------------
 
-namespace TPC_equipo_a
+namespace Web
 {
 
 
