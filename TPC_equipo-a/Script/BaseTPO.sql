@@ -35,3 +35,16 @@ GO
 
 Select * from CATEGORIAS
 GO
+-- Martin -> 31/10/26 1700
+CREATE PROCEDURE spBuscarCategoriaPorId
+    @id INT
+AS BEGIN
+    SELECT Id, Nombre, Descripcion, Activa
+    FROM CATEGORIAS
+    WHERE Id = @id
+END
+GO
+
+EXEC spBuscarCategoriaPorId 1002
+GO
+
