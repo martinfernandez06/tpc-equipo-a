@@ -2,7 +2,12 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="row">
     <div class="col-md-8">
-        <asp:GridView ID="dgvCategorias" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="true">
+        <asp:GridView ID="dgvCategorias" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false">
+            <Columns>
+                <asp:BoundField HeaderText="Nombre" DataField="Nombre"/>
+                <asp:BoundField HeaderText="Descripción" DataField="Descripcion"/>
+                <asp:CheckBoxField HeaderText="Activa" DataField="Activa"/>
+             </Columns>
         </asp:GridView>
     </div>
 </div>
