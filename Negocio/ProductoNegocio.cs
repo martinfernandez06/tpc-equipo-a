@@ -28,6 +28,7 @@ namespace Negocio
                     aux.Stock = (int)datos.Lector["Stock"];
                     
                     // Mapeo de la categoria y su nombre obtenido mediante el JOIN del SP
+
                     aux.Categoria = new Categoria();
                     aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
                     aux.Categoria.Nombre = (string)datos.Lector["CategoriaNombre"];
@@ -87,11 +88,12 @@ namespace Negocio
     }
 
 
-    public void Modificar(Producto prod)
-{
+    public void Modificar(Producto prod) {
+
     AccesoDatos datos = new AccesoDatos();
-    try
-    {
+    
+    try {
+
         datos.setearProcedimiento("spModificarProducto");
         
         datos.setearParametro("@Id", prod.Id);
@@ -117,7 +119,25 @@ namespace Negocio
     }
 }
 
+    public void eliminarLogico(int id) {
 
+    AccesoDatos datos = new AccesoDatos() ;
+    
+    try {
+
+        datos.setearProcedimiento("spBajaLogicaProducto");
+        datos.setearParametro("@Id", id);
+        datos.ejecutarAccion();
+    }
+    catch (Exception ex)
+    {
+        throw ex;
+    }
+    finally
+    {
+        datos.cerrarLectura();
+    }
+}
 
 
 

@@ -49,10 +49,30 @@
                                 <td>
                     
                     <td>
+
                        <a href='FormularioProducto.aspx?id=<%# Eval("Id") %>' class="btn btn-sm btn-primary">
-                       <i class="bi bi-pencil-square"></i> Modificar
-                        </a>
-                        <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                            
+                           <i class="bi bi-pencil-square"></i> Modificar
+                       
+                       </a>
+
+                        
+                        <asp:LinkButton ID="btnEliminar" runat="server" 
+
+                            Text='<%# (bool)Eval("Activo") ? "Desactivar" : "Activar" %>' 
+                            CssClass='<%# (bool)Eval("Activo") ? "btn btn-sm btn-danger" : "btn btn-sm btn-success" %>' 
+                            CommandName="EliminarId" 
+                            CommandArgument='<%# Eval("Id") %>' 
+
+                            OnClientClick="return confirm('El producto se desactivará');" 
+                            OnClick="btnEliminar_Click" />
+
+
+
+
+
+
+
                     </td>
                                   
                                 </td>
