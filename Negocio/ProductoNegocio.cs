@@ -87,6 +87,40 @@ namespace Negocio
     }
 
 
+    public void Modificar(Producto prod)
+{
+    AccesoDatos datos = new AccesoDatos();
+    try
+    {
+        datos.setearProcedimiento("spModificarProducto");
+        
+        datos.setearParametro("@Id", prod.Id);
+        datos.setearParametro("@Nombre", prod.Nombre);
+        datos.setearParametro("@Descripcion", prod.Descripcion);
+        datos.setearParametro("@PrecioVenta", prod.PrecioVenta);
+        datos.setearParametro("@Stock", prod.Stock);
+        datos.setearParametro("@IdCategoria", prod.Categoria.Id);
+        datos.setearParametro("@ImagenUrl", prod.ImagenUrl);
+        datos.setearParametro("@Activo", prod.Activo);
+
+        datos.ejecutarAccion();
+    }
+   
+    catch (Exception ex) {
+        
+    throw ex ;
+   
+    }
+    finally
+    {
+        datos.cerrarLectura() ;
+    }
+}
+
+
+
+
+
 
     }
 }

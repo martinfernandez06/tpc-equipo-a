@@ -47,8 +47,14 @@
                                     <asp:CheckBox ID="chkActivo" runat="server" Checked='<%# Eval("Activo") %>' Enabled="false" />
                                 </td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-warning">Editar</a>
-                                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                    
+                    <td>
+                       <a href='FormularioProducto.aspx?id=<%# Eval("Id") %>' class="btn btn-sm btn-primary">
+                       <i class="bi bi-pencil-square"></i> Modificar
+                        </a>
+                        <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                                  
                                 </td>
                             </tr>
                         </ItemTemplate>
