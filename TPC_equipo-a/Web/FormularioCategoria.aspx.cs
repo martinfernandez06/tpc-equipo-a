@@ -56,13 +56,28 @@ namespace Web
         {
             try
             {
+
+                CategoriaNegocio negocio = new CategoriaNegocio();
+                // borro el aviso de repetido que pudo quedar de antes
+                lblNombreRepetido.Text = "";
+                // reviso los validadores, si el nombre esta vacio corto aca
+                Page.Validate();
+                if (!Page.IsValid)
+                    return;
+                // leo el id de la url, si no vino es un alta y queda en 0
+                int id = Request.QueryString["id"] != null ? int.Parse(Request.QueryString["id"]) : 0;
+                // si ya hay otra categoria con ese nombre aviso y no guardo
+                if (negocio.existeNombreCategoria(txtNombre.Text, id))
+                {
+                    lblNombreRepetido.Text = "Ya existe una categoria con ese nombre.";
+                    return;
+                }
+
                 // armo la categoria con lo que escribio el usuario
                 Categoria nuevaCategoria = new Categoria();
                 nuevaCategoria.Nombre = txtNombre.Text;
                 nuevaCategoria.Descripcion = txtDescripcion.Text;
 
-
-                CategoriaNegocio negocio = new CategoriaNegocio();
                 // si vino id en la url es modificar
                 if (Request.QueryString["id"] != null)
                 {
@@ -96,13 +111,13 @@ namespace Web
                 {
                     CategoriaNegocio negocio = new CategoriaNegocio();
                     // paso a int el id que vino en la url
-                    int Id = int.Parse(Request.QueryString["id"]);
+                    int id = int.Parse(Request.QueryString["id"]);
                     // traigo la categoria de la bd para saber si esta activa o no
-                    Categoria nueva = negocio.buscarPorId(Id);
+                    Categoria nueva = negocio.buscarPorId(id);
                     // le doy vuelta el estado, si estaba activa queda inactiva y al reves
                     nueva.Activa = !nueva.Activa;
                     // guardo el estado nuevo en la bd
-                    negocio.cambiarEstadoCategoria(Id,nueva.Activa);
+                    negocio.cambiarEstadoCategoria(id, nueva.Activa);
 
                     Response.Redirect("AdminCategorias.aspx", false);
                 }

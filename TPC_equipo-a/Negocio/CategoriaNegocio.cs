@@ -135,5 +135,15 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        // devuelve true si ya existe otra categoria con ese nombre
+        // el id es para no compararla consigo misma al modificar, en un alta va 0
+        public bool existeNombreCategoria(string nombre, int id)
+        {
+            List<Categoria> lista = listar();
+            // busco mismo nombre sin importar mayusculas ni espacios, y que no sea la misma
+            Categoria encontrada = lista.Find(x => x.Nombre.Trim().ToUpper() == nombre.Trim().ToUpper() && x.Id != id);
+            // si encontro una el nombre esta repetido
+            return encontrada != null;
+        }
     }
 }
