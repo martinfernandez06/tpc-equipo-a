@@ -81,6 +81,27 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public void cambiarEstadoCategoria(int id, bool activa)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spCambiarEstadoCategoria");
+                datos.setearParametro("@Id",id);
+                datos.setearParametro("@Activa", activa);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
         public Categoria buscarPorId(int id)
         {
             AccesoDatos datos = new AccesoDatos();

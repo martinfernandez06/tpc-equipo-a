@@ -60,3 +60,13 @@ AS BEGIN
     WHERE Id = @Id
 END
 GO
+
+-- Martin --> 1/11/26 2200
+CREATE PROCEDURE spCambiarEstadoCategoria
+    @Id INT,
+    @Activa BIT
+AS
+BEGIN
+    UPDATE CATEGORIAS SET Activa = @Activa WHERE Id = @Id
+END
+GO
