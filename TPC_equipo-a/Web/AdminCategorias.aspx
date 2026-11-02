@@ -12,7 +12,7 @@
                     <asp:BoundField HeaderText="Nombre" DataField="Nombre" />
                     <asp:BoundField HeaderText="Descripción" DataField="Descripcion" />
                     <asp:CheckBoxField HeaderText="Activa" DataField="Activa" />
-                    <asp:CommandField HeaderText="Accion" ShowSelectButton="true" SelectText="Editar" />
+                    <asp:CommandField HeaderText="Accion" ShowSelectButton="true" ButtonType="Button" SelectText="Editar" />
                 </Columns>
             </asp:GridView>
         </div>
