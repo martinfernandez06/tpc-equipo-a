@@ -3,7 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <h1>Nueva categoria</h1>
+    <asp:Label ID="lblTitulo" CssClass="h1" runat="server" Text=""></asp:Label>
     <div class="row">
         <div class="col-6">
             <div class="mb-3">
@@ -15,6 +15,7 @@
                 <asp:TextBox ID="txtDescripcion" CssClass="form-control" Rows="3" TextMode="MultiLine" runat="server"></asp:TextBox>
             </div>
             <asp:Button ID="btnAceptar" CssClass="btn btn-primary" runat="server" Text="cargar" OnClick="btnAceptar_Click" />
+            <asp:Button ID="btnEstado" runat="server" CssClass="btn btn-warning" Text="Desactivar" OnClick="btnEstado_Click"/>
             <a href="~/AdminCategorias" runat="server" class="btn btn-secondary">cancelar</a>
         </div>
     </div>

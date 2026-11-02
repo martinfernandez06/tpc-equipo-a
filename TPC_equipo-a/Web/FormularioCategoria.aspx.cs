@@ -6,8 +6,6 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Web
 {
@@ -32,6 +30,19 @@ namespace Web
                         // precargo los datos
                         txtNombre.Text = seleccionada.Nombre;
                         txtDescripcion.Text = seleccionada.Descripcion;
+                        lblTitulo.Text = "Modificar categoria";
+                        btnAceptar.Text = "Modificar";
+
+                        if (!seleccionada.Activa)
+                        {
+                            btnEstado.Text = "Activar";
+                        }
+                    }
+                    else
+                    {
+                        btnEstado.Visible = false;
+                        lblTitulo.Text = "Nueva categoria";
+                        btnAceptar.Text = "Crear";
                     }
                 }
             }
@@ -58,6 +69,7 @@ namespace Web
                     // le cargo el id viene como texto, lo paso a int para que sepa cual cambiar
                     nuevaCategoria.Id = int.Parse(Request.QueryString["id"]);
                     negocio.modificarCategoria(nuevaCategoria);
+
                 }
                 // si no vino id es una categoria nueva
                 else
@@ -67,6 +79,33 @@ namespace Web
 
                 // vuelvo al listado, false para que no corte la ejecucion
                 Response.Redirect("AdminCategorias.aspx", false);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        protected void btnEstado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // solo si vino id en la url
+                if (Request.QueryString["id"] != null)
+                {
+                    CategoriaNegocio negocio = new CategoriaNegocio();
+                    // paso a int el id que vino en la url
+                    int Id = int.Parse(Request.QueryString["id"]);
+                    // traigo la categoria de la bd para saber si esta activa o no
+                    Categoria nueva = negocio.buscarPorId(Id);
+                    // le doy vuelta el estado, si estaba activa queda inactiva y al reves
+                    nueva.Activa = !nueva.Activa;
+                    // guardo el estado nuevo en la bd
+                    negocio.cambiarEstadoCategoria(Id,nueva.Activa);
+
+                    Response.Redirect("AdminCategorias.aspx", false);
+                }
             }
             catch (Exception ex)
             {
