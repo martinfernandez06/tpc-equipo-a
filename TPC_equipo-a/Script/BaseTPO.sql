@@ -70,3 +70,85 @@ BEGIN
     UPDATE CATEGORIAS SET Activa = @Activa WHERE Id = @Id
 END
 GO
+
+
+
+-- Tabla Productos --
+
+CREATE TABLE PRODUCTOS (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Descripcion VARCHAR(255) NULL,
+    PrecioVenta MONEY NOT NULL CHECK (PrecioVenta > 0),
+    Stock INT NOT NULL CHECK (Stock >= 0),
+    IdCategoria INT NOT NULL FOREIGN KEY REFERENCES CATEGORIAS(Id),
+    ImagenUrl VARCHAR(500) NULL,
+    Activo BIT DEFAULT 1
+);
+
+GO
+
+-- =============================================
+-- PROCEDIMIENTOS ALMACENADOS - PRODUCTOS
+-- =============================================
+
+-- 1. Listar todos los productos con su categoría (sin filtrar por activo para que funcione el panel de administración)
+CREATE PROCEDURE spListarProductos 
+AS 
+BEGIN 
+    SELECT P.Id, P.Nombre, P.Descripcion, P.PrecioVenta, P.Stock, P.IdCategoria, C.Nombre AS CategoriaNombre, P.ImagenUrl, P.Activo 
+    FROM PRODUCTOS P 
+    INNER JOIN CATEGORIAS C ON P.IdCategoria = C.Id; 
+END;
+GO
+
+-- 2. Alta de un nuevo producto
+CREATE PROCEDURE spAltaProducto 
+    @Nombre VARCHAR(100), 
+    @Descripcion VARCHAR(255), 
+    @PrecioVenta MONEY, 
+    @Stock INT, 
+    @IdCategoria INT, 
+    @ImagenUrl VARCHAR(500), 
+    @Activo BIT 
+AS 
+BEGIN 
+    INSERT INTO PRODUCTOS (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo) 
+    VALUES (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo); 
+END;
+GO
+
+-- 3. Modificar un producto existente
+CREATE PROCEDURE spModificarProducto 
+    @Id INT, 
+    @Nombre VARCHAR(100), 
+    @Descripcion VARCHAR(255), 
+    @PrecioVenta MONEY, 
+    @Stock INT, 
+    @IdCategoria INT, 
+    @ImagenUrl VARCHAR(500), 
+    @Activo BIT 
+AS 
+BEGIN 
+    UPDATE PRODUCTOS 
+    SET Nombre = @Nombre, 
+        Descripcion = @Descripcion, 
+        PrecioVenta = @PrecioVenta, 
+        Stock = @Stock, 
+        IdCategoria = @IdCategoria, 
+        ImagenUrl = @ImagenUrl, 
+        Activo = @Activo 
+    WHERE Id = @Id; 
+END;
+GO
+
+-- 4. Baja lógica (cambiar estado activo/inactivo)
+CREATE PROCEDURE spBajaLogicaProducto 
+    @Id INT 
+AS 
+BEGIN 
+    UPDATE PRODUCTOS 
+    SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END 
+    WHERE Id = @Id; 
+END;
+GO
