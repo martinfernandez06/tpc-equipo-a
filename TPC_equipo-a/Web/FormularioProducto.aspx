@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Gestión de Producto" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="FormularioProducto.aspx.cs" Inherits="Web.FormularioProducto" %>
+﻿<%@ Page Title="Gestión de Producto" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="FormularioProducto.aspx.cs" Inherits="Web.FormularioProducto" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container my-5">
