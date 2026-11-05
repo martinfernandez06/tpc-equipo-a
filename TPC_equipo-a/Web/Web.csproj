@@ -223,6 +223,7 @@
     </Compile>
     <Compile Include="FormularioProducto.aspx.cs">
       <DependentUpon>FormularioProducto.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="FormularioProducto.aspx.designer.cs">
       <DependentUpon>FormularioProducto.aspx</DependentUpon>
