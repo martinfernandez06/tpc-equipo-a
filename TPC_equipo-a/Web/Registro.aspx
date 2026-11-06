@@ -27,7 +27,7 @@
                             <div class="mb-3">
                                 <label for="txtEmail" class="form-label font-weight-bold">Correo Electrónico</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">📧</span>
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                     <input type="email" class="form-control" id="txtEmail" placeholder="ejemplo@correo.com" required />
                                 </div>
                             </div>
@@ -36,7 +36,7 @@
                             <div class="mb-3">
                                 <label for="txtTelefono" class="form-label font-weight-bold">Teléfono</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">📞</span>
+                                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
                                     <input type="tel" class="form-control" id="txtTelefono" placeholder="Ej: 1123456789" />
                                 </div>
                             </div>
@@ -47,7 +47,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="txtPassword" class="form-label font-weight-bold">Contraseña</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">🔒</span>
+                                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                         <input type="password" class="form-control" id="txtPassword" placeholder="••••••••" required />
                                     </div>
                                 </div>
@@ -56,7 +56,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="txtConfirmPassword" class="form-label font-weight-bold">Repetir Contraseña</label>
                                     <div class="input-group">
-                                        <span class="input-group-text">🔒</span>
+                                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                         <input type="password" class="form-control" id="txtConfirmPassword" placeholder="••••••••" required />
                                     </div>
                                 </div>
