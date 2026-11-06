@@ -15,16 +15,21 @@ namespace Dominio
         public FormaEntrega FormaEntrega { get; set; }
         public Direccion Direccion { get; set; } // null si es retiro en el local
         public EstadoPedido Estado { get; set; }
-        public string IdPagoMercadoPago { get; set; } // null si no se pago con Mercado Pago
         public List<ItemPedido> Items { get; set; }
         public List<ObservacionPedido> Observaciones { get; set; }
         //Un pedido puede tener muchas observaciones asi que la relacion 1 a muchos del DER
+        public string CodigoSeguimiento { get; set; }
+        public string ComprobanteUrl { get; set; }
+        public string EstadoComprobante { get; set; }
+        public List<HistorialEstado> Historial { get; set; }
 
         public Pedido()
         {
             Items = new List<ItemPedido>();
             // Se inicializa en el constructor, igual que Items, para que nunca sea null
             Observaciones = new List<ObservacionPedido>();
+            // Inicialización de la nueva lista del historial
+            Historial = new List<HistorialEstado>();
             FechaCreacion = DateTime.Now;
         }
 
