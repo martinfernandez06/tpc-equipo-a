@@ -93,6 +93,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AdminFormasPago.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminPedidos.aspx" />
@@ -177,6 +178,13 @@
     <Compile Include="AdminCategorias.aspx.designer.cs">
       <DependentUpon>AdminCategorias.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AdminFormasPago.aspx.cs">
+      <DependentUpon>AdminFormasPago.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminFormasPago.aspx.designer.cs">
+      <DependentUpon>AdminFormasPago.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AdminPedidos.aspx.cs">
       <DependentUpon>AdminPedidos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -223,6 +231,7 @@
     </Compile>
     <Compile Include="FormularioProducto.aspx.cs">
       <DependentUpon>FormularioProducto.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="FormularioProducto.aspx.designer.cs">
       <DependentUpon>FormularioProducto.aspx</DependentUpon>
