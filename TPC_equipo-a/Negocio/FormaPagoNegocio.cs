@@ -45,8 +45,9 @@ namespace Negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("INSERT INTO FORMAS_PAGO (Descripcion, Activa) VALUES (@Descripcion, 1)");
+                datos.setearConsulta("INSERT INTO FORMAS_PAGO (Descripcion, Activa) VALUES (@Descripcion, @Activa)");
                 datos.setearParametro("@Descripcion", nuevo.Descripcion);
+                datos.setearParametro("@Activa", nuevo.Activa);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -58,14 +59,14 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-
         public void Modificar(FormaPago modificado)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("UPDATE FORMAS_PAGO SET Descripcion = @Descripcion WHERE Id = @Id");
+                datos.setearConsulta("UPDATE FORMAS_PAGO SET Descripcion = @Descripcion, Activa = @Activa WHERE Id = @Id");
                 datos.setearParametro("@Descripcion", modificado.Descripcion);
+                datos.setearParametro("@Activa", modificado.Activa);
                 datos.setearParametro("@Id", modificado.Id);
                 datos.ejecutarAccion();
             }
@@ -78,7 +79,6 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-
         public void CambiarEstado(int id, bool activa)
         {
             AccesoDatos datos = new AccesoDatos();

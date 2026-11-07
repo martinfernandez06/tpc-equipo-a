@@ -93,6 +93,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AdminFormasEntrega.aspx" />
+    <Content Include="AdminFormasPago.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminPedidos.aspx" />
@@ -120,6 +122,8 @@
     <Content Include="Default.aspx" />
     <Content Include="DetalleProducto.aspx" />
     <Content Include="favicon.ico" />
+    <Content Include="FormaEntregaForm.aspx" />
+    <Content Include="FormaPagoForm.aspx" />
     <Content Include="FormularioCategoria.aspx" />
     <Content Include="FormularioProducto.aspx" />
     <Content Include="Global.asax" />
@@ -178,6 +182,20 @@
     <Compile Include="AdminCategorias.aspx.designer.cs">
       <DependentUpon>AdminCategorias.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AdminFormasEntrega.aspx.cs">
+      <DependentUpon>AdminFormasEntrega.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminFormasEntrega.aspx.designer.cs">
+      <DependentUpon>AdminFormasEntrega.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminFormasPago.aspx.cs">
+      <DependentUpon>AdminFormasPago.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminFormasPago.aspx.designer.cs">
+      <DependentUpon>AdminFormasPago.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AdminPedidos.aspx.cs">
       <DependentUpon>AdminPedidos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -214,6 +232,20 @@
     </Compile>
     <Compile Include="DetalleProducto.aspx.designer.cs">
       <DependentUpon>DetalleProducto.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FormaEntregaForm.aspx.cs">
+      <DependentUpon>FormaEntregaForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FormaEntregaForm.aspx.designer.cs">
+      <DependentUpon>FormaEntregaForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FormaPagoForm.aspx.cs">
+      <DependentUpon>FormaPagoForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FormaPagoForm.aspx.designer.cs">
+      <DependentUpon>FormaPagoForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="FormularioCategoria.aspx.cs">
       <DependentUpon>FormularioCategoria.aspx</DependentUpon>
