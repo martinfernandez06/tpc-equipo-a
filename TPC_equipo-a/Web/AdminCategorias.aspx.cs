@@ -104,5 +104,13 @@ namespace Web
             dgvCategorias.PageIndex = e.NewPageIndex;
             filtrar();
         }
+
+        protected void btnLimpiarFiltro_Click(object sender, EventArgs e)
+        {
+            txtFiltro.Text = "";
+            ddlEstado.SelectedIndex = 0;
+            dgvCategorias.PageIndex = 0;
+            filtrar();
+        }
     }
 }
