@@ -1,0 +1,37 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="FormaEntregaForm.aspx.cs" Inherits="Web.FormaEntregaForm" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+</asp:Content>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
+    <h2>Formulario de Forma de Entrega</h2>
+    <hr />
+    
+    <div class="row">
+        <div class="col-md-6">
+            
+            <div class="mb-3">
+                <label for="txtDescripcion" class="form-label">Descripción:</label>
+                <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" MaxLength="50"></asp:TextBox>
+                
+                <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion" 
+                    ErrorMessage="La descripción es obligatoria" CssClass="text-danger" Display="Dynamic">
+                </asp:RequiredFieldValidator>
+            </div>
+            
+            <div class="mb-3">
+                <asp:CheckBox ID="chkRequiereDireccion" runat="server" Text=" Requiere Dirección (Ej: Envío a domicilio)" />
+            </div>
+
+            <div class="mb-3">
+                <asp:CheckBox ID="chkActiva" runat="server" Text=" Activa (Visible para los clientes)" Checked="true" />
+            </div>
+
+            <div class="mb-3 mt-4">
+                <asp:Button ID="btnGuardar" runat="server" Text="Guardar" CssClass="btn btn-primary me-2" OnClick="btnGuardar_Click" />
+                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" CausesValidation="false" />
+            </div>
+
+        </div>
+    </div>
+</asp:Content>

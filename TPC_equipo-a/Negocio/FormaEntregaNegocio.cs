@@ -40,15 +40,15 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-
         public void Agregar(FormaEntrega nuevo)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion, Activa) VALUES (@Descripcion, @RequiereDireccion, 1)");
+                datos.setearConsulta("INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion, Activa) VALUES (@Descripcion, @RequiereDireccion, @Activa)");
                 datos.setearParametro("@Descripcion", nuevo.Descripcion);
                 datos.setearParametro("@RequiereDireccion", nuevo.RequiereDireccion);
+                datos.setearParametro("@Activa", nuevo.Activa);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -60,15 +60,15 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-
         public void Modificar(FormaEntrega modificado)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("UPDATE FORMAS_ENTREGA SET Descripcion = @Descripcion, RequiereDireccion = @RequiereDireccion WHERE Id = @Id");
+                datos.setearConsulta("UPDATE FORMAS_ENTREGA SET Descripcion = @Descripcion, RequiereDireccion = @RequiereDireccion, Activa = @Activa WHERE Id = @Id");
                 datos.setearParametro("@Descripcion", modificado.Descripcion);
                 datos.setearParametro("@RequiereDireccion", modificado.RequiereDireccion);
+                datos.setearParametro("@Activa", modificado.Activa);
                 datos.setearParametro("@Id", modificado.Id);
                 datos.ejecutarAccion();
             }
@@ -81,7 +81,6 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-
         public void CambiarEstado(int id, bool activa)
         {
             AccesoDatos datos = new AccesoDatos();
