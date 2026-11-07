@@ -24,7 +24,9 @@ namespace Web
                 // LIMPIAMOS ANTES DE CARGAR PARA QUE NO SE ACUMULEN
                 ddlCategoria.Items.Clear();
 
-                ddlCategoria.DataSource = catNegocio.listarActivas();
+                // traigo las categorias activas y las guardo para usarlas abajo al modificar
+                List<Categoria> activas = catNegocio.listarActivas();
+                ddlCategoria.DataSource = activas;
                 ddlCategoria.DataTextField = "Nombre";
                 ddlCategoria.DataValueField = "Id";
                 ddlCategoria.DataBind();
@@ -46,6 +48,14 @@ namespace Web
                     txtPrecio.Text = seleccionado.PrecioVenta.ToString("0.00", CultureInfo.InvariantCulture);
                     txtStock.Text = seleccionado.Stock.ToString();
                     txtImagenUrl.Text = seleccionado.ImagenUrl;
+                    // busco la categoria del producto entre las activas
+                    Categoria categoriaActiva = activas.Find(x => x.Id == seleccionado.Categoria.Id);
+                    // si no esta es porque la desactivaron, la agrego marcada para que se pueda guardar sin cambiarla
+                    if (categoriaActiva == null)
+                    {
+                        // agrega una opción al final del DropDownList
+                        ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre +" (inactiva)",seleccionado.Categoria.Id.ToString()));
+                    }
                     ddlCategoria.SelectedValue = seleccionado.Categoria.Id.ToString();
                 }
             }
