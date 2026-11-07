@@ -99,7 +99,6 @@ namespace Web
                 producto.Stock = stock;
                 producto.ImagenUrl = txtImagenUrl.Text.Trim();
                 producto.Categoria.Id = int.Parse(ddlCategoria.SelectedValue);
-                producto.Activo = true;
 
                 ProductoNegocio negocio = new ProductoNegocio();
 
