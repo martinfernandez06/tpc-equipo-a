@@ -24,7 +24,7 @@ namespace Web
                 // Cargar categorias para el filtro
 
                 CategoriaNegocio catNegocio = new CategoriaNegocio();
-                ddlFiltroCategoria.DataSource = catNegocio.listar();
+                ddlFiltroCategoria.DataSource = catNegocio.listarActivas();
                 ddlFiltroCategoria.DataTextField = "Nombre";
                 ddlFiltroCategoria.DataValueField = "Id";
                 ddlFiltroCategoria.DataBind();

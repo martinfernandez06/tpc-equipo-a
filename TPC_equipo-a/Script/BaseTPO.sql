@@ -85,7 +85,6 @@ CREATE TABLE PRODUCTOS (
     ImagenUrl VARCHAR(500) NULL,
     Activo BIT DEFAULT 1
 );
-
 GO
 
 -- =============================================
@@ -126,8 +125,7 @@ CREATE PROCEDURE spModificarProducto
     @PrecioVenta MONEY, 
     @Stock INT, 
     @IdCategoria INT, 
-    @ImagenUrl VARCHAR(500), 
-    @Activo BIT 
+    @ImagenUrl VARCHAR(500)
 AS 
 BEGIN 
     UPDATE PRODUCTOS 
@@ -136,8 +134,7 @@ BEGIN
         PrecioVenta = @PrecioVenta, 
         Stock = @Stock, 
         IdCategoria = @IdCategoria, 
-        ImagenUrl = @ImagenUrl, 
-        Activo = @Activo 
+        ImagenUrl = @ImagenUrl
     WHERE Id = @Id; 
 END;
 GO
@@ -151,4 +148,35 @@ BEGIN
     SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END 
     WHERE Id = @Id; 
 END;
+GO
+
+-- =======================================================
+-- TABLAS DE FORMAS DE PAGO Y ENTREGA (Pablo 06/11/2026)
+-- =======================================================
+
+-- Tabla FORMAS_PAGO
+CREATE TABLE FORMAS_PAGO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion VARCHAR(100) UNIQUE NOT NULL,
+    Activa BIT DEFAULT 1 NOT NULL
+);
+GO
+
+-- Tabla FORMAS_ENTREGA
+CREATE TABLE FORMAS_ENTREGA (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion VARCHAR(100) UNIQUE NOT NULL,
+    RequiereDireccion BIT NOT NULL,
+    Activa BIT DEFAULT 1 NOT NULL
+);
+GO
+
+-- DATOS DE PRUEBA
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Efectivo');
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Transferencia');
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Mercado Pago');
+GO
+
+INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en el local', 0);
+INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
 GO

@@ -44,7 +44,7 @@
                                         <td class="fw-bold">$15.500,00</td>
                                         <td>
                                             <button type="button" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                                🗑️
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -71,7 +71,7 @@
                                         <td class="fw-bold">$90.000,00</td>
                                         <td>
                                             <button type="button" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                                🗑️
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
