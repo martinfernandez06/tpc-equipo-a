@@ -85,7 +85,6 @@ CREATE TABLE PRODUCTOS (
     ImagenUrl VARCHAR(500) NULL,
     Activo BIT DEFAULT 1
 );
-
 GO
 
 -- =============================================
@@ -126,8 +125,7 @@ CREATE PROCEDURE spModificarProducto
     @PrecioVenta MONEY, 
     @Stock INT, 
     @IdCategoria INT, 
-    @ImagenUrl VARCHAR(500), 
-    @Activo BIT 
+    @ImagenUrl VARCHAR(500)
 AS 
 BEGIN 
     UPDATE PRODUCTOS 
@@ -136,8 +134,7 @@ BEGIN
         PrecioVenta = @PrecioVenta, 
         Stock = @Stock, 
         IdCategoria = @IdCategoria, 
-        ImagenUrl = @ImagenUrl, 
-        Activo = @Activo 
+        ImagenUrl = @ImagenUrl
     WHERE Id = @Id; 
 END;
 GO

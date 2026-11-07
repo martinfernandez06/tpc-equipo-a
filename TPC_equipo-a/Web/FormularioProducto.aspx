@@ -24,11 +24,7 @@
                             <div class="col-md-6">
                                 <label for="ddlCategoria" class="form-label fw-bold">Categoría</label>
                                 <asp:DropDownList ID="ddlCategoria" runat="server" CssClass="form-select">
-                                    <asp:ListItem Text="Seleccione una categoría..." Value="" />
-                                    <asp:ListItem Text="Electrónica" Value="1" />
-                                    <asp:ListItem Text="Ropa y Calzado" Value="2" />
-                                    <asp:ListItem Text="Hogar y Muebles" Value="3" />
-                                    <asp:ListItem Text="Deportes" Value="4" />
+                                   
                                 </asp:DropDownList>
                             </div>
                         </div>
