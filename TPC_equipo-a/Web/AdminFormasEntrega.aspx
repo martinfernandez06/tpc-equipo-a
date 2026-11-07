@@ -28,9 +28,9 @@
             <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
             <asp:CheckBoxField DataField="Activa" HeaderText="Activa" />
             
-            <asp:CommandField ShowSelectButton="true" SelectText="Modificar" ControlStyle-CssClass="btn btn-warning btn-sm" />
+            <asp:CommandField ButtonType="Button" ShowSelectButton="true" SelectText="Modificar" ControlStyle-CssClass="btn btn-light border border-secondary text-dark" />
             
-            <asp:ButtonField ButtonType="Button" CommandName="CambiarEstado" Text="Cambiar Estado" ControlStyle-CssClass="btn btn-info btn-sm" />
+            <asp:ButtonField ButtonType="Button" CommandName="CambiarEstado" Text="Cambiar Estado" ControlStyle-CssClass="btn btn-light border border-secondary text-dark" />
         </Columns>
     </asp:GridView>
 </asp:Content>
