@@ -44,27 +44,51 @@ namespace Web
                 nueva.Descripcion = txtDescripcion.Text;
                 nueva.Activa = chkActiva.Checked;
 
+                // Validacion para repetidos
+                List<FormaPago> lista = negocio.Listar();
+                bool nombreRepetido = false;
+
                 // Decidimos si modificamos o agregamos
                 if (Request.QueryString["id"] != null)
                 {
+                    // Si estamos modificando, nos fijamos que el nombre no lo tenga OTRO id distinto al nuestro
                     nueva.Id = int.Parse(Request.QueryString["id"].ToString());
-                    negocio.Modificar(nueva); // Llama al UPDATE de SQL
+                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper() && x.Id != nueva.Id);
                 }
                 else
                 {
-                    negocio.Agregar(nueva); // Llama al INSERT de SQL
+                    // Si es nueva, nos fijamos que el nombre no exista en toda la lista
+                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper());
                 }
 
-                // Volvemos a la tabla para ver los cambios
+                if (nombreRepetido)
+                {
+                    // Si está repetido, mostramos el error y frenamos la ejecución con un return
+                    lblError.Text = "¡Error! Ya existe una forma de pago con ese nombre.";
+                    lblError.Visible = true;
+                    return;
+                }
+                // --- FIN DE LA VALIDACIÓN ---
+
+                // Si pasamos la validación, ocultamos el error por las dudas y guardamos
+                lblError.Visible = false;
+
+                if (Request.QueryString["id"] != null)
+                {
+                    negocio.Modificar(nueva);
+                }
+                else
+                {
+                    negocio.Agregar(nueva);
+                }
+
                 Response.Redirect("AdminFormasPago.aspx", false);
             }
             catch (Exception ex)
             {
-                // Si hay error en la base de datos, frena acá
                 throw ex;
             }
         }
-
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
             // Si se arrepiente, lo mandamos de vuelta al listado.

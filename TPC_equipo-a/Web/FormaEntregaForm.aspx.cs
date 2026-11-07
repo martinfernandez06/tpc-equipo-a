@@ -46,9 +46,31 @@ namespace Web
                 nueva.Activa = chkActiva.Checked;
                 nueva.RequiereDireccion = chkRequiereDireccion.Checked;
 
+                // Validacion de repetidos
+                List<FormaEntrega> lista = negocio.Listar();
+                bool nombreRepetido = false;
+
                 if (Request.QueryString["id"] != null)
                 {
                     nueva.Id = int.Parse(Request.QueryString["id"].ToString());
+                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper() && x.Id != nueva.Id);
+                }
+                else
+                {
+                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper());
+                }
+
+                if (nombreRepetido)
+                {
+                    lblError.Text = "¡Error! Ya existe una forma de entrega con ese nombre.";
+                    lblError.Visible = true;
+                    return;
+                }
+
+                lblError.Visible = false;
+
+                if (Request.QueryString["id"] != null)
+                {
                     negocio.Modificar(nueva);
                 }
                 else
@@ -63,7 +85,6 @@ namespace Web
                 throw ex;
             }
         }
-
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
             Response.Redirect("AdminFormasEntrega.aspx", false);

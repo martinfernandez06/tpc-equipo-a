@@ -17,6 +17,7 @@
                 <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion" 
                     ErrorMessage="La descripción es obligatoria" CssClass="text-danger" Display="Dynamic">
                 </asp:RequiredFieldValidator>
+                <asp:Label ID="lblError" runat="server" CssClass="text-danger fw-bold mt-2 d-block" Visible="false"></asp:Label>
             </div>
             
             <div class="mb-3">
