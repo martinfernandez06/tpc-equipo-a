@@ -16,47 +16,56 @@ namespace Web
         {
             if (!IsPostBack)
             {
-                // leo el id de la url, si no vino queda vacio
-                string id = Request.QueryString["id"] != null ? Request.QueryString["id"].ToString() : "";
-
+                // 1. Cargo las categorías en el DropDownList
                 CategoriaNegocio catNegocio = new CategoriaNegocio();
-
-                // LIMPIAMOS ANTES DE CARGAR PARA QUE NO SE ACUMULEN
                 ddlCategoria.Items.Clear();
-
-                // traigo las categorias activas y las guardo para usarlas abajo al modificar
+                
                 List<Categoria> activas = catNegocio.listarActivas();
                 ddlCategoria.DataSource = activas;
                 ddlCategoria.DataTextField = "Nombre";
                 ddlCategoria.DataValueField = "Id";
                 ddlCategoria.DataBind();
 
-                // 2. Agregamos el ítem por defecto al inicio
+                // Agregamos el ítem por defecto al inicio
                 ddlCategoria.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione una categoría...", "0"));
 
-                if (id != "")
+                // 2. Validamos si recibimos un ID por la URL (Modificación)
+                string idStr = Request.QueryString["id"] != null ? Request.QueryString["id"].ToString() : "";
+
+                if (idStr != "")
                 {
-                    // traigo todos los productos y busco el que tiene el id de la url
+                    int id = int.Parse(idStr);
                     ProductoNegocio negocio = new ProductoNegocio();
                     List<Producto> lista = negocio.Listar();
-                    // el id viene como texto, lo paso a int para compararlo con el id del producto
-                    Producto seleccionado = lista.Find(x => x.Id == int.Parse(id));
+                    Producto seleccionado = lista.Find(x => x.Id == id);
 
-                    txtNombre.Text = seleccionado.Nombre;
-                    txtDescripcion.Text = seleccionado.Descripcion;
-                    // paso el precio a texto con punto decimal, que es lo que entiende el campo numerico
-                    txtPrecio.Text = seleccionado.PrecioVenta.ToString("0.00", CultureInfo.InvariantCulture);
-                    txtStock.Text = seleccionado.Stock.ToString();
-                    txtImagenUrl.Text = seleccionado.ImagenUrl;
-                    // busco la categoria del producto entre las activas
-                    Categoria categoriaActiva = activas.Find(x => x.Id == seleccionado.Categoria.Id);
-                    // si no esta es porque la desactivaron, la agrego marcada para que se pueda guardar sin cambiarla
-                    if (categoriaActiva == null)
+                    if (seleccionado != null)
                     {
-                        // agrega una opción al final del DropDownList
-                        ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre +" (inactiva)",seleccionado.Categoria.Id.ToString()));
+                        // Guardamos el ID en la Session para usarlo al momento de guardar
+                        Session.Add("productoModificando", seleccionado.Id);
+
+                        // Pre-cargamos los controles con los datos existentes
+                        txtNombre.Text = seleccionado.Nombre;
+                        txtDescripcion.Text = seleccionado.Descripcion;
+                        txtPrecio.Text = seleccionado.PrecioVenta.ToString("0.00", CultureInfo.InvariantCulture);
+                        txtStock.Text = seleccionado.Stock.ToString();
+                        txtImagenUrl.Text = seleccionado.ImagenUrl;
+
+                        // Verificamos si la categoría del producto sigue activa
+                        Categoria categoriaActiva = activas.Find(x => x.Id == seleccionado.Categoria.Id);
+                        if (categoriaActiva == null)
+                        {
+                            ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre + " (inactiva)", seleccionado.Categoria.Id.ToString()));
+                        }
+
+                        ddlCategoria.SelectedValue = seleccionado.Categoria.Id.ToString();
                     }
-                    ddlCategoria.SelectedValue = seleccionado.Categoria.Id.ToString();
+                }
+                else
+                {
+                    // Si entramos sin ID (es un Alta nuevo), limpiamos la sesión por seguridad
+
+                    Session.Remove("productoModificando");
                 }
             }
         }
@@ -65,7 +74,8 @@ namespace Web
         {
             try
             {
-                // Validaciones de campos de texto
+                // Validaciones obligatorias de campos de texto
+
                 if (string.IsNullOrWhiteSpace(txtNombre.Text))
                 {
                     MostrarAlerta("El nombre del producto es obligatorio.");
@@ -78,28 +88,31 @@ namespace Web
                     return;
                 }
 
-                // Validar que se haya seleccionado una categoría 
+                // 2. Validar que se haya seleccionado una categoría válida
+
                 if (ddlCategoria.SelectedValue == "0" || string.IsNullOrEmpty(ddlCategoria.SelectedValue))
                 {
                     MostrarAlerta("Debe seleccionar una categoría válida.");
                     return;
                 }
 
-                // el campo numerico siempre manda el precio con punto, lo leo en formato neutro
+                // 3. Validar Precio (obligatorio, formato numérico y mayor a cero) 
+
                 if (!decimal.TryParse(txtPrecio.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal precio) || precio <= 0)
                 {
                     MostrarAlerta("El precio es obligatorio y debe ser mayor a cero.");
                     return;
                 }
 
-                // Validar Stock (obligatorio, número entero y no negativo)
+                // 4. Validar Stock (obligatorio, número entero y no negativo)
+
                 if (!int.TryParse(txtStock.Text, out int stock) || stock < 0)
                 {
                     MostrarAlerta("El stock es obligatorio y no puede ser negativo.");
                     return;
                 }
 
-                // Si todas las validaciones son correctas, armo el objeto Producto
+                // Si todas las validaciones son correctas, armamos el objeto Producto
                 Producto producto = new Producto();
                 producto.Categoria = new Categoria();
 
@@ -109,23 +122,27 @@ namespace Web
                 producto.Stock = stock;
                 producto.ImagenUrl = txtImagenUrl.Text.Trim();
                 producto.Categoria.Id = int.Parse(ddlCategoria.SelectedValue);
+                producto.Activo = true;
 
                 ProductoNegocio negocio = new ProductoNegocio();
 
-                // Si vino el id en la url es una modificacion
-                if (Request.QueryString["id"] != null)
+                // 5. Evaluamos si es un Alta o una Modificación según la Session
+                if (Session["productoModificando"] == null)
                 {
-                    // el id viene como texto, lo parseo a int 
-                    producto.Id = int.Parse(Request.QueryString["id"]);
-                    negocio.Modificar(producto);
-                }
-                // Si no vino un id es un producto nuevo
-                else
-                {
+                    // Es un Alta nuevo
                     negocio.Agregar(producto);
                 }
+                else
+                {
+                    // Es una Modificación (recuperamos el ID de la sesión)
+                    producto.Id = (int)Session["productoModificando"];
+                    negocio.Modificar(producto);
 
-                // Redirijo al panel de administracion
+                    // Limpiamos la sesión una vez utilizado
+                    Session.Remove("productoModificando");
+                }
+
+                // Redirigimos al panel de administración
                 Response.Redirect("AdminProductos.aspx", false);
             }
             catch (Exception ex)
@@ -134,11 +151,10 @@ namespace Web
             }
         }
 
-        //  auxiliar para mostrar alertas en el navegador 
+        // Método auxiliar para mostrar alertas emergentes en el navegador
         private void MostrarAlerta(string mensaje)
         {
             ScriptManager.RegisterStartupScript(this, this.GetType(), "alertaValidacion", $"alert('{mensaje}');", true);
         }
-
     }
 }

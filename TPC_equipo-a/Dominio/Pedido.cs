@@ -17,6 +17,7 @@ namespace Dominio
         public EstadoPedido Estado { get; set; }
         public List<ItemPedido> Items { get; set; }
         public List<ObservacionPedido> Observaciones { get; set; }
+
         //Un pedido puede tener muchas observaciones asi que la relacion 1 a muchos del DER
         public string CodigoSeguimiento { get; set; }
         public string ComprobanteUrl { get; set; }
@@ -26,10 +27,15 @@ namespace Dominio
         public Pedido()
         {
             Items = new List<ItemPedido>();
+
             // Se inicializa en el constructor, igual que Items, para que nunca sea null
+
             Observaciones = new List<ObservacionPedido>();
+
             // Inicialización de la nueva lista del historial
+
             Historial = new List<HistorialEstado>();
+
             FechaCreacion = DateTime.Now;
         }
 
