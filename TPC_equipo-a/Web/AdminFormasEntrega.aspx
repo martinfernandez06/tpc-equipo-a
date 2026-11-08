@@ -24,7 +24,6 @@
 <asp:GridView ID="dgvFormasEntrega" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false" 
         DataKeyNames="Id" OnSelectedIndexChanged="dgvFormasEntrega_SelectedIndexChanged" OnRowCommand="dgvFormasEntrega_RowCommand">
         <Columns>
-            <asp:BoundField DataField="Id" HeaderText="Id" />
             <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
             <asp:CheckBoxField DataField="Activa" HeaderText="Activa" />
             

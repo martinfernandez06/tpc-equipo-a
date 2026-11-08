@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿<%@ Page Title="Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
-=======
-﻿<%@ Page Title="Admin Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
->>>>>>> 0dd13cad78c0a359c5dce98edd57eac3ab76acaf
+<%@ Page Title="Admin Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container mt-4">
     <h2>Administración de Pedidos</h2>
