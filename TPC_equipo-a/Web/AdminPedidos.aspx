@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿<%@ Page Title="Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
+=======
+﻿<%@ Page Title="Admin Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
+>>>>>>> 0dd13cad78c0a359c5dce98edd57eac3ab76acaf
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container mt-4">
     <h2>Administración de Pedidos</h2>
@@ -14,7 +18,6 @@
                 <th>FormaEntrega</th>
                 <th>Total</th>
                 <th>EstadoPedido</th>
-                <th>IdPagoMercadoPago</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -27,7 +30,6 @@
                 <td>Envío a Domicilio</td>
                 <td>$ 87500.00</td>
                 <td><span class="badge bg-warning text-dark">Pagado</span></td>
-                <td>1234567890</td>
                 <td>
                     <a href="#" class="btn btn-sm btn-info">Ver Detalle</a>
                     <a href="#" class="btn btn-sm btn-success">Avanzar Estado</a>
@@ -41,7 +43,6 @@
                 <td>Retiro en Local</td>
                 <td>$ 32000.00</td>
                 <td><span class="badge bg-success">Entregado</span></td>
-                <td>NULL</td>
                 <td>
                     <a href="#" class="btn btn-sm btn-info">Ver Detalle</a>
                 </td>

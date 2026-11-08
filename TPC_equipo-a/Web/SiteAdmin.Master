@@ -10,14 +10,15 @@
 
     <webopt:BundleReference runat="server" Path="~/Content/css" />
     <link href="~/Content/Ecommerce.css" rel="stylesheet" />
+    <link href="~/Content/Admin.css" rel="stylesheet" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-    <!-- Bootstrap Icons -->
+    <%-- iconos de bootstrap que usan las pantallas del panel --%>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" class="d-flex flex-column vh-100">
         <asp:ScriptManager runat="server">
             <Scripts>
                 <%--To learn more about bundling scripts in ScriptManager see https://go.microsoft.com/fwlink/?LinkID=301884 --%>
@@ -36,24 +37,31 @@
                 <%--Site Scripts--%>
             </Scripts>
         </asp:ScriptManager>
-        <%--Div que ocupara todo el ancho--%>
-        <div class="container-fluid">
-            <%--Fila--%>
-            <div class="row">
-                <div class="col-md-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminProductos">Productos</a></li>
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminCategorias">Categorías</a></li>
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasPago">Formas de pago</a></li>
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasEntrega">Formas de entrega</a></li>
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminPedidos">Pedidos</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-9">
-                    <asp:ContentPlaceHolder ID="MainContent" runat="server">
-                    </asp:ContentPlaceHolder>
-                </div>
-            </div>
+
+        <%-- barra de arriba con el nombre del panel, el link a la tienda y el usuario --%>
+        <header class="barra-admin d-flex justify-content-between align-items-center px-3 py-2">
+            <span class="fw-bold"><i class="bi bi-shop me-2"></i>Tienda · Admin</span>
+            <span class="small d-flex align-items-center gap-3">
+                <a class="link-barra" runat="server" href="~/Default.aspx"><i class="bi bi-box-arrow-up-right me-1"></i>Ver tienda</a>
+                <span><i class="bi bi-person-circle me-1"></i>Dueño</span>
+            </span>
+        </header>
+
+        <%-- menu a la izquierda y contenido de cada pantalla a la derecha --%>
+        <div class="d-flex flex-grow-1 overflow-hidden">
+            <aside class="menu-admin p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminProductos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminCategorias">Categorías</a></li>
+                    <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasPago">Formas de pago</a></li>
+                    <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminFormasEntrega">Formas de entrega</a></li>
+                    <li class="nav-item"><a class="nav-link" runat="server" href="~/AdminPedidos">Pedidos</a></li>
+                </ul>
+            </aside>
+            <main class="flex-grow-1 p-4 overflow-auto">
+                <asp:ContentPlaceHolder ID="MainContent" runat="server">
+                </asp:ContentPlaceHolder>
+            </main>
         </div>
     </form>
     <asp:PlaceHolder runat="server">

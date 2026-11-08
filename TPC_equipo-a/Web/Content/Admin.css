@@ -1,0 +1,29 @@
+﻿.barra-admin {
+    background-color: var(--color-fondo-oscuro);
+    color: var(--color-texto-claro);
+}
+
+.menu-admin {
+    width: 220px; /* ancho fijo del menu, no cambia con la pantalla */
+    flex-shrink: 0; /* para que no se achique cuando la tabla es ancha */
+    background-color: var(--color-fondo-oscuro); /* mismo oscuro que la barra de arriba */
+}
+
+    .menu-admin .nav-link {
+        color: var(--color-texto-suave); /* gris suave sobre el fondo oscuro */
+        border-radius: 6px; /* esquinas redondeadas cuando se pinta el fondo */
+    }
+
+        .menu-admin .nav-link:hover {
+            color: var(--color-texto-claro); /* el texto se aclara al pasar el cursor */
+            background-color: #1d1d27; /* fondo apenas mas claro para marcar la opcion */
+        }
+
+.link-barra {
+    color: var(--color-texto-suave); /* gris suave, igual que los links del navbar */
+    text-decoration: none; /* le saca el subrayado que traen los links */
+}
+
+    .link-barra:hover {
+        color: var(--color-texto-claro); /* se aclara al pasarle el cursor */
+    }

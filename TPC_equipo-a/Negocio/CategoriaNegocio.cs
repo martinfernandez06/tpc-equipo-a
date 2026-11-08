@@ -145,5 +145,41 @@ namespace Negocio
             // si encontro una el nombre esta repetido
             return encontrada != null;
         }
+
+
+        public List<Categoria> listarActivas()
+{
+    List<Categoria> lista = new List<Categoria>();
+    AccesoDatos datos = new AccesoDatos();
+
+    try
+    {
+        datos.setearConsulta("SELECT Id, Nombre, Descripcion, Activa FROM CATEGORIAS WHERE Activa = 1");
+        datos.ejecutarLectura();
+
+        while (datos.Lector.Read())
+        {
+            Categoria aux = new Categoria();
+            aux.Id = (int)datos.Lector["Id"];
+            aux.Nombre = (string)datos.Lector["Nombre"];
+            aux.Descripcion = !(datos.Lector["Descripcion"] is DBNull) ? (string)datos.Lector["Descripcion"] : "";
+            aux.Activa = (bool)datos.Lector["Activa"];
+
+            lista.Add(aux);
+        }
+
+        return lista;
+    }
+    catch (Exception ex)
+    {
+        throw ex;
+    }
+    finally
+    {
+        datos.cerrarLectura();
+    }
+}
+
+
     }
 }

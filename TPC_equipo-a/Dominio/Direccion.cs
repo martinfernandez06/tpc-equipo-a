@@ -13,6 +13,7 @@ namespace Dominio
         public string CodigoPostal { get; set; }
         public string Observaciones { get; set; }
         public bool Activa { get; set; } // no se la borra si ya se la uso en un pedido
+        public bool Principal { get; set; }
 
         // Constructor por defecto
         public Direccion() {
