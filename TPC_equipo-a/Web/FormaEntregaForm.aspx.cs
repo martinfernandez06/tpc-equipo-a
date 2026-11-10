@@ -26,11 +26,15 @@ namespace Web
                     if (seleccionada != null)
                     {
                         txtDescripcion.Text = seleccionada.Descripcion;
+                        chkRequiereDireccion.Checked = seleccionada.RequiereDireccion;
                         chkActiva.Checked = seleccionada.Activa;
 
-                        // Cargamos también el estado de este campo nuevo
-                        chkRequiereDireccion.Checked = seleccionada.RequiereDireccion;
+                        lblTitulo.Text = "Modificar Forma de Entrega";
                     }
+                }
+                else
+                {
+                    lblTitulo.Text = "Nueva Forma de Entrega";
                 }
             }
         }
@@ -39,38 +43,29 @@ namespace Web
         {
             try
             {
-                FormaEntrega nueva = new FormaEntrega();
+                Page.Validate();
+                if (!Page.IsValid)
+                    return;
+
                 FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+                int id = Request.QueryString["id"] != null ? int.Parse(Request.QueryString["id"]) : 0;
 
-                nueva.Descripcion = txtDescripcion.Text;
-                nueva.Activa = chkActiva.Checked;
-                nueva.RequiereDireccion = chkRequiereDireccion.Checked;
-
-                // Validacion de repetidos
-                List<FormaEntrega> lista = negocio.Listar();
-                bool nombreRepetido = false;
-
-                if (Request.QueryString["id"] != null)
+                if (negocio.existeDescripcion(txtDescripcion.Text, id))
                 {
-                    nueva.Id = int.Parse(Request.QueryString["id"].ToString());
-                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper() && x.Id != nueva.Id);
-                }
-                else
-                {
-                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper());
-                }
-
-                if (nombreRepetido)
-                {
-                    lblError.Text = "¡Error! Ya existe una forma de entrega con ese nombre.";
+                    lblError.Text = "Ya existe una forma de entrega con esa descripción.";
                     lblError.Visible = true;
                     return;
                 }
 
+                FormaEntrega nueva = new FormaEntrega();
+                nueva.Descripcion = txtDescripcion.Text;
+                nueva.RequiereDireccion = chkRequiereDireccion.Checked;
+                nueva.Activa = chkActiva.Checked;
                 lblError.Visible = false;
 
-                if (Request.QueryString["id"] != null)
+                if (id != 0)
                 {
+                    nueva.Id = id;
                     negocio.Modificar(nueva);
                 }
                 else
@@ -84,10 +79,6 @@ namespace Web
             {
                 throw ex;
             }
-        }
-        protected void btnCancelar_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("AdminFormasEntrega.aspx", false);
         }
     }
 }

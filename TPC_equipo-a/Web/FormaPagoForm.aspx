@@ -1,33 +1,32 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="FormaPagoForm.aspx.cs" Inherits="Web.FormaPagoForm" %>
-
-<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-</asp:Content>
-
+﻿<%@ Page Title="Formulario - Forma de Pago" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="FormaPagoForm.aspx.cs" Inherits="Web.FormaPagoForm" %>
+<asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server"></asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>Formulario de Forma de Pago</h2>
-    <hr />
     
+    <div class="mb-1">
+        <asp:Label ID="lblTitulo" CssClass="h3 m-0" runat="server" Text=""></asp:Label>
+    </div>
+    <hr class="mb-4" />
+
     <div class="row">
         <div class="col-md-6">
-            
+
             <div class="mb-3">
-                <label for="txtDescripcion" class="form-label">Descripción:</label>
+                <asp:Label ID="lblDescripcion" CssClass="form-label fw-bold" runat="server" Text="Descripción:"></asp:Label>
                 <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" MaxLength="50"></asp:TextBox>
-                
-                <!-- Validacion -->
-                <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion" 
-                    ErrorMessage="La descripción es obligatoria" CssClass="text-danger" Display="Dynamic">
+
+                <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion"
+                    ErrorMessage="La descripción es obligatoria" CssClass="text-danger mt-1 d-block" Display="Dynamic" EnableClientScript="false">
                 </asp:RequiredFieldValidator>
-                <asp:Label ID="lblError" runat="server" CssClass="text-danger fw-bold mt-2 d-block" Visible="false"></asp:Label>
+                <asp:Label ID="lblError" runat="server" CssClass="text-danger mt-1 d-block" Visible="false"></asp:Label>
             </div>
-            
-            <div class="mb-3">
+
+            <div class="mb-4 mt-2">
                 <asp:CheckBox ID="chkActiva" runat="server" Text=" Activa (Visible para los clientes)" Checked="true" />
             </div>
 
-            <div class="mb-3 mt-4">
-                <asp:Button ID="btnGuardar" runat="server" Text="Guardar" CssClass="btn btn-primary me-2" OnClick="btnGuardar_Click" />
-                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar" CssClass="btn btn-secondary" OnClick="btnCancelar_Click" CausesValidation="false" />
+            <div class="d-flex gap-2">
+                <asp:Button ID="btnGuardar" runat="server" Text="Guardar" CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
+                <a href="~/AdminFormasPago.aspx" runat="server" class="btn btn-secondary">Cancelar</a>
             </div>
 
         </div>
