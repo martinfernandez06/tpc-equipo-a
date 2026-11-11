@@ -3,6 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <asp:UpdatePanel ID="upCategorias" runat="server">
         <ContentTemplate>
+            <%-- fila de arriba con el titulo a la izquierda y buscar, filtro y nueva a la derecha --%>
             <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <h1 class="h3 m-0 me-auto">Categorías</h1>
                 <asp:TextBox ID="txtFiltro" placeholder="Buscar por nombre" CssClass="form-control w-auto" AutoPostBack="true" OnTextChanged="txtFiltro_TextChanged" runat="server"></asp:TextBox>
@@ -14,9 +15,7 @@
                 <asp:Button ID="btnLimpiarFiltro" runat="server" OnClick="btnLimpiarFiltro_Click" CssClass="btn btn-outline-secondary" Text="Limpiar filtro" />
                 <a href="~/FormularioCategoria" class="btn btn-primary" runat="server"><i class="bi bi-plus-lg me-1"></i>Nueva</a>
             </div>
-
-            <hr class="mb-4" />
-
+            <%-- aviso en rojo cuando escribe una sola letra --%>
             <asp:Label ID="lblAviso" runat="server" Text="" CssClass="text-danger d-block mb-2"></asp:Label>
             <div class="table-responsive">
                 <asp:GridView ID="dgvCategorias" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false" DataKeyNames="Id" OnSelectedIndexChanged="dgvCategorias_SelectedIndexChanged" OnPageIndexChanging="dgvCategorias_PageIndexChanging" AllowPaging="true" PageSize="8" EmptyDataText="No se encontraron categorias">
