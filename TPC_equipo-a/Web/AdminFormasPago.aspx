@@ -21,7 +21,7 @@
 
     <div class="table-responsive">
         <asp:GridView ID="dgvFormasPago" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false" 
-            DataKeyNames="Id" OnSelectedIndexChanged="dgvFormasPago_SelectedIndexChanged">
+            DataKeyNames="Id" OnSelectedIndexChanged="dgvFormasPago_SelectedIndexChanged" EmptyDataText="No hay registros cargados">
             <Columns>
                 <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
                 <asp:CheckBoxField DataField="Activa" HeaderText="Activa" />

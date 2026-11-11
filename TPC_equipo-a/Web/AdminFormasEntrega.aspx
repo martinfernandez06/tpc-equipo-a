@@ -15,11 +15,12 @@
             <i class="bi bi-plus-lg me-1"></i>Nueva
         </asp:LinkButton>
     </div>
-    <hr class="mb-4" />
+
+    <hr class="mb-3" />
 
     <div class="table-responsive">
         <asp:GridView ID="dgvFormasEntrega" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false" 
-            DataKeyNames="Id" OnSelectedIndexChanged="dgvFormasEntrega_SelectedIndexChanged">
+            DataKeyNames="Id" OnSelectedIndexChanged="dgvFormasEntrega_SelectedIndexChanged" EmptyDataText="No hay registros cargados.">
             <Columns>
                 <asp:BoundField DataField="Descripcion" HeaderText="Descripción" />
                 <asp:CheckBoxField DataField="RequiereDireccion" HeaderText="Pide Dirección" />
