@@ -37,7 +37,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="txtPrecio" class="form-label fw-bold">Precio de Venta ($)</label>
-                                <asp:TextBox ID="txtPrecio" runat="server" CssClass="form-control" TextMode="Number" step="0.01" placeholder="0.00" />
+                                <asp:TextBox ID="txtPrecio" runat="server" CssClass="form-control" TextMode="Number" step="0.01" placeholder="Ej: 155740,50" />
+                                <div class="form-text">Sin puntos de miles, los centavos van con coma.</div>
                                 <asp:RequiredFieldValidator ID="rfvPrecio" runat="server" ControlToValidate="txtPrecio" 
                                     ErrorMessage="El precio es obligatorio." CssClass="text-danger small" Display="Dynamic" />
                                 
