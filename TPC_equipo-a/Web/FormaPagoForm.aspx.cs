@@ -15,13 +15,11 @@ namespace Web
         {
             if (!IsPostBack)
             {
-                // Si la URL trae un "?id=...", significa que venimos a MODIFICAR
                 if (Request.QueryString["id"] != null)
                 {
                     int id = int.Parse(Request.QueryString["id"].ToString());
                     FormaPagoNegocio negocio = new FormaPagoNegocio();
 
-                    // Buscamos la forma de pago en la lista para rellenar los datos
                     List<FormaPago> lista = negocio.Listar();
                     FormaPago seleccionada = lista.Find(x => x.Id == id);
 
@@ -29,52 +27,44 @@ namespace Web
                     {
                         txtDescripcion.Text = seleccionada.Descripcion;
                         chkActiva.Checked = seleccionada.Activa;
+
+                        lblTitulo.Text = "Modificar Forma de Pago";
                     }
+                }
+                else
+                {
+                    lblTitulo.Text = "Nueva Forma de Pago";
                 }
             }
         }
+
         protected void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
-                FormaPago nueva = new FormaPago();
+                Page.Validate();
+                if (!Page.IsValid)
+                    return;
+
                 FormaPagoNegocio negocio = new FormaPagoNegocio();
 
-                // Capturamos lo que escribió el usuario en la pantalla
-                nueva.Descripcion = txtDescripcion.Text;
-                nueva.Activa = chkActiva.Checked;
+                int id = Request.QueryString["id"] != null ? int.Parse(Request.QueryString["id"]) : 0;
 
-                // Validacion para repetidos
-                List<FormaPago> lista = negocio.Listar();
-                bool nombreRepetido = false;
-
-                // Decidimos si modificamos o agregamos
-                if (Request.QueryString["id"] != null)
+                if (negocio.existeDescripcion(txtDescripcion.Text, id))
                 {
-                    // Si estamos modificando, nos fijamos que el nombre no lo tenga OTRO id distinto al nuestro
-                    nueva.Id = int.Parse(Request.QueryString["id"].ToString());
-                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper() && x.Id != nueva.Id);
-                }
-                else
-                {
-                    // Si es nueva, nos fijamos que el nombre no exista en toda la lista
-                    nombreRepetido = lista.Exists(x => x.Descripcion.ToUpper() == nueva.Descripcion.ToUpper());
-                }
-
-                if (nombreRepetido)
-                {
-                    // Si está repetido, mostramos el error y frenamos la ejecución con un return
-                    lblError.Text = "¡Error! Ya existe una forma de pago con ese nombre.";
+                    lblError.Text = "Ya existe una forma de pago con esa descripción.";
                     lblError.Visible = true;
                     return;
                 }
-                // --- FIN DE LA VALIDACIÓN ---
 
-                // Si pasamos la validación, ocultamos el error por las dudas y guardamos
+                FormaPago nueva = new FormaPago();
+                nueva.Descripcion = txtDescripcion.Text;
+                nueva.Activa = chkActiva.Checked;
                 lblError.Visible = false;
 
-                if (Request.QueryString["id"] != null)
+                if (id != 0)
                 {
+                    nueva.Id = id;
                     negocio.Modificar(nueva);
                 }
                 else
@@ -88,11 +78,6 @@ namespace Web
             {
                 throw ex;
             }
-        }
-        protected void btnCancelar_Click(object sender, EventArgs e)
-        {
-            // Si se arrepiente, lo mandamos de vuelta al listado.
-            Response.Redirect("AdminFormasPago.aspx", false);
         }
     }
 }

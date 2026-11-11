@@ -98,5 +98,30 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public bool existeDescripcion(string descripcion, int id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("SELECT Id FROM FORMAS_PAGO WHERE Descripcion = @Descripcion AND Id != @Id");
+                datos.setearParametro("@Descripcion", descripcion);
+                datos.setearParametro("@Id", id);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
     }
 }

@@ -13,12 +13,10 @@ namespace Negocio
         {
             List<FormaEntrega> lista = new List<FormaEntrega>();
             AccesoDatos datos = new AccesoDatos();
-
             try
             {
                 datos.setearConsulta("SELECT Id, Descripcion, RequiereDireccion, Activa FROM FORMAS_ENTREGA");
                 datos.ejecutarLectura();
-
                 while (datos.Lector.Read())
                 {
                     FormaEntrega aux = new FormaEntrega();
@@ -26,20 +24,14 @@ namespace Negocio
                     aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.RequiereDireccion = (bool)datos.Lector["RequiereDireccion"];
                     aux.Activa = (bool)datos.Lector["Activa"];
-
                     lista.Add(aux);
                 }
                 return lista;
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarLectura();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { datos.cerrarLectura(); }
         }
+
         public void Agregar(FormaEntrega nuevo)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -51,15 +43,10 @@ namespace Negocio
                 datos.setearParametro("@Activa", nuevo.Activa);
                 datos.ejecutarAccion();
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarLectura();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { datos.cerrarLectura(); }
         }
+
         public void Modificar(FormaEntrega modificado)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -72,15 +59,10 @@ namespace Negocio
                 datos.setearParametro("@Id", modificado.Id);
                 datos.ejecutarAccion();
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarLectura();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { datos.cerrarLectura(); }
         }
+
         public void CambiarEstado(int id, bool activa)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -91,14 +73,24 @@ namespace Negocio
                 datos.setearParametro("@Id", id);
                 datos.ejecutarAccion();
             }
-            catch (Exception ex)
+            catch (Exception ex) { throw ex; }
+            finally { datos.cerrarLectura(); }
+        }
+        public bool existeDescripcion(string descripcion, int id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
             {
-                throw ex;
+                datos.setearConsulta("SELECT Id FROM FORMAS_ENTREGA WHERE Descripcion = @Descripcion AND Id != @Id");
+                datos.setearParametro("@Descripcion", descripcion);
+                datos.setearParametro("@Id", id);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read()) { return true; }
+                return false;
             }
-            finally
-            {
-                datos.cerrarLectura();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { datos.cerrarLectura(); }
         }
     }
 }
