@@ -54,7 +54,7 @@ namespace Web
                     if (categoriaActiva == null)
                     {
                         // agrega una opción al final del DropDownList
-                        ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre +" (inactiva)",seleccionado.Categoria.Id.ToString()));
+                        ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre + " (inactiva)", seleccionado.Categoria.Id.ToString()));
                     }
                     ddlCategoria.SelectedValue = seleccionado.Categoria.Id.ToString();
                 }
@@ -65,39 +65,15 @@ namespace Web
         {
             try
             {
-                // Validaciones de campos de texto
-                if (string.IsNullOrWhiteSpace(txtNombre.Text))
-                {
-                    MostrarAlerta("El nombre del producto es obligatorio.");
+                // reviso los validadores, si algo esta mal corto aca y se ven los mensajes en rojo
+                Page.Validate();
+                if (!Page.IsValid)
                     return;
-                }
 
-                if (string.IsNullOrWhiteSpace(txtDescripcion.Text))
-                {
-                    MostrarAlerta("La descripción es obligatoria.");
-                    return;
-                }
-
-                // Validar que se haya seleccionado una categoría 
-                if (ddlCategoria.SelectedValue == "0" || string.IsNullOrEmpty(ddlCategoria.SelectedValue))
-                {
-                    MostrarAlerta("Debe seleccionar una categoría válida.");
-                    return;
-                }
-
-                // el campo numerico siempre manda el precio con punto, lo leo en formato neutro
-                if (!decimal.TryParse(txtPrecio.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal precio) || precio <= 0)
-                {
-                    MostrarAlerta("El precio es obligatorio y debe ser mayor a cero.");
-                    return;
-                }
-
-                // Validar Stock (obligatorio, número entero y no negativo)
-                if (!int.TryParse(txtStock.Text, out int stock) || stock < 0)
-                {
-                    MostrarAlerta("El stock es obligatorio y no puede ser negativo.");
-                    return;
-                }
+                // los validadores ya revisaron el precio y el stock, aca solo los paso a numero
+                // el precio viene con punto del campo numerico, lo leo en formato neutro
+                decimal precio = decimal.Parse(txtPrecio.Text, NumberStyles.Number, CultureInfo.InvariantCulture);
+                int stock = int.Parse(txtStock.Text);
 
                 // Si todas las validaciones son correctas, armo el objeto Producto
                 Producto producto = new Producto();
@@ -130,15 +106,8 @@ namespace Web
             }
             catch (Exception ex)
             {
-                MostrarAlerta("Ocurrió un error: " + ex.Message.Replace("'", ""));
+                throw ex;
             }
         }
-
-        //  auxiliar para mostrar alertas en el navegador 
-        private void MostrarAlerta(string mensaje)
-        {
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "alertaValidacion", $"alert('{mensaje}');", true);
-        }
-
     }
 }
