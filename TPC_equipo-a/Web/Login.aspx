@@ -16,7 +16,7 @@
                             <div class="mb-3">
                                 <label for="txtEmail" class="form-label font-weight-bold">Correo Electrónico</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-envelope"></i>></span>
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                     <input type="email" class="form-control" id="txtEmail" placeholder="ejemplo@correo.com" required />
                                 </div>
                             </div>
@@ -25,7 +25,7 @@
                             <div class="mb-3">
                                 <label for="txtPassword" class="form-label font-weight-bold">Contraseña</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-lock"></i>></span>
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" class="form-control" id="txtPassword" placeholder="••••••••" required />
                                 </div>
                             </div>

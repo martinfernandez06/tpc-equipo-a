@@ -117,7 +117,7 @@
                         <!-- Checkout -->
 
                         <div class="d-grid gap-2">
-                            <a href="Checkout.aspx" class="btn btn-success btn-lg">
+                            <a href="#" class="btn btn-success btn-lg">
                                 Iniciar Checkout / Iniciar Compra
                             </a>
                         </div>
