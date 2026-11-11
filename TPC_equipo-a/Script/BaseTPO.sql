@@ -1,4 +1,4 @@
-CREATE DATABASE ECommercDB;
+CREATE DATABASE ECommerceDB;
 GO
 
 USE ECommerceDB;
@@ -85,7 +85,6 @@ CREATE TABLE PRODUCTOS (
     ImagenUrl VARCHAR(500) NULL,
     Activo BIT DEFAULT 1
 );
-
 GO
 
 -- =============================================
@@ -126,33 +125,6 @@ CREATE PROCEDURE spModificarProducto
     @PrecioVenta MONEY, 
     @Stock INT, 
     @IdCategoria INT, 
-    @ImagenUrl VARCHAR(500), 
-    @Activo BIT 
-AS 
-BEGIN 
-    UPDATE PRODUCTOS 
-    SET Nombre = @Nombre, 
-        Descripcion = @Descripcion, 
-        PrecioVenta = @PrecioVenta, 
-        Stock = @Stock, 
-        IdCategoria = @IdCategoria, 
-        ImagenUrl = @ImagenUrl, 
-        Activo = @Activo 
-    WHERE Id = @Id; 
-END;
-GO
-
-----------------------
-
--- Modificacion del procedimiento para sacarle el parámetro @Activo
- 
-ALTER PROCEDURE spModificarProducto 
-    @Id INT, 
-    @Nombre VARCHAR(100), 
-    @Descripcion VARCHAR(255), 
-    @PrecioVenta MONEY, 
-    @Stock INT, 
-    @IdCategoria INT, 
     @ImagenUrl VARCHAR(500)
 AS 
 BEGIN 
@@ -167,7 +139,6 @@ BEGIN
 END;
 GO
 
-
 -- 4. Baja lógica (cambiar estado activo/inactivo)
 CREATE PROCEDURE spBajaLogicaProducto 
     @Id INT 
@@ -178,13 +149,34 @@ BEGIN
     WHERE Id = @Id; 
 END;
 GO
--- 5. Listar categorías activas
 
-CREATE PROCEDURE spListarCategoriasActivas
-AS
-BEGIN
-    SELECT Id, Nombre, Descripcion, Activa
-    FROM CATEGORIAS
-    WHERE Activa = 1;
-END;
+-- =======================================================
+-- TABLAS DE FORMAS DE PAGO Y ENTREGA (Pablo 06/11/2026)
+-- =======================================================
+
+-- Tabla FORMAS_PAGO
+CREATE TABLE FORMAS_PAGO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion VARCHAR(100) UNIQUE NOT NULL,
+    Activa BIT DEFAULT 1 NOT NULL
+);
+GO
+
+-- Tabla FORMAS_ENTREGA
+CREATE TABLE FORMAS_ENTREGA (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion VARCHAR(100) UNIQUE NOT NULL,
+    RequiereDireccion BIT NOT NULL,
+    Activa BIT DEFAULT 1 NOT NULL
+);
+GO
+
+-- DATOS DE PRUEBA
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Efectivo');
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Transferencia');
+INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Mercado Pago');
+GO
+
+INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en el local', 0);
+INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
 GO
