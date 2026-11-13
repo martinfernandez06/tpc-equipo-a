@@ -180,3 +180,135 @@ GO
 INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en el local', 0);
 INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
 GO
+
+-- ETAPA 3 -- MARTIN - 12/11/26
+-- TABLA ESTADO_PEDIDOS
+
+CREATE TABLE ESTADOS_PEDIDO(
+  Id INT IDENTITY(1,1),
+  Descripcion VARCHAR(50) NOT NULL,
+
+  CONSTRAINT PK_ESTADOS_PEDIDO_ID PRIMARY KEY(Id),
+  CONSTRAINT UQ_ESTADOS_PEDIDO_DESCRIPCION UNIQUE(Descripcion)
+);
+GO
+-- INSERTARE DATOS DE PRUEBA 
+INSERT INTO ESTADOS_PEDIDO(Descripcion) 
+VALUES 
+('Pendiente de pago'),
+('Pagado'),
+('En preparación'),
+('Enviado'),
+('Entregado'),
+('Cancelado');
+GO
+
+SELECT * FROM ESTADOS_PEDIDO;
+GO
+
+-- TABLA PEDIDOS
+
+CREATE TABLE PEDIDOS(
+    Id INT IDENTITY(1,1),
+    IdUsuario INT NOT NULL,
+    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT GETDATE(),
+    IdFormaEntrega INT NOT NULL,
+    IdDireccion INT NULL,
+    IdFormaPago INT NOT NULL,
+    IdEstado INT NOT NULL CONSTRAINT DF_PEDIDOS_IDESTADO DEFAULT 1,
+    Total MONEY NOT NULL,
+    CodigoSeguimiento VARCHAR(50) NULL,
+    ComprobanteUrl VARCHAR(500) NULL,
+    EstadoComprobante VARCHAR(20) NULL,
+
+    CONSTRAINT PK_PEDIDOS_ID PRIMARY KEY(Id),
+    CONSTRAINT FK_PEDIDOS_IDFORMAENTREGA FOREIGN KEY(IdFormaEntrega) REFERENCES FORMAS_ENTREGA(Id),
+    CONSTRAINT FK_PEDIDOS_IDFORMAPAGO FOREIGN KEY(IdFormaPago) REFERENCES FORMAS_PAGO(Id),
+    CONSTRAINT FK_PEDIDOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id),
+    CONSTRAINT CHK_PEDIDOS_ESTADOCOMPROBANTE CHECK(EstadoComprobante IN('Pendiente','Aceptado','Rechazado')),
+    CONSTRAINT CHK_PEDIDOS_TOTAL CHECK(TOTAL > 0)
+);
+GO
+-- TABLA ITEMS_PEDIDO
+CREATE TABLE ITEMS_PEDIDO(
+    IdPedido INT NOT NULL,
+    IdProducto INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario MONEY NOT NULL,
+    -- pk compuesta, un producto aparece una sola vez por pedido, si compra mas se suma en cantidad
+    CONSTRAINT PK_ITEMS_PEDIDO PRIMARY KEY(IdPedido, IdProducto),
+    CONSTRAINT FK_ITEMS_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
+    CONSTRAINT FK_ITEMS_PEDIDO_IDPRODUCTO FOREIGN KEY(IdProducto) REFERENCES PRODUCTOS(Id),
+    CONSTRAINT CHK_ITEMS_PEDIDO_CANTIDAD CHECK(Cantidad > 0),
+    CONSTRAINT CHK_ITEMS_PEDIDO_PRECIOUNITARIO CHECK(PrecioUnitario > 0)
+);
+GO
+-- TABLA HISTORIAL_ESTADOS
+CREATE TABLE HISTORIAL_ESTADOS(
+    Id INT IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    IdEstado INT NOT NULL,
+    IdUsuario INT NOT NULL,
+    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT GETDATE(),
+
+    CONSTRAINT PK_HISTORIAL_ESTADOS_ID PRIMARY KEY(Id),
+    CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
+    CONSTRAINT FK_HISTORIAL_ESTADOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id)
+);
+GO
+
+-- OBSERVACIONES_PEDIDO
+CREATE TABLE OBSERVACIONES_PEDIDO(
+    Id INT IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    IdUsuario INT NOT NULL,
+    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
+    Observacion VARCHAR(500) NOT NULL,
+
+    CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
+    CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id)
+);
+GO
+
+-- Martin - 12/11/26
+-- guarda el pedido anota el primer estado en el historial y devuelve el id nuevo
+CREATE PROCEDURE spAltaPedido
+    @IdUsuario INT,
+    @IdFormaEntrega INT,
+    @IdDireccion INT,
+    @IdFormaPago INT,
+    @Total MONEY
+AS BEGIN
+    INSERT INTO PEDIDOS (IdUsuario, IdFormaEntrega, IdDireccion, IdFormaPago, Total)
+    VALUES (@IdUsuario, @IdFormaEntrega, @IdDireccion, @IdFormaPago, @Total)
+
+    -- agarro el id que la BD le acaba de dar al pedido
+    DECLARE @IdPedido INT = SCOPE_IDENTITY()
+
+    -- todo pedido nace en el estado 1, pendiente de pago
+    INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+    VALUES (@IdPedido, 1, @IdUsuario)
+
+    SELECT @IdPedido
+END
+GO
+
+-- guarda un producto del pedido y le descuenta el stock
+CREATE PROCEDURE spAltaItemPedido
+    @IdPedido INT,
+    @IdProducto INT,
+    @Cantidad INT,
+    @PrecioUnitario MONEY
+AS BEGIN
+    -- descuento el stock solo si alcanza
+    UPDATE PRODUCTOS SET Stock = Stock - @Cantidad
+    WHERE Id = @IdProducto AND Stock >= @Cantidad;
+
+    -- si no se actualizo ninguna fila es porque no habia stock suficiente
+    IF @@ROWCOUNT = 0
+        THROW 50001, 'No hay stock suficiente para este producto', 1;
+
+    INSERT INTO ITEMS_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario)
+    VALUES (@IdPedido, @IdProducto, @Cantidad, @PrecioUnitario);
+END
+GO
