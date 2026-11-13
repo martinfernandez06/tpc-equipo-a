@@ -243,7 +243,7 @@ CREATE TABLE ITEMS_PEDIDO(
     CONSTRAINT CHK_ITEMS_PEDIDO_PRECIOUNITARIO CHECK(PrecioUnitario > 0)
 );
 GO
--- HISTORIAL_ESTADOS
+-- TABLA HISTORIAL_ESTADOS
 CREATE TABLE HISTORIAL_ESTADOS(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
@@ -255,4 +255,60 @@ CREATE TABLE HISTORIAL_ESTADOS(
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id)
 );
+GO
+
+-- OBSERVACIONES_PEDIDO
+CREATE TABLE OBSERVACIONES_PEDIDO(
+    Id INT IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    IdUsuario INT NOT NULL,
+    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
+    Observacion VARCHAR(500) NOT NULL,
+
+    CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
+    CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id)
+);
+GO
+
+-- Martin - 12/11/26
+-- guarda el pedido anota el primer estado en el historial y devuelve el id nuevo
+CREATE PROCEDURE spAltaPedido
+    @IdUsuario INT,
+    @IdFormaEntrega INT,
+    @IdDireccion INT,
+    @IdFormaPago INT,
+    @Total MONEY
+AS BEGIN
+    INSERT INTO PEDIDOS (IdUsuario, IdFormaEntrega, IdDireccion, IdFormaPago, Total)
+    VALUES (@IdUsuario, @IdFormaEntrega, @IdDireccion, @IdFormaPago, @Total)
+
+    -- agarro el id que la BD le acaba de dar al pedido
+    DECLARE @IdPedido INT = SCOPE_IDENTITY()
+
+    -- todo pedido nace en el estado 1, pendiente de pago
+    INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+    VALUES (@IdPedido, 1, @IdUsuario)
+
+    SELECT @IdPedido
+END
+GO
+
+-- guarda un producto del pedido y le descuenta el stock
+CREATE PROCEDURE spAltaItemPedido
+    @IdPedido INT,
+    @IdProducto INT,
+    @Cantidad INT,
+    @PrecioUnitario MONEY
+AS BEGIN
+    -- descuento el stock solo si alcanza
+    UPDATE PRODUCTOS SET Stock = Stock - @Cantidad
+    WHERE Id = @IdProducto AND Stock >= @Cantidad;
+
+    -- si no se actualizo ninguna fila es porque no habia stock suficiente
+    IF @@ROWCOUNT = 0
+        THROW 50001, 'No hay stock suficiente para este producto', 1;
+
+    INSERT INTO ITEMS_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario)
+    VALUES (@IdPedido, @IdProducto, @Cantidad, @PrecioUnitario);
+END
 GO
