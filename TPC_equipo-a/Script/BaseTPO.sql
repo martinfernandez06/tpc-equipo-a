@@ -399,3 +399,92 @@ AS BEGIN
     WHERE I.IdPedido = @IdPedido
 END
 GO
+
+-- cambia el estado de un pedido y lo anota en el historial con quien lo cambio
+-- el UPDATE cambia el estado actual del pedido y el INSERT deja registrado el cambio en el historial. 
+-- La fecha se carga sola por el DEFAULT. Así PEDIDOS siempre tiene el estado de ahora
+-- y HISTORIAL_ESTADOS tiene todos los estados por los que pasó.
+CREATE PROCEDURE spCambiarEstadoPedido
+@IdPedido INT,
+@IdEstado INT,
+@IdUsuario INT
+AS BEGIN
+    UPDATE PEDIDOS SET IdEstado = @IdEstado
+    WHERE Id = @IdPedido
+
+    INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+    VALUES (@IdPedido, @IdEstado, @IdUsuario)
+END
+GO
+
+-- cancela un pedido si todavia no salio y devuelve las unidades al stock
+CREATE PROCEDURE spCancelarPedido
+@IdPedido INT,
+@IdUsuario INT
+AS BEGIN
+    -- si ya esta enviado, entregado o cancelado no se puede cancelar
+    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6))
+        THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+        -- devuelvo al stock lo que compro de cada producto
+        UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad
+        FROM PRODUCTOS PR
+        INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto
+        WHERE I.IdPedido = @IdPedido
+
+        UPDATE PEDIDOS SET IdEstado = 6
+        WHERE Id = @IdPedido
+
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+        VALUES (@IdPedido, 6, @IdUsuario)
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- guarda una observacion de un pedido
+CREATE PROCEDURE spAgregarObservacionPedido
+@IdPedido INT,
+@IdUsuario INT,
+@Observacion VARCHAR(500)
+AS BEGIN
+    INSERT INTO OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Observacion)
+    VALUES (@IdPedido, @IdUsuario, @Observacion)
+END
+GO
+
+-- lista las observaciones de un pedido, las mas viejas primero
+CREATE PROCEDURE spListarObservacionesPorPedido
+@IdPedido INT
+AS BEGIN
+    SELECT Id, IdUsuario, Fecha, Observacion
+    FROM OBSERVACIONES_PEDIDO
+    WHERE IdPedido = @IdPedido
+    ORDER BY Fecha ASC
+END
+GO
+
+-- lista los estados por los que paso un pedido para el seguimiento, los mas viejos primero
+CREATE PROCEDURE spListarHistorialPorPedido
+@IdPedido INT
+AS BEGIN
+    SELECT
+        H.Id,
+        H.IdEstado,
+        E.Descripcion AS Estado,
+        H.IdUsuario,
+        H.Fecha
+    FROM HISTORIAL_ESTADOS H
+    INNER JOIN ESTADOS_PEDIDO E ON H.IdEstado = E.Id
+    WHERE H.IdPedido = @IdPedido
+    ORDER BY H.Fecha ASC
+END
+GO
