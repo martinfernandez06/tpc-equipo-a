@@ -312,3 +312,90 @@ AS BEGIN
     VALUES (@IdPedido, @IdProducto, @Cantidad, @PrecioUnitario);
 END
 GO
+
+-- Martin - 13/11/26
+-- lista todos los pedidos para el panel admin, los mas nuevos primero
+CREATE PROCEDURE spListarPedidos
+AS BEGIN
+    SELECT
+        P.Id,
+        P.FechaCreacion,
+        P.IdUsuario,
+        FE.Descripcion AS FormaEntrega,
+        FP.Descripcion AS FormaPago,
+        E.Descripcion AS Estado,
+        P.Total,
+        P.CodigoSeguimiento,
+        P.EstadoComprobante
+    FROM PEDIDOS P
+    INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
+    INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
+    ORDER BY P.FechaCreacion DESC
+END
+GO
+
+-- trae un pedido por su id, para ver el detalle
+CREATE PROCEDURE spBuscarPedidoPorId
+@Id INT
+AS BEGIN
+    SELECT
+        P.Id,
+        P.FechaCreacion,
+        P.IdUsuario,
+        P.IdFormaEntrega,
+        FE.Descripcion AS FormaEntrega,
+        P.IdDireccion,
+        P.IdFormaPago,
+        FP.Descripcion AS FormaPago,
+        P.IdEstado,
+        E.Descripcion AS Estado,
+        P.Total,
+        P.CodigoSeguimiento,
+        P.ComprobanteUrl,
+        P.EstadoComprobante
+    FROM PEDIDOS P
+    INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
+    INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
+    WHERE P.Id = @Id
+END
+GO
+
+-- lista los pedidos de un cliente para la pantalla mis compras, los mas nuevos primero
+CREATE PROCEDURE spListarPedidosPorCliente
+@IdUsuario INT
+AS BEGIN
+    SELECT
+        P.Id,
+        P.FechaCreacion,
+        FE.Descripcion AS FormaEntrega,
+        FP.Descripcion AS FormaPago,
+        E.Descripcion AS Estado,
+        P.Total,
+        P.CodigoSeguimiento,
+        P.EstadoComprobante
+    FROM PEDIDOS P
+    INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
+    INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
+    WHERE P.IdUsuario = @IdUsuario
+    ORDER BY P.FechaCreacion DESC
+END
+GO
+
+-- trae los productos de un pedido para el detalle
+CREATE PROCEDURE spListarItemsPorPedido
+@IdPedido INT
+AS BEGIN
+    SELECT
+        I.IdProducto,
+        PR.Nombre,
+        I.Cantidad,
+        I.PrecioUnitario,
+        I.Cantidad * I.PrecioUnitario AS Subtotal
+    FROM ITEMS_PEDIDO I
+    INNER JOIN PRODUCTOS PR ON I.IdProducto = PR.Id
+    WHERE I.IdPedido = @IdPedido
+END
+GO
