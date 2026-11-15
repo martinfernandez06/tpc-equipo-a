@@ -315,5 +315,71 @@ namespace Negocio
             }
         }
 
+        public void CambiarEstado(int idPedido, int idEstado, int idUsuario)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spCambiarEstadoPedido");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@IdEstado",idEstado);
+                datos.setearParametro("@IdUsuario",idUsuario);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        public void CancelarPedido(int idPedido, int idUsuario)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spCancelarPedido");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@IdUsuario",idUsuario);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        public void AgregarObservacion(int idPedido, int idUsuario, string observacion)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spAgregarObservacionPedido");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@IdUsuario",idUsuario);
+                datos.setearParametro("@Observacion",observacion);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
     }
 }
