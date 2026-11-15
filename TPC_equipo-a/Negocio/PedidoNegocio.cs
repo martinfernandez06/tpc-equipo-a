@@ -105,5 +105,54 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public List<Pedido> listarPedidosPorCliente(int idUsuario)
+        {
+            List<Pedido> lista = new List<Pedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spListarPedidosPorCliente");
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Pedido aux = new Pedido();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.FechaCreacion = (DateTime)datos.Lector["FechaCreacion"];
+                    // creo los objetos de adentro porque el constructor de Pedido no los inicializa, si no quedan en null y rompe al cargarles datos
+                    aux.FormaPago = new FormaPago();
+                    aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    aux.FormaEntrega = new FormaEntrega();
+                    aux.FormaEntrega.Descripcion = (string)datos.Lector["FormaEntrega"];
+                    aux.Estado = new EstadoPedido();
+                    aux.Estado.Descripcion = (string)datos.Lector["Estado"];
+                    aux.Total = (decimal)datos.Lector["Total"];
+                    // estas columnas pueden venir NULL de la bd, solo las cargo si no son DBNull porque castear un DBNull a string rompe
+                    if (!(datos.Lector["CodigoSeguimiento"] is DBNull))
+                    {
+                        aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
+                    }
+                    if (!(datos.Lector["EstadoComprobante"] is DBNull))
+                    {
+                        aux.EstadoComprobante = (string)datos.Lector["EstadoComprobante"];
+                    }
+                    lista.Add(aux);
+                }
+                return lista;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
     }
 }
