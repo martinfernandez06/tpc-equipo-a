@@ -12,6 +12,7 @@
                     <Columns>
                         <asp:BoundField HeaderText="Id" DataField="Id" />
                         <asp:BoundField HeaderText="Fecha de creacion" DataField="FechaCreacion" />
+                        <%-- templatefield con eval para entrar a datos que estan adentro de otro objeto, el boundfield no llega --%>
                         <asp:TemplateField HeaderText="Cliente">
                             <ItemTemplate>
                                 <%# Eval("Cliente.Id") %>
