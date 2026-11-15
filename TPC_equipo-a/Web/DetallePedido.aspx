@@ -8,6 +8,7 @@
         <a href="AdminPedidos.aspx" class="btn btn-sm btn-outline-secondary">Volver</a>
     </div>
 
+    <%-- datos generales, el texto en negrita es fijo --%>
     <div class="card mb-4">
         <div class="card-body">
             <p>
@@ -44,12 +45,13 @@
             </p>
         </div>
     </div>
-    <h5>Productos
-    </h5>
-    <asp:GridView ID="dgvItems" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle" runat="server">
+
+    <h5>Productos</h5>
+    <asp:GridView ID="dgvItems" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
         <Columns>
             <asp:TemplateField HeaderText="Nombre">
                 <ItemTemplate>
+                    <%-- el src va con comillas simples porque adentro el eval usa dobles --%>
                     <img src='<%# Eval("Producto.ImagenUrl") %>' alt="" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;" />
                     <%# Eval("Producto.Nombre") %>
                 </ItemTemplate>
@@ -59,12 +61,14 @@
             <asp:BoundField HeaderText="Subtotal" DataField="Subtotal" DataFormatString="{0:C}" />
         </Columns>
     </asp:GridView>
+
     <h5>Historial de estados</h5>
     <asp:GridView ID="dgvHistorial" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
         <Columns>
             <asp:BoundField HeaderText="Fecha" DataField="Fecha" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
             <asp:TemplateField HeaderText="Estado">
                 <ItemTemplate>
+                    <%-- claseestado devuelve el color del badge segun el estado --%>
                     <span class='<%# ClaseEstado(Eval("Estado.Descripcion")) %>'><%# Eval("Estado.Descripcion") %></span>
                 </ItemTemplate>
             </asp:TemplateField>
@@ -75,4 +79,27 @@
             </asp:TemplateField>
         </Columns>
     </asp:GridView>
+
+    <h5>Observaciones</h5>
+    <asp:GridView ID="dgvObservaciones" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle" EmptyDataText="Todavia no hay observaciones">
+        <Columns>
+            <asp:BoundField HeaderText="Fecha" DataField="Fecha" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
+            <asp:TemplateField HeaderText="Usuario">
+                <ItemTemplate>
+                    <%# Eval("Usuario.Id") %>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <asp:BoundField HeaderText="Observacion" DataField="Observacion" />
+        </Columns>
+    </asp:GridView>
+
+    <asp:TextBox ID="txtObservacion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
+    <%-- los validadores y el boton van en el mismo grupo para que no se mezclen con los otros botones de la pagina --%>
+    <div>
+        <asp:RequiredFieldValidator ID="rfvObservacion" runat="server" ControlToValidate="txtObservacion" ErrorMessage="Escribi una observacion" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
+    </div>
+    <div>
+        <asp:RegularExpressionValidator ID="revObservacion" runat="server" ControlToValidate="txtObservacion" ValidationExpression="^[\s\S]{5,500}$" ErrorMessage="La observacion debe tener entre 5 y 500 caracteres" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
+    </div>
+    <asp:Button ID="btnAgregarObservacion" runat="server" Text="Agregar observacion" CssClass="btn btn-primary mt-2" ValidationGroup="observacion" OnClick="btnAgregarObservacion_Click" />
 </asp:Content>
