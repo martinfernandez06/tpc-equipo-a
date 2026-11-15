@@ -211,6 +211,39 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public List<ItemPedido> ListarItems(int idPedido)
+        {
+            List<ItemPedido> listaItemPedidos = new List<ItemPedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spListarItemsPorPedido");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    ItemPedido aux = new ItemPedido();
+                    aux.Producto = new Producto();
+                    aux.Producto.Id = (int)datos.Lector["IdProducto"];
+                    aux.Producto.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Cantidad = (int)datos.Lector["Cantidad"];
+                    aux.PrecioUnitario = (decimal)datos.Lector["PrecioUnitario"];
+                    listaItemPedidos.Add(aux);
+                }
+                return listaItemPedidos;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
 
     }
 }
