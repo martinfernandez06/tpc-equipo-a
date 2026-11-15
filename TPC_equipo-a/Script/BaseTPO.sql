@@ -391,6 +391,7 @@ AS BEGIN
     SELECT
         I.IdProducto,
         PR.Nombre,
+        PR.ImagenUrl,
         I.Cantidad,
         I.PrecioUnitario,
         I.Cantidad * I.PrecioUnitario AS Subtotal
@@ -399,6 +400,7 @@ AS BEGIN
     WHERE I.IdPedido = @IdPedido
 END
 GO
+
 
 -- cambia el estado de un pedido y lo anota en el historial con quien lo cambio
 -- el UPDATE cambia el estado actual del pedido y el INSERT deja registrado el cambio en el historial. 
@@ -488,3 +490,7 @@ AS BEGIN
     ORDER BY H.Fecha ASC
 END
 GO
+
+SELECT Id, Nombre, PrecioVenta, Stock
+FROM PRODUCTOS
+WHERE Activo = 1
