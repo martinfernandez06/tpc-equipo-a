@@ -22,6 +22,7 @@ namespace Dominio
         public string ComprobanteUrl { get; set; }
         public string EstadoComprobante { get; set; }
         public List<HistorialEstado> Historial { get; set; }
+        public decimal Total { get; set; }
 
         public Pedido()
         {
@@ -33,13 +34,6 @@ namespace Dominio
             FechaCreacion = DateTime.Now;
         }
 
-        public decimal Total
-        {
-            get
-            {
-                if (Items == null || Items.Count == 0) return 0;
-                return Items.Sum(item => item.Subtotal);
-            }
-        }
+        
     }
 }
