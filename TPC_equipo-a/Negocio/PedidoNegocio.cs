@@ -281,6 +281,39 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        // trae las observaciones de un pedido, las mas viejas primero
+        public List<ObservacionPedido> ListarObservaciones(int idPedido)
+        {
+            List<ObservacionPedido> listaObservaciones = new List<ObservacionPedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spListarObservacionesPorPedido");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    ObservacionPedido aux = new ObservacionPedido();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Usuario = new Usuario();
+                    aux.Usuario.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Fecha = (DateTime)datos.Lector["Fecha"];
+                    aux.Observacion = (string)datos.Lector["Observacion"];
+                    listaObservaciones.Add(aux);
+                }
+                return listaObservaciones;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
 
     }
 }
