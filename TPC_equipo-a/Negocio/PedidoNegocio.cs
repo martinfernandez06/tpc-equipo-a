@@ -244,6 +244,43 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        public List<HistorialEstado> ListarHistorial(int idPedido)
+        {
+            List<HistorialEstado> listaHistorialEstado = new List<HistorialEstado>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spListarHistorialPorPedido");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    HistorialEstado aux = new HistorialEstado();
+                    aux.Id = (int)datos.Lector["Id"];
+                    // el sp no devuelve el idpedido, pero es el mismo que recibe el metodo
+                    aux.IdPedido = idPedido;
+                    aux.Estado = new EstadoPedido();
+                    aux.Estado.Id = (int)datos.Lector["IdEstado"];
+                    aux.Estado.Descripcion = (string)datos.Lector["Estado"];
+                    aux.Usuario = new Usuario();
+                    aux.Usuario.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Fecha = (DateTime)datos.Lector["Fecha"];
+                    listaHistorialEstado.Add(aux);
+                }
+                return listaHistorialEstado;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
 
     }
 }
