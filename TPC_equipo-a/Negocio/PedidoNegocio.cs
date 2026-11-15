@@ -154,5 +154,63 @@ namespace Negocio
             }
         }
 
+        public Pedido buscarPorId(int id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            Pedido aux = new Pedido();
+
+            try
+            {
+                datos.setearProcedimiento("spBuscarPedidoPorId");
+                datos.setearParametro("@Id", id);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.FechaCreacion = (DateTime)datos.Lector["FechaCreacion"];
+                    aux.Cliente = new Usuario();
+                    aux.Cliente.Id = (int)datos.Lector["IdUsuario"];
+                    aux.FormaEntrega = new FormaEntrega();
+                    aux.FormaEntrega.Id = (int)datos.Lector["IdFormaEntrega"];
+                    aux.FormaEntrega.Descripcion = (string)datos.Lector["FormaEntrega"];
+                    if (!(datos.Lector["IdDireccion"] is DBNull))
+                    {
+                        aux.Direccion = new Direccion();
+                        aux.Direccion.Id = (int)datos.Lector["IdDireccion"];
+                    }
+                    aux.FormaPago = new FormaPago();
+                    aux.FormaPago.Id = (int)datos.Lector["IdFormaPago"];
+                    aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    aux.Estado = new EstadoPedido();
+                    aux.Estado.Id = (int)datos.Lector["IdEstado"];
+                    aux.Estado.Descripcion = (string)datos.Lector["Estado"];
+                    aux.Total = (decimal)datos.Lector["Total"];
+                    if (!(datos.Lector["CodigoSeguimiento"] is DBNull))
+                    {
+                        aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
+                    }
+                    if (!(datos.Lector["EstadoComprobante"] is DBNull))
+                    {
+                        aux.EstadoComprobante = (string)datos.Lector["EstadoComprobante"];
+                    }
+                    if (!(datos.Lector["ComprobanteUrl"] is DBNull))
+                    {
+                        aux.ComprobanteUrl = (string)datos.Lector["ComprobanteUrl"];
+                    }
+                }
+                return aux;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
     }
 }
