@@ -15,7 +15,8 @@ namespace Web
             if (!IsPostBack)
             {
                 PedidoNegocio negocio = new PedidoNegocio();
-                dgvPedidos.DataSource = negocio.listarPedido();
+                // los cuatro filtros en null para que al entrar traiga todos los pedidos
+                dgvPedidos.DataSource = negocio.listarPedido(null, null, null, null);
                 dgvPedidos.DataBind();
             }
         }
