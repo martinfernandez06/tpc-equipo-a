@@ -234,7 +234,7 @@ GO
 
 -- 1. Alta usuario (Registro)
 
-CREATE PROCEDURE spAltaUsuario
+CREATE OR ALTER PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50),
     @Apellido VARCHAR(50),
     @Email VARCHAR(100),
@@ -243,12 +243,10 @@ CREATE PROCEDURE spAltaUsuario
     @IdPerfil INT
 AS
 BEGIN
-    INSERT INTO USUARIOS
-        (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta)
-    VALUES
-        (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
+    INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta)
+    OUTPUT INSERTED.Id -- Devuelve el ID generado al instante
+    VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
 END;
-GO
 
 -- Prueba 
 
@@ -330,6 +328,16 @@ BEGIN
 END;
 GO
 
+-- Actualiza la fecha del último acceso de un usuario
+CREATE PROCEDURE spActualizarUltimoAcceso
+    @Id INT
+AS
+BEGIN
+    UPDATE USUARIOS
+    SET UltimoAcceso = GETDATE()
+    WHERE Id = @Id;
+END;
+GO
 
 -- =============================================
 -- PROCEDIMIENTOS ALMACENADOS - DIRECCIONES
@@ -777,5 +785,7 @@ AS BEGIN
 END
 GO
 
+SELECT * FROM PERFILES;
+Select * from USUARIOS;
 
 

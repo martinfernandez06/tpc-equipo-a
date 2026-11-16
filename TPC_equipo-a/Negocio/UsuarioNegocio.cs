@@ -6,32 +6,36 @@ namespace Negocio
 {
     public class UsuarioNegocio
     {
-        public int Registrar(Usuario nuevo)
-        {
-            AccesoDatos datos = new AccesoDatos();
-            try
-            {
-                datos.setearProcedimiento("spAltaUsuario");
-                datos.setearParametro("@Nombre", nuevo.Nombre);
-                datos.setearParametro("@Apellido", nuevo.Apellido);
-                datos.setearParametro("@Email", nuevo.Email);
-                datos.setearParametro("@Clave", nuevo.Clave);
-                datos.setearParametro("@Telefono", string.IsNullOrEmpty(nuevo.Telefono) ? (object)DBNull.Value : nuevo.Telefono);
-                datos.setearParametro("@IdPerfil", nuevo.Perfil.Id); // Por defecto cliente suele ser ID 2
+       public int Registrar(Usuario nuevo)
+{
+    AccesoDatos datos = new AccesoDatos();
 
-                // Si querés que devuelva el ID autogenerado, podés adaptar el SP con SCOPE_IDENTITY() o ejecutar acción directa.
-                datos.ejecutarAccion();
-                return 0; // O retornar el ID si modificás spAltaUsuario para que haga un SELECT SCOPE_IDENTITY()
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarLectura();
-            }
+    try
+    {
+        datos.setearProcedimiento("spAltaUsuario");
+        datos.setearParametro("@Nombre", nuevo.Nombre);
+        datos.setearParametro("@Apellido", nuevo.Apellido);
+        datos.setearParametro("@Email", nuevo.Email);
+        datos.setearParametro("@Clave", nuevo.Clave);
+        datos.setearParametro("@Telefono", string.IsNullOrEmpty(nuevo.Telefono) ? (object)DBNull.Value : nuevo.Telefono);
+        datos.setearParametro("@IdPerfil", nuevo.Perfil.Id);
+
+        datos.ejecutarLectura();
+        if (datos.Lector.Read())
+        {
+            return Convert.ToInt32(datos.Lector["Id"]);
         }
+        return 0;
+    }
+    catch (Exception ex)
+    {
+        throw ex;
+    }
+    finally
+    {
+        datos.cerrarLectura();
+    }
+}
 
         public Usuario Login(string email, string clave)
         {
