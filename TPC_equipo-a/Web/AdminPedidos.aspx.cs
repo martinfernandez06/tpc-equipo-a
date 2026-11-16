@@ -76,7 +76,8 @@ namespace Web
             // isvalid solo se puede preguntar despues del validate, por eso va aca y no en cargarpedidos
             if (!Page.IsValid)
                 return;
-
+            // busqueda nueva arranca en la pagina 1
+            dgvPedidos.PageIndex = 0;
             CargarPedidos();
         }
 
@@ -87,7 +88,15 @@ namespace Web
             txtCliente.Text = "";
             txtDesde.Text = "";
             txtHasta.Text = "";
+            dgvPedidos.PageIndex = 0;
             // con los controles vacios cargarpedidos trae todo
+            CargarPedidos();
+        }
+
+        protected void dgvPedidos_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            // paso a la pagina que toco y vuelvo a cargar con los filtros puestos para no perderlos
+            dgvPedidos.PageIndex = e.NewPageIndex;
             CargarPedidos();
         }
     }
