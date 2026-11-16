@@ -25,6 +25,14 @@
                     <asp:Label ID="lblCliente" runat="server"></asp:Label>
                 </div>
                 <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Email</div>
+                    <asp:Label ID="lblEmail" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Telefono</div>
+                    <asp:Label ID="lblTelefono" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
                     <div class="dato-titulo">Total</div>
                     <asp:Label ID="lblTotal" runat="server" CssClass="fw-bold"></asp:Label>
                 </div>
@@ -35,6 +43,10 @@
                 <div class="col-sm-6 col-lg-4">
                     <div class="dato-titulo">Forma de entrega</div>
                     <asp:Label ID="lblFormaEntrega" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Direccion de envio</div>
+                    <asp:Label ID="lblDireccion" runat="server"></asp:Label>
                 </div>
                 <div class="col-sm-6 col-lg-4">
                     <div class="dato-titulo">Codigo de seguimiento</div>

@@ -15,7 +15,8 @@
                         <%-- templatefield con eval para entrar a datos que estan adentro de otro objeto, el boundfield no llega --%>
                         <asp:TemplateField HeaderText="Cliente">
                             <ItemTemplate>
-                                <%# Eval("Cliente.Id") %>
+                                <%# Eval("Cliente.Nombre") %>
+                                <%# Eval("Cliente.Apellido") %>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="Forma de pago">
