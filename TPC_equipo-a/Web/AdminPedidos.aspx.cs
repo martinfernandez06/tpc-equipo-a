@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Negocio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +12,20 @@ namespace Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                PedidoNegocio negocio = new PedidoNegocio();
+                dgvPedidos.DataSource = negocio.listarPedido();
+                dgvPedidos.DataBind();
+            }
+        }
 
+        protected void dgvPedidos_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // var toma el tipo solo. traigo el id escondido de la fila y lo paso a texto
+            var id = dgvPedidos.SelectedDataKey.Value.ToString();
+            // voy al formulario con el id por url el ? le diremos que parametros pasaremos
+            Response.Redirect($"DetallePedido.aspx?id={id}", false);
         }
     }
 }
