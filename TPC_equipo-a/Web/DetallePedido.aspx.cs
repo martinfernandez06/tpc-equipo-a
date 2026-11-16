@@ -94,5 +94,27 @@ namespace Web
             txtObservacion.Text = "";
             CargarPedido(id);
         }
+
+        protected void btnCambiarEstado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int id = int.Parse(Request.QueryString["id"]);
+                int elegido = int.Parse(ddlEstado.SelectedValue);
+
+                PedidoNegocio negocio = new PedidoNegocio();
+                // el usuario 1 es fijo hasta que este el login
+                negocio.CambiarEstado(id, elegido, 1);
+                lblMensaje.Text = "Estado Actualizado";
+                lblMensaje.CssClass = "text-success d-block mt-2";
+                CargarPedido(id);
+            }
+            catch (Exception ex)
+            {
+
+                lblMensaje.Text = ex.Message;
+                lblMensaje.CssClass = "text-danger d-block mt-2";
+            }
+        }
     }
 }

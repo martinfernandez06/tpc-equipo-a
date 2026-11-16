@@ -411,11 +411,36 @@ CREATE PROCEDURE spCambiarEstadoPedido
 @IdEstado INT,
 @IdUsuario INT
 AS BEGIN
-    UPDATE PEDIDOS SET IdEstado = @IdEstado
-    WHERE Id = @IdPedido
+    DECLARE @EstadoActual INT;
+    SELECT @EstadoActual = IdEstado FROM PEDIDOS WHERE Id = @IdPedido;
 
-    INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
-    VALUES (@IdPedido, @IdEstado, @IdUsuario)
+    -- si ya esta entregado o cancelado no se toca mas
+    IF @EstadoActual IN (5, 6)
+        THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
+
+    -- para cancelar se usa spCancelarPedido, aca solo se avanza entre 2 y 5
+    IF @IdEstado NOT IN (2, 3, 4, 5)
+        THROW 50004, 'Estado no valido para este cambio', 1;
+
+    -- solo se puede avanzar, ni el mismo estado ni para atras
+    IF @IdEstado <= @EstadoActual
+        THROW 50005, 'El estado nuevo tiene que ser posterior al actual', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+        UPDATE PEDIDOS SET IdEstado = @IdEstado
+        WHERE Id = @IdPedido
+
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+        VALUES (@IdPedido, @IdEstado, @IdUsuario)
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
 END
 GO
 

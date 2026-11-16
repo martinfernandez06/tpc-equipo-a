@@ -45,8 +45,20 @@
             </p>
         </div>
     </div>
-
-    <h5>Productos</h5>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Acciones</h5>
+            <asp:DropDownList ID="ddlEstado" CssClass="form-select" runat="server">
+                <asp:ListItem Text="Pagado" Value="2"></asp:ListItem>
+                <asp:ListItem Text="En preparación" Value="3"></asp:ListItem>
+                <asp:ListItem Text="Enviado" Value="4"></asp:ListItem>
+                <asp:ListItem Text="Entregado" Value="5"></asp:ListItem>
+            </asp:DropDownList>
+            <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-primary mt-2" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
+            <asp:Label ID="lblMensaje" runat="server" Text="" CssClass="d-block mt-2"></asp:Label>
+        </div>
+    </div>
+        <h5>Productos</h5>
     <asp:GridView ID="dgvItems" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
         <Columns>
             <asp:TemplateField HeaderText="Nombre">
