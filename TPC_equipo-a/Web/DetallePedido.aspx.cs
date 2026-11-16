@@ -49,11 +49,14 @@ namespace Web
             lblNumero.Text = seleccionado.Id.ToString();
             // el formato dd/MM/yyyy HH:mm saca los segundos para que se lea mas limpio
             lblFecha.Text = seleccionado.FechaCreacion.ToString("dd/MM/yyyy HH:mm");
-            lblCliente.Text = seleccionado.Cliente.Id.ToString();
+            lblCliente.Text = $"{seleccionado.Cliente.Nombre} {seleccionado.Cliente.Apellido}";
+            lblEmail.Text = seleccionado.Cliente.Email;
+            lblTelefono.Text = seleccionado.Cliente.Telefono != null ? seleccionado.Cliente.Telefono : "Sin numero de telefono.";
             lblEstado.Text = seleccionado.Estado.Descripcion;
             lblEstado.CssClass = ClaseEstado(seleccionado.Estado.Descripcion);
             lblFormaPago.Text = seleccionado.FormaPago.Descripcion;
             lblFormaEntrega.Text = seleccionado.FormaEntrega.Descripcion;
+            lblDireccion.Text = seleccionado.Direccion != null ? $"{seleccionado.Direccion.Calle} {seleccionado.Direccion.Numero} <br /> {seleccionado.Direccion.Localidad}, {seleccionado.Direccion.Provincia} (CP: {seleccionado.Direccion.CodigoPostal})" : lblDireccion.Text = "No aplica";
             // ternario, si no tiene codigo viene null y muestro un texto en vez de dejarlo vacio
             lblCodigoSeguimiento.Text = seleccionado.CodigoSeguimiento != null ? seleccionado.CodigoSeguimiento : "Sin codigo";
             // la C da formato de pesos, solo sirve con numeros, no con textos
