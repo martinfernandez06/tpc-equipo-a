@@ -64,7 +64,7 @@
             </div>
             <div class="table-responsive">
                 <%-- guarda el id de cada fila para saber que pedido eligieron --%>
-                <asp:GridView ID="dgvPedidos" DataKeyNames="Id" OnSelectedIndexChanged="dgvPedidos_SelectedIndexChanged" runat="server" CssClass="table table-striped table-bordered align-middle tabla-admin" AutoGenerateColumns="false" EmptyDataText="No hay pedidos con esos filtros">
+                <asp:GridView ID="dgvPedidos" DataKeyNames="Id" OnSelectedIndexChanged="dgvPedidos_SelectedIndexChanged" runat="server" CssClass="table table-striped table-bordered align-middle tabla-admin" AutoGenerateColumns="false" EmptyDataText="No hay pedidos con esos filtros" AllowPaging="true" PageSize="10" OnPageIndexChanging="dgvPedidos_PageIndexChanging" PagerStyle-CssClass="paginado-admin">
                     <Columns>
                         <asp:BoundField HeaderText="Id" DataField="Id" />
                         <asp:BoundField HeaderText="Fecha de creacion" DataField="FechaCreacion" />

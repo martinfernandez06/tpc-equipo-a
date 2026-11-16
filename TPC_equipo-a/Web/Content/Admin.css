@@ -99,3 +99,52 @@
 .badge {
     border-radius: 0;
 }
+/* paginado de las grillas del admin */
+/* saco el fondo, el borde y la sombra que le pone la tabla a la fila de los numeros */
+.paginado-admin > td {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding-top: 12px;
+}
+/* centro los numeros debajo de la grilla */
+.paginado-admin table {
+    margin: 0 auto;
+}
+
+/* separacion entre cada numero */
+    .paginado-admin table td {
+        padding: 0 3px;
+        border: none;
+    }
+
+/* cuadradito de cada numero */
+.paginado-admin a,
+.paginado-admin span {
+    display: inline-block;
+    min-width: 30px;
+    padding: 3px 8px;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 1px solid var(--color-boton-primario);
+    border-radius: 0;
+    text-decoration: none;
+}
+
+/* paginas que no estas viendo, blancas con borde violeta */
+.paginado-admin a {
+    background-color: #fff;
+    color: var(--color-boton-primario);
+}
+
+    /* se rellena al pasarle el cursor */
+    .paginado-admin a:hover {
+        background-color: var(--color-boton-primario);
+        color: #fff;
+    }
+
+/* la pagina que estas viendo, rellena de violeta */
+.paginado-admin span {
+    background-color: var(--color-boton-primario);
+    color: #fff;
+}
