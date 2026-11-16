@@ -5,33 +5,55 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
         <h1 class="h3 m-0 me-auto">Detalle del pedido</h1>
-        <a href="AdminPedidos.aspx" class="btn btn-sm btn-outline-secondary">Volver</a>
+        <a href="AdminPedidos.aspx" class="btn btn-sm btn-admin-secundario"><i class="bi bi-arrow-left"></i>Volver</a>
     </div>
 
-    <%-- datos generales, el texto en negrita es fijo y el label lo llena el code behind --%>
-    <div class="card mb-4">
+    <%-- datos generales en grilla, el titulo chico es fijo y el label lo llena el code behind --%>
+    <div class="card card-admin mb-4">
+        <div class="card-header d-flex align-items-center gap-2">
+            <span>Pedido #<asp:Label ID="lblNumero" runat="server"></asp:Label></span>
+            <asp:Label ID="lblEstado" runat="server"></asp:Label>
+        </div>
         <div class="card-body">
-            <p><strong>Numero de pedido:</strong> <asp:Label ID="lblNumero" runat="server"></asp:Label></p>
-            <p><strong>Fecha:</strong> <asp:Label ID="lblFecha" runat="server"></asp:Label></p>
-            <p><strong>Cliente:</strong> <asp:Label ID="lblCliente" runat="server"></asp:Label></p>
-            <p><strong>Estado:</strong> <asp:Label ID="lblEstado" runat="server"></asp:Label></p>
-            <p><strong>Forma de pago:</strong> <asp:Label ID="lblFormaPago" runat="server"></asp:Label></p>
-            <p><strong>Forma de entrega:</strong> <asp:Label ID="lblFormaEntrega" runat="server"></asp:Label></p>
-            <p><strong>Codigo de seguimiento:</strong> <asp:Label ID="lblCodigoSeguimiento" runat="server"></asp:Label></p>
-            <p class="mb-0"><strong>Total:</strong> <asp:Label ID="lblTotal" runat="server"></asp:Label></p>
+            <div class="row g-3">
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Fecha</div>
+                    <asp:Label ID="lblFecha" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Cliente</div>
+                    <asp:Label ID="lblCliente" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Total</div>
+                    <asp:Label ID="lblTotal" runat="server" CssClass="fw-bold"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Forma de pago</div>
+                    <asp:Label ID="lblFormaPago" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Forma de entrega</div>
+                    <asp:Label ID="lblFormaEntrega" runat="server"></asp:Label>
+                </div>
+                <div class="col-sm-6 col-lg-4">
+                    <div class="dato-titulo">Codigo de seguimiento</div>
+                    <asp:Label ID="lblCodigoSeguimiento" runat="server"></asp:Label>
+                </div>
+            </div>
         </div>
     </div>
 
     <%-- el panel envuelve la card para ocultarla entera cuando el pedido esta entregado o cancelado --%>
     <asp:Panel ID="pnlAcciones" runat="server">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5>Acciones</h5>
+        <div class="card card-admin mb-4">
+            <div class="card-header">Acciones</div>
+            <div class="card-body d-flex flex-wrap align-items-center gap-2">
                 <%-- las opciones se cargan desde el code behind segun el estado actual --%>
-                <asp:DropDownList ID="ddlEstado" runat="server" CssClass="form-select"></asp:DropDownList>
-                <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-primary mt-2" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
+                <asp:DropDownList ID="ddlEstado" runat="server" CssClass="form-select input-admin w-auto"></asp:DropDownList>
+                <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-ecommerce-primario" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
                 <%-- el confirm pide confirmacion en el navegador antes de cancelar --%>
-                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar pedido" CssClass="btn btn-outline-danger mt-2 ms-2" ValidationGroup="cancelar" OnClientClick="return confirm('Seguro que queres cancelar el pedido? Las unidades vuelven al stock');" OnClick="btnCancelar_Click" />
+                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar pedido" CssClass="btn btn-admin-peligro ms-auto" ValidationGroup="cancelar" OnClientClick="return confirm('Seguro que queres cancelar el pedido? Las unidades vuelven al stock');" OnClick="btnCancelar_Click" />
             </div>
         </div>
     </asp:Panel>
@@ -39,7 +61,7 @@
     <asp:Label ID="lblMensaje" runat="server" CssClass="d-block my-2"></asp:Label>
 
     <h5>Productos</h5>
-    <asp:GridView ID="dgvItems" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
+    <asp:GridView ID="dgvItems" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle tabla-admin">
         <Columns>
             <asp:TemplateField HeaderText="Nombre">
                 <ItemTemplate>
@@ -55,7 +77,7 @@
     </asp:GridView>
 
     <h5>Historial de estados</h5>
-    <asp:GridView ID="dgvHistorial" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
+    <asp:GridView ID="dgvHistorial" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle tabla-admin">
         <Columns>
             <asp:BoundField HeaderText="Fecha" DataField="Fecha" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
             <asp:TemplateField HeaderText="Estado">
@@ -73,7 +95,7 @@
     </asp:GridView>
 
     <h5>Observaciones</h5>
-    <asp:GridView ID="dgvObservaciones" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle" EmptyDataText="Todavia no hay observaciones">
+    <asp:GridView ID="dgvObservaciones" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle tabla-admin" EmptyDataText="Todavia no hay observaciones">
         <Columns>
             <asp:BoundField HeaderText="Fecha" DataField="Fecha" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
             <asp:TemplateField HeaderText="Usuario">
@@ -85,13 +107,20 @@
         </Columns>
     </asp:GridView>
 
-    <asp:TextBox ID="txtObservacion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
-    <%-- los validadores y el boton van en el mismo grupo para que no se mezclen con los otros botones de la pagina --%>
-    <div>
-        <asp:RequiredFieldValidator ID="rfvObservacion" runat="server" ControlToValidate="txtObservacion" ErrorMessage="Escribi una observacion" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
+    <div class="card card-admin mb-4">
+        <div class="card-header">Agregar observacion</div>
+        <div class="card-body">
+            <asp:TextBox ID="txtObservacion" runat="server" CssClass="form-control input-admin" TextMode="MultiLine" Rows="3" placeholder="Ej: el cliente pidio que lo dejen en porteria"></asp:TextBox>
+            <%-- los validadores y el boton van en el mismo grupo para que no se mezclen con los otros botones de la pagina --%>
+            <div>
+                <asp:RequiredFieldValidator ID="rfvObservacion" runat="server" ControlToValidate="txtObservacion" ErrorMessage="Escribi una observacion" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
+            </div>
+            <div>
+                <asp:RegularExpressionValidator ID="revObservacion" runat="server" ControlToValidate="txtObservacion" ValidationExpression="^[\s\S]{5,500}$" ErrorMessage="La observacion debe tener entre 5 y 500 caracteres" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+                <asp:Button ID="btnAgregarObservacion" runat="server" Text="Agregar observacion" CssClass="btn btn-ecommerce-primario" ValidationGroup="observacion" OnClick="btnAgregarObservacion_Click" />
+            </div>
+        </div>
     </div>
-    <div>
-        <asp:RegularExpressionValidator ID="revObservacion" runat="server" ControlToValidate="txtObservacion" ValidationExpression="^[\s\S]{5,500}$" ErrorMessage="La observacion debe tener entre 5 y 500 caracteres" Display="Dynamic" CssClass="text-danger" ValidationGroup="observacion" />
-    </div>
-    <asp:Button ID="btnAgregarObservacion" runat="server" Text="Agregar observacion" CssClass="btn btn-primary mt-2" ValidationGroup="observacion" OnClick="btnAgregarObservacion_Click" />
 </asp:Content>

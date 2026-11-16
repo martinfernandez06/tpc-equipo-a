@@ -27,3 +27,75 @@
     .link-barra:hover {
         color: var(--color-texto-claro); /* se aclara al pasarle el cursor */
     }
+
+/* boton secundario del admin, violeta con borde, pensado para fondo blanco */
+.btn-admin-secundario {
+    --bs-btn-color: var(--color-boton-primario);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: var(--color-boton-primario);
+    --bs-btn-hover-color: var(--color-texto-claro);
+    --bs-btn-hover-bg: var(--color-boton-primario);
+    --bs-btn-hover-border-color: var(--color-boton-primario);
+    --bs-btn-active-color: var(--color-texto-claro);
+    --bs-btn-active-bg: var(--color-boton-primario-hover);
+    --bs-btn-active-border-color: var(--color-boton-primario-hover);
+    --bs-btn-border-radius: 0;
+}
+
+/* boton rojo para acciones que no tienen vuelta, como cancelar */
+.btn-admin-peligro {
+    --bs-btn-color: #dc3545;
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: #dc3545;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #dc3545;
+    --bs-btn-hover-border-color: #dc3545;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #b02a37;
+    --bs-btn-active-border-color: #b02a37;
+    --bs-btn-border-radius: 0;
+}
+
+/* cards del admin con esquinas rectas y titulo oscuro como la barra */
+.card-admin {
+    border-radius: 0;
+    border-color: #e4e4e7;
+}
+
+    .card-admin .card-header {
+        background-color: var(--color-fondo-oscuro);
+        color: var(--color-texto-claro);
+        border-radius: 0;
+    }
+
+/* nombre chiquito arriba de cada dato del pedido */
+.dato-titulo {
+    font-size: 0.8rem;
+    color: var(--color-texto-suave);
+    text-transform: uppercase;
+    margin-bottom: 0.15rem;
+}
+
+/* cajas de texto y desplegables con esquinas rectas, foco violeta y a todo el ancho */
+.input-admin {
+    border-radius: 0;
+    max-width: none; /* site.css le pone un ancho maximo a las cajas, aca lo saco */
+}
+
+    .input-admin:focus {
+        border-color: var(--color-boton-primario);
+        box-shadow: 0 0 0 0.2rem rgba(81, 43, 212, 0.25);
+    }
+
+/* encabezado de las grillas del admin en negro como el titulo de las cards */
+/* va con important porque bootstrap pinta las filas rayadas por encima del fondo */
+.tabla-admin th {
+    background-color: var(--color-fondo-oscuro) !important;
+    color: var(--color-texto-claro) !important;
+    box-shadow: none !important;
+}
+
+/* badges de estado con esquinas rectas como los botones */
+.badge {
+    border-radius: 0;
+}

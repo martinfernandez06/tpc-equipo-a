@@ -24,6 +24,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.Label lblNumero;
 
         /// <summary>
+        /// Control lblEstado.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblEstado;
+
+        /// <summary>
         /// Control lblFecha.
         /// </summary>
         /// <remarks>
@@ -42,13 +51,13 @@ namespace Web
         protected global::System.Web.UI.WebControls.Label lblCliente;
 
         /// <summary>
-        /// Control lblEstado.
+        /// Control lblTotal.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblEstado;
+        protected global::System.Web.UI.WebControls.Label lblTotal;
 
         /// <summary>
         /// Control lblFormaPago.
@@ -76,15 +85,6 @@ namespace Web
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblCodigoSeguimiento;
-
-        /// <summary>
-        /// Control lblTotal.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotal;
 
         /// <summary>
         /// Control pnlAcciones.
