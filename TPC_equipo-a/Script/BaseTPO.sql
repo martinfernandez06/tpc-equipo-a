@@ -531,8 +531,12 @@ END
 GO
 
 -- Martin - 13/11/26
--- lista todos los pedidos para el panel admin con el nombre del cliente, los mas nuevos primero
+-- lista los pedidos para el panel admin con filtros opcionales por estado, fechas y cliente, los mas nuevos primero
 CREATE PROCEDURE spListarPedidos
+    @IdEstado INT = NULL,
+    @FechaDesde DATE = NULL,
+    @FechaHasta DATE = NULL,
+    @Cliente VARCHAR(100) = NULL
 AS BEGIN
     SELECT
         P.Id,
@@ -551,6 +555,14 @@ AS BEGIN
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
     INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
     INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
+    -- cada filtro que llega en null no filtra nada
+    WHERE (@IdEstado IS NULL OR P.IdEstado = @IdEstado)
+      AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
+      -- le sumo un dia para que entren los pedidos de todo el dia hasta
+      AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+      AND (@Cliente IS NULL
+           OR U.Nombre + ' ' + U.Apellido LIKE '%' + @Cliente + '%'
+           OR U.Email LIKE '%' + @Cliente + '%')
     ORDER BY P.FechaCreacion DESC
 END
 GO
