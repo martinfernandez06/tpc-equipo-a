@@ -228,6 +228,10 @@ namespace Negocio
                     aux.Producto = new Producto();
                     aux.Producto.Id = (int)datos.Lector["IdProducto"];
                     aux.Producto.Nombre = (string)datos.Lector["Nombre"];
+                    if (!(datos.Lector["ImagenUrl"] is DBNull))
+                    {
+                        aux.Producto.ImagenUrl = (string)datos.Lector["ImagenUrl"];
+                    }
                     aux.Cantidad = (int)datos.Lector["Cantidad"];
                     aux.PrecioUnitario = (decimal)datos.Lector["PrecioUnitario"];
                     listaItemPedidos.Add(aux);

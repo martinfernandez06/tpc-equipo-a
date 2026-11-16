@@ -1,50 +1,45 @@
 <%@ Page Title="Admin Pedidos" Language="C#" MasterPageFile="~/SiteAdmin.Master" AutoEventWireup="true" CodeBehind="AdminPedidos.aspx.cs" Inherits="Web.AdminPedidos" %>
+
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <div class="container mt-4">
-    <h2>Administración de Pedidos</h2>
-    <hr />
-    
-    <table class="table table-striped table-hover table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Id</th>
-                <th>Usuario</th>
-                <th>FechaCreacion</th>
-                <th>FormaPago</th>
-                <th>FormaEntrega</th>
-                <th>Total</th>
-                <th>EstadoPedido</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1045</td>
-                <td>jperez</td>
-                <td>2026-10-23 14:30</td>
-                <td>Mercado Pago</td>
-                <td>Envío a Domicilio</td>
-                <td>$ 87500.00</td>
-                <td><span class="badge bg-warning text-dark">Pagado</span></td>
-                <td>
-                    <a href="#" class="btn btn-sm btn-info">Ver Detalle</a>
-                    <a href="#" class="btn btn-sm btn-success">Avanzar Estado</a>
-                </td>
-            </tr>
-            <tr>
-                <td>1044</td>
-                <td>mgomez</td>
-                <td>2026-10-22 09:15</td>
-                <td>Transferencia</td>
-                <td>Retiro en Local</td>
-                <td>$ 32000.00</td>
-                <td><span class="badge bg-success">Entregado</span></td>
-                <td>
-                    <a href="#" class="btn btn-sm btn-info">Ver Detalle</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-    
+    <asp:UpdatePanel ID="upPedidos" runat="server">
+        <ContentTemplate>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <h1 class="h3 m-0 me-auto">Pedidos</h1>
+            </div>
+            <div class="table-responsive">
+              <%-- guarda el id de cada fila para saber que pedido eligieron --%>
+                <asp:GridView ID="dgvPedidos" DataKeyNames="Id" OnSelectedIndexChanged="dgvPedidos_SelectedIndexChanged" runat="server" CssClass="table table-striped table-bordered" AutoGenerateColumns="false">
+                    <Columns>
+                        <asp:BoundField HeaderText="Id" DataField="Id" />
+                        <asp:BoundField HeaderText="Fecha de creacion" DataField="FechaCreacion" />
+                        <%-- templatefield con eval para entrar a datos que estan adentro de otro objeto, el boundfield no llega --%>
+                        <asp:TemplateField HeaderText="Cliente">
+                            <ItemTemplate>
+                                <%# Eval("Cliente.Id") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Forma de pago">
+                            <ItemTemplate>
+                                <%# Eval("FormaPago.Descripcion") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Forma de entrega">
+                            <ItemTemplate>
+                                <%# Eval("FormaEntrega.Descripcion") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Estado">
+                            <ItemTemplate>
+                                <%# Eval("Estado.Descripcion") %>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField HeaderText="Total" DataField="Total" DataFormatString="{0:C}" />
+                        <asp:BoundField HeaderText="Codigo de seguimiento" DataField="CodigoSeguimiento" />
+                        <asp:BoundField HeaderText="Estado del comprobante" DataField="EstadoComprobante" />
+                        <asp:CommandField HeaderText="Accion" ShowSelectButton="true" ButtonType="Button" ControlStyle-CssClass="btn btn-sm btn-primary" SelectText="Ver detalles" />
+                    </Columns>
+                </asp:GridView>
+            </div>
+        </ContentTemplate>
+    </asp:UpdatePanel>
 </asp:Content>
