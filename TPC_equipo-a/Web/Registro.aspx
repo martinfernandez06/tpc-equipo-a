@@ -11,45 +11,49 @@
                     <div class="card-body p-4">
                         <div id="formRegistro">
                             <div class="row">
-                                <!--Nombre -->
+                                <!-- Nombre -->
                                 <div class="col-md-6 mb-3">
                                     <label for="txtNombre" class="form-label font-weight-bold">Nombre</label>
-                                    <input type="text" class="form-control" id="txtNombre" placeholder="Tu nombre" required />
+                                    <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" MaxLength="50" placeholder="Tu nombre" />
+                                    <asp:RequiredFieldValidator ID="rfvNombre" runat="server" ControlToValidate="txtNombre" ErrorMessage="El nombre es obligatorio." CssClass="text-danger small" Display="Dynamic" />
                                 </div>
                                 <!-- Apellido -->
                                 <div class="col-md-6 mb-3">
                                     <label for="txtApellido" class="form-label font-weight-bold">Apellido</label>
-                                    <input type="text" class="form-control" id="txtApellido" placeholder="Tu apellido" required />
+                                    <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" MaxLength="50" placeholder="Tu apellido" />
+                                    <asp:RequiredFieldValidator ID="rfvApellido" runat="server" ControlToValidate="txtApellido" ErrorMessage="El apellido es obligatorio." CssClass="text-danger small" Display="Dynamic" />
                                 </div>
                             </div>
 
-                            <!-- Mail -->
+                            <!-- Email -->
                             <div class="mb-3">
                                 <label for="txtEmail" class="form-label font-weight-bold">Correo Electrónico</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                    <input type="email" class="form-control" id="txtEmail" placeholder="ejemplo@correo.com" required />
+                                    <asp:TextBox ID="txtEmail" runat="server" TextMode="Email" CssClass="form-control" MaxLength="100" placeholder="ejemplo@correo.com" />
                                 </div>
+                                <asp:RequiredFieldValidator ID="rfvEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="El correo electrónico es obligatorio." CssClass="text-danger small" Display="Dynamic" />
+                                <asp:RegularExpressionValidator ID="revEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="Ingresá un formato de correo válido." ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$" CssClass="text-danger small" Display="Dynamic" />
                             </div>
 
-                            <!-- Tel -->
+                            <!-- Teléfono -->
                             <div class="mb-3">
                                 <label for="txtTelefono" class="form-label font-weight-bold">Teléfono</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                    <input type="tel" class="form-control" id="txtTelefono" placeholder="Ej: 1123456789" />
+                                    <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control" MaxLength="30" placeholder="Ej: 1123456789" />
                                 </div>
                             </div>
 
                             <div class="row">
-
                                 <!-- Contraseña -->
                                 <div class="col-md-6 mb-3">
                                     <label for="txtPassword" class="form-label font-weight-bold">Contraseña</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                        <input type="password" class="form-control" id="txtPassword" placeholder="••••••••" required />
+                                        <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" MaxLength="50" placeholder="••••••••" />
                                     </div>
+                                    <asp:RequiredFieldValidator ID="rfvPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="La contraseña es obligatoria." CssClass="text-danger small" Display="Dynamic" />
                                 </div>
 
                                 <!-- Confirmar Contraseña -->
@@ -57,16 +61,21 @@
                                     <label for="txtConfirmPassword" class="form-label font-weight-bold">Repetir Contraseña</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                        <input type="password" class="form-control" id="txtConfirmPassword" placeholder="••••••••" required />
+                                        <asp:TextBox ID="txtConfirmPassword" runat="server" TextMode="Password" CssClass="form-control" MaxLength="50" placeholder="••••••••" />
                                     </div>
+                                    <asp:RequiredFieldValidator ID="rfvConfirm" runat="server" ControlToValidate="txtConfirmPassword" ErrorMessage="Debes repetir la contraseña." CssClass="text-danger small" Display="Dynamic" />
+                                    <asp:CompareValidator ID="cvPassword" runat="server" ControlToValidate="txtConfirmPassword" ControlToCompare="txtPassword" Operator="Equal" ErrorMessage="Las contraseñas no coinciden." CssClass="text-danger small" Display="Dynamic" />
                                 </div>
                             </div>
 
-                            
+                            <!-- Label para mostrar errores generales o de la base de datos -->
+                            <div class="mb-3">
+                                <asp:Label ID="lblError" runat="server" CssClass="text-danger fw-bold" Visible="false" />
+                            </div>
+
+                            <!-- Botón Registrarse -->
                             <div class="d-grid gap-2 mt-4">
-                                <a href="Login.aspx" class="btn btn-primary btn-lg fw-bold">
-                                    Registrarse
-                                </a>
+                                <asp:Button ID="btnRegistrar" runat="server" Text="Registrarse" CssClass="btn btn-primary btn-lg fw-bold" OnClick="btnRegistrar_Click" />
                             </div>
                         </div>
                     </div>

@@ -6,7 +6,7 @@ GO
 
 CREATE TABLE CATEGORIAS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Nombre VARCHAR(100) NOT NULL,
+    Nombre VARCHAR(50) UNIQUE NOT NULL,
     Descripcion VARCHAR(255) NULL,
     Activa BIT DEFAULT 1
 );
@@ -30,7 +30,7 @@ AS BEGIN
 END
 GO
 
-EXEC spAltaCategoria "Tincho","Prueba tincho"
+
 GO
 
 Select * from CATEGORIAS
@@ -45,7 +45,7 @@ AS BEGIN
 END
 GO
 
-EXEC spBuscarCategoriaPorId 1002
+
 GO
 
 -- Martin -> 31/10/26 1755
@@ -181,6 +181,296 @@ INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en e
 INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
 GO
 
+-- Guillermo - 14/11/2026
+-- =============================================
+
+-- Tabla PERFILES
+CREATE TABLE PERFILES (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Descripcion VARCHAR(50) UNIQUE NOT NULL
+);
+GO
+
+INSERT INTO PERFILES (Descripcion) VALUES ('Administrador');
+INSERT INTO PERFILES (Descripcion) VALUES ('Cliente');
+INSERT INTO PERFILES (Descripcion) VALUES ('Vendedor');
+GO
+
+-- Tabla USUARIOS
+CREATE TABLE USUARIOS (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    Apellido VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Clave VARCHAR(50) NOT NULL,
+    Telefono VARCHAR(30) NULL,
+    IdPerfil INT NOT NULL FOREIGN KEY REFERENCES PERFILES(Id),
+    Activo BIT DEFAULT 1 NOT NULL,
+    FechaAlta DATETIME DEFAULT GETDATE() NOT NULL,
+    UltimoAcceso DATETIME NULL
+);
+GO
+
+-- Tabla DIRECCIONES
+CREATE TABLE DIRECCIONES (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    IdUsuario INT NOT NULL FOREIGN KEY REFERENCES USUARIOS(Id) ON DELETE CASCADE,
+    Calle VARCHAR(100) NOT NULL,
+    Numero VARCHAR(20) NOT NULL,
+    Provincia VARCHAR(100) NOT NULL,
+    Localidad VARCHAR(100) NOT NULL,
+    CodigoPostal VARCHAR(20) NOT NULL,
+    Observaciones VARCHAR(255) NULL,
+    Activa BIT DEFAULT 1 NOT NULL,
+    Principal BIT DEFAULT 0 NOT NULL
+);
+GO
+
+
+-- =============================================
+-- PROCEDIMIENTOS ALMACENADOS - USUARIOS
+-- Guillermo - 14/11/2026
+-- =============================================
+
+-- 1. Alta usuario (Registro)
+
+CREATE PROCEDURE spAltaUsuario
+    @Nombre VARCHAR(50),
+    @Apellido VARCHAR(50),
+    @Email VARCHAR(100),
+    @Clave VARCHAR(50),
+    @Telefono VARCHAR(30),
+    @IdPerfil INT
+AS
+BEGIN
+    INSERT INTO USUARIOS
+        (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta)
+    VALUES
+        (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
+END;
+GO
+
+-- Prueba 
+
+EXEC spAltaUsuario 
+    @Nombre = 'Test', 
+    @Apellido = 'User', 
+    @Email = 'test@user.com', 
+    @Clave = '1234', 
+    @Telefono = '1122334455', 
+    @IdPerfil = 2; 
+
+
+-- 2. Buscar / Validar usuario por Email y Clave (Login)
+
+CREATE PROCEDURE spBuscarUsuarioPorEmailYClave
+    @Email VARCHAR(100),
+    @Clave VARCHAR(50)
+AS
+BEGIN
+    SELECT
+        U.Id,
+        U.Nombre,
+        U.Apellido,
+        U.Email,
+        U.Clave,
+        U.Telefono,
+        U.IdPerfil,
+        P.Descripcion AS PerfilDescripcion,
+        U.Activo,
+        U.FechaAlta,
+        U.UltimoAcceso
+    FROM USUARIOS U
+    INNER JOIN PERFILES P ON U.IdPerfil = P.Id
+    WHERE U.Email = @Email
+      AND U.Clave = @Clave
+      AND U.Activo = 1;
+END;
+GO
+
+-- Prueba 
+
+EXEC spBuscarUsuarioPorEmailYClave 
+    @Email = 'test@user.com', 
+    @Clave = '1234';
+
+
+-- 3. Modificar datos de un usuario existente
+
+CREATE PROCEDURE spModificarUsuario
+    @Id INT,
+    @Nombre VARCHAR(50),
+    @Apellido VARCHAR(50),
+    @Email VARCHAR(100),
+    @Telefono VARCHAR(30),
+    @IdPerfil INT
+AS
+BEGIN
+    UPDATE USUARIOS
+    SET Nombre = @Nombre,
+        Apellido = @Apellido,
+        Email = @Email,
+        Telefono = @Telefono,
+        IdPerfil = @IdPerfil
+    WHERE Id = @Id;
+END;
+GO
+
+
+-- 4. Activar o Desactivar usuario (Baja lógica)
+
+CREATE PROCEDURE spCambiarEstadoUsuario
+    @Id INT,
+    @Activo BIT
+AS
+BEGIN
+    UPDATE USUARIOS
+    SET Activo = @Activo
+    WHERE Id = @Id;
+END;
+GO
+
+
+-- =============================================
+-- PROCEDIMIENTOS ALMACENADOS - DIRECCIONES
+-- Guillermo - 14/11/2026
+
+
+-- 1. Alta de dirección
+
+CREATE PROCEDURE spAltaDireccion
+    @IdUsuario INT,
+    @Calle VARCHAR(100),
+    @Numero VARCHAR(20),
+    @Provincia VARCHAR(100),
+    @Localidad VARCHAR(100),
+    @CodigoPostal VARCHAR(20),
+    @Observaciones VARCHAR(255),
+    @Principal BIT
+AS
+BEGIN
+    -- Si la nueva dirección se marca como principal,
+    -- desmarcamos las demás direcciones del usuario.
+    IF @Principal = 1
+    BEGIN
+        UPDATE DIRECCIONES
+        SET Principal = 0
+        WHERE IdUsuario = @IdUsuario;
+    END
+
+    INSERT INTO DIRECCIONES
+        (IdUsuario, Calle, Numero, Provincia, Localidad,
+         CodigoPostal, Observaciones, Activa, Principal)
+    VALUES
+        (@IdUsuario, @Calle, @Numero, @Provincia, @Localidad,
+         @CodigoPostal, @Observaciones, 1, @Principal);
+END;
+GO
+
+-- Prueba
+
+
+EXEC spAltaDireccion 
+    @IdUsuario = 1, 
+    @Calle = 'Corrientes', 
+    @Numero = '1234', 
+    @Provincia = 'Buenos Aires', 
+    @Localidad = 'Capital Federal', 
+    @CodigoPostal = '1043', 
+    @Observaciones = 'Piso 3', 
+    @Principal = 1;
+
+EXEC spListarDireccionesPorUsuario @IdUsuario = 1;
+
+
+-- 2. Modificar dirección existente
+
+CREATE PROCEDURE spModificarDireccion
+    @Id INT,
+    @Calle VARCHAR(100),
+    @Numero VARCHAR(20),
+    @Provincia VARCHAR(100),
+    @Localidad VARCHAR(100),
+    @CodigoPostal VARCHAR(20),
+    @Observaciones VARCHAR(255)
+AS
+BEGIN
+    UPDATE DIRECCIONES
+    SET Calle = @Calle,
+        Numero = @Numero,
+        Provincia = @Provincia,
+        Localidad = @Localidad,
+        CodigoPostal = @CodigoPostal,
+        Observaciones = @Observaciones
+    WHERE Id = @Id;
+END;
+GO
+
+
+-- 3. Listar direcciones
+
+CREATE PROCEDURE spListarDireccionesPorUsuario
+    @IdUsuario INT
+AS
+BEGIN
+    SELECT
+        Id,
+        IdUsuario,
+        Calle,
+        Numero,
+        Provincia,
+        Localidad,
+        CodigoPostal,
+        Observaciones,
+        Activa,
+        Principal
+    FROM DIRECCIONES
+    WHERE IdUsuario = @IdUsuario
+      AND Activa = 1;
+END;
+GO
+
+
+EXEC spListarDireccionesPorUsuario @IdUsuario = 1;
+
+
+-- 4. Marcar dirección principal
+
+CREATE PROCEDURE spMarcarDireccionPrincipal
+    @Id INT,
+    @IdUsuario INT
+AS
+BEGIN
+    -- Desmarcar todas las direcciones del usuario.
+    UPDATE DIRECCIONES
+    SET Principal = 0
+    WHERE IdUsuario = @IdUsuario;
+
+    -- Marcar la dirección seleccionada.
+    UPDATE DIRECCIONES
+    SET Principal = 1
+    WHERE Id = @Id
+      AND IdUsuario = @IdUsuario;
+END;
+GO
+
+
+-- 5. Desactivar o activar dirección (Baja lógica)
+
+CREATE PROCEDURE spCambiarEstadoDireccion
+    @Id INT,
+    @Activa BIT
+AS
+BEGIN
+    UPDATE DIRECCIONES
+    SET Activa = @Activa,
+        Principal = CASE WHEN @Activa = 0 THEN 0 ELSE Principal END
+    WHERE Id = @Id;
+END;
+GO
+
+
+
 -- ETAPA 3 -- MARTIN - 12/11/26
 -- TABLA ESTADO_PEDIDOS
 
@@ -201,9 +491,6 @@ VALUES
 ('Enviado'),
 ('Entregado'),
 ('Cancelado');
-GO
-
-SELECT * FROM ESTADOS_PEDIDO;
 GO
 
 -- TABLA PEDIDOS
@@ -228,6 +515,7 @@ CREATE TABLE PEDIDOS(
     CONSTRAINT CHK_PEDIDOS_ESTADOCOMPROBANTE CHECK(EstadoComprobante IN('Pendiente','Aceptado','Rechazado')),
     CONSTRAINT CHK_PEDIDOS_TOTAL CHECK(TOTAL > 0)
 );
+
 GO
 -- TABLA ITEMS_PEDIDO
 CREATE TABLE ITEMS_PEDIDO(
@@ -516,6 +804,5 @@ AS BEGIN
 END
 GO
 
-SELECT Id, Nombre, PrecioVenta, Stock
-FROM PRODUCTOS
-WHERE Activo = 1
+
+

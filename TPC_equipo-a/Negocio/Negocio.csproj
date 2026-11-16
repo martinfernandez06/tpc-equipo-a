@@ -44,11 +44,12 @@
   <ItemGroup>
     <Compile Include="AccesoDatos.cs" />
     <Compile Include="CategoriaNegocio.cs" />
+    <Compile Include="DireccionNegocio.cs" />
     <Compile Include="FormaEntregaNegocio.cs" />
     <Compile Include="FormaPagoNegocio.cs" />
-    <Compile Include="PedidoNegocio.cs" />
     <Compile Include="ProductoNegocio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UsuarioNegocio.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dominio\Dominio.csproj">

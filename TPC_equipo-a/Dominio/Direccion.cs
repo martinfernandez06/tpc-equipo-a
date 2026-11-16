@@ -18,7 +18,8 @@ namespace Dominio
         // Constructor por defecto
         public Direccion() {
             // toda direccion nueva nace activa
-            Activa = true;
+            Activa = true ;
+            Principal = false ; 
         }
 
        
