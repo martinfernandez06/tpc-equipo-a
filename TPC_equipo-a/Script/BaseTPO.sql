@@ -12,7 +12,7 @@ CREATE TABLE CATEGORIAS (
 );
 GO
 
--- Datos de prueba 
+-- Datos de prueba
 
 INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Electrónica', 'Dispositivos y accesorios tecnológicos', 1);
 INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Ropa y Calzado', 'Indumentaria para todas las estaciones', 1);
@@ -24,17 +24,12 @@ GO
 CREATE PROCEDURE spAltaCategoria
 	@Nombre VARCHAR(100),
 	@Descripcion VARCHAR(255)
-AS BEGIN 
+AS BEGIN
 	INSERT INTO CATEGORIAS (Nombre,Descripcion,Activa)
 	VALUES (@Nombre,@Descripcion,1)
 END
 GO
 
-
-GO
-
-Select * from CATEGORIAS
-GO
 -- Martin -> 31/10/26 1700
 CREATE PROCEDURE spBuscarCategoriaPorId
     @id INT
@@ -43,9 +38,6 @@ AS BEGIN
     FROM CATEGORIAS
     WHERE Id = @id
 END
-GO
-
-
 GO
 
 -- Martin -> 31/10/26 1755
@@ -71,8 +63,6 @@ BEGIN
 END
 GO
 
-
-
 -- Tabla Productos --
 
 CREATE TABLE PRODUCTOS (
@@ -87,72 +77,66 @@ CREATE TABLE PRODUCTOS (
 );
 GO
 
--- =============================================
--- PROCEDIMIENTOS ALMACENADOS - PRODUCTOS
--- =============================================
-
 -- 1. Listar todos los productos con su categoría (sin filtrar por activo para que funcione el panel de administración)
-CREATE PROCEDURE spListarProductos 
-AS 
-BEGIN 
-    SELECT P.Id, P.Nombre, P.Descripcion, P.PrecioVenta, P.Stock, P.IdCategoria, C.Nombre AS CategoriaNombre, P.ImagenUrl, P.Activo 
-    FROM PRODUCTOS P 
-    INNER JOIN CATEGORIAS C ON P.IdCategoria = C.Id; 
+CREATE PROCEDURE spListarProductos
+AS
+BEGIN
+    SELECT P.Id, P.Nombre, P.Descripcion, P.PrecioVenta, P.Stock, P.IdCategoria, C.Nombre AS CategoriaNombre, P.ImagenUrl, P.Activo
+    FROM PRODUCTOS P
+    INNER JOIN CATEGORIAS C ON P.IdCategoria = C.Id;
 END;
 GO
 
 -- 2. Alta de un nuevo producto
-CREATE PROCEDURE spAltaProducto 
-    @Nombre VARCHAR(100), 
-    @Descripcion VARCHAR(255), 
-    @PrecioVenta MONEY, 
-    @Stock INT, 
-    @IdCategoria INT, 
-    @ImagenUrl VARCHAR(500), 
-    @Activo BIT 
-AS 
-BEGIN 
-    INSERT INTO PRODUCTOS (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo) 
-    VALUES (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo); 
+CREATE PROCEDURE spAltaProducto
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255),
+    @PrecioVenta MONEY,
+    @Stock INT,
+    @IdCategoria INT,
+    @ImagenUrl VARCHAR(500),
+    @Activo BIT
+AS
+BEGIN
+    INSERT INTO PRODUCTOS (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo)
+    VALUES (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo);
 END;
 GO
 
 -- 3. Modificar un producto existente
-CREATE PROCEDURE spModificarProducto 
-    @Id INT, 
-    @Nombre VARCHAR(100), 
-    @Descripcion VARCHAR(255), 
-    @PrecioVenta MONEY, 
-    @Stock INT, 
-    @IdCategoria INT, 
+CREATE PROCEDURE spModificarProducto
+    @Id INT,
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255),
+    @PrecioVenta MONEY,
+    @Stock INT,
+    @IdCategoria INT,
     @ImagenUrl VARCHAR(500)
-AS 
-BEGIN 
-    UPDATE PRODUCTOS 
-    SET Nombre = @Nombre, 
-        Descripcion = @Descripcion, 
-        PrecioVenta = @PrecioVenta, 
-        Stock = @Stock, 
-        IdCategoria = @IdCategoria, 
+AS
+BEGIN
+    UPDATE PRODUCTOS
+    SET Nombre = @Nombre,
+        Descripcion = @Descripcion,
+        PrecioVenta = @PrecioVenta,
+        Stock = @Stock,
+        IdCategoria = @IdCategoria,
         ImagenUrl = @ImagenUrl
-    WHERE Id = @Id; 
+    WHERE Id = @Id;
 END;
 GO
 
 -- 4. Baja lógica (cambiar estado activo/inactivo)
-CREATE PROCEDURE spBajaLogicaProducto 
-    @Id INT 
-AS 
-BEGIN 
-    UPDATE PRODUCTOS 
-    SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END 
-    WHERE Id = @Id; 
+CREATE PROCEDURE spBajaLogicaProducto
+    @Id INT
+AS
+BEGIN
+    UPDATE PRODUCTOS
+    SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END
+    WHERE Id = @Id;
 END;
 GO
 
--- =======================================================
 -- TABLAS DE FORMAS DE PAGO Y ENTREGA (Pablo 06/11/2026)
--- =======================================================
 
 -- Tabla FORMAS_PAGO
 CREATE TABLE FORMAS_PAGO (
@@ -227,7 +211,6 @@ CREATE TABLE DIRECCIONES (
 GO
 
 -- PROCEDIMIENTOS ALMACENADOS - USUARIOS
-
 -- 1. Alta usuario (Registro)
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50),
@@ -411,22 +394,21 @@ BEGIN
 END;
 GO
 
-
-
 -- ETAPA 3 -- MARTIN - 12/11/26
--- TABLA ESTADO_PEDIDOS
+-- tabla ESTADOS_PEDIDO
 
 CREATE TABLE ESTADOS_PEDIDO(
-  Id INT IDENTITY(1,1),
-  Descripcion VARCHAR(50) NOT NULL,
+    Id INT IDENTITY(1,1),
+    Descripcion VARCHAR(50) NOT NULL,
 
-  CONSTRAINT PK_ESTADOS_PEDIDO_ID PRIMARY KEY(Id),
-  CONSTRAINT UQ_ESTADOS_PEDIDO_DESCRIPCION UNIQUE(Descripcion)
+    CONSTRAINT PK_ESTADOS_PEDIDO_ID PRIMARY KEY(Id),
+    CONSTRAINT UQ_ESTADOS_PEDIDO_DESCRIPCION UNIQUE(Descripcion)
 );
 GO
--- INSERTARE DATOS DE PRUEBA 
-INSERT INTO ESTADOS_PEDIDO(Descripcion) 
-VALUES 
+
+-- estados fijos, el orden importa porque los sp usan estos id
+INSERT INTO ESTADOS_PEDIDO(Descripcion)
+VALUES
 ('Pendiente de pago'),
 ('Pagado'),
 ('En preparación'),
@@ -435,8 +417,7 @@ VALUES
 ('Cancelado');
 GO
 
--- TABLA PEDIDOS
-
+-- tabla PEDIDOS
 CREATE TABLE PEDIDOS(
     Id INT IDENTITY(1,1),
     IdUsuario INT NOT NULL,
@@ -451,20 +432,23 @@ CREATE TABLE PEDIDOS(
     EstadoComprobante VARCHAR(20) NULL,
 
     CONSTRAINT PK_PEDIDOS_ID PRIMARY KEY(Id),
+    CONSTRAINT FK_PEDIDOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
+    CONSTRAINT FK_PEDIDOS_IDDIRECCION FOREIGN KEY(IdDireccion) REFERENCES DIRECCIONES(Id),
     CONSTRAINT FK_PEDIDOS_IDFORMAENTREGA FOREIGN KEY(IdFormaEntrega) REFERENCES FORMAS_ENTREGA(Id),
     CONSTRAINT FK_PEDIDOS_IDFORMAPAGO FOREIGN KEY(IdFormaPago) REFERENCES FORMAS_PAGO(Id),
     CONSTRAINT FK_PEDIDOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id),
     CONSTRAINT CHK_PEDIDOS_ESTADOCOMPROBANTE CHECK(EstadoComprobante IN('Pendiente','Aceptado','Rechazado')),
-    CONSTRAINT CHK_PEDIDOS_TOTAL CHECK(TOTAL > 0)
+    CONSTRAINT CHK_PEDIDOS_TOTAL CHECK(Total > 0)
 );
-
 GO
--- TABLA ITEMS_PEDIDO
+
+-- tabla ITEMS_PEDIDO
 CREATE TABLE ITEMS_PEDIDO(
     IdPedido INT NOT NULL,
     IdProducto INT NOT NULL,
     Cantidad INT NOT NULL,
     PrecioUnitario MONEY NOT NULL,
+
     -- pk compuesta, un producto aparece una sola vez por pedido, si compra mas se suma en cantidad
     CONSTRAINT PK_ITEMS_PEDIDO PRIMARY KEY(IdPedido, IdProducto),
     CONSTRAINT FK_ITEMS_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
@@ -473,7 +457,8 @@ CREATE TABLE ITEMS_PEDIDO(
     CONSTRAINT CHK_ITEMS_PEDIDO_PRECIOUNITARIO CHECK(PrecioUnitario > 0)
 );
 GO
--- TABLA HISTORIAL_ESTADOS
+
+-- tabla HISTORIAL_ESTADOS
 CREATE TABLE HISTORIAL_ESTADOS(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
@@ -483,11 +468,12 @@ CREATE TABLE HISTORIAL_ESTADOS(
 
     CONSTRAINT PK_HISTORIAL_ESTADOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
+    CONSTRAINT FK_HISTORIAL_ESTADOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id)
 );
 GO
 
--- OBSERVACIONES_PEDIDO
+-- tabla OBSERVACIONES_PEDIDO
 CREATE TABLE OBSERVACIONES_PEDIDO(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
@@ -496,7 +482,8 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
     Observacion VARCHAR(500) NOT NULL,
 
     CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
-    CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id)
+    CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
+    CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id)
 );
 GO
 
@@ -512,7 +499,7 @@ AS BEGIN
     INSERT INTO PEDIDOS (IdUsuario, IdFormaEntrega, IdDireccion, IdFormaPago, Total)
     VALUES (@IdUsuario, @IdFormaEntrega, @IdDireccion, @IdFormaPago, @Total)
 
-    -- agarro el id que la BD le acaba de dar al pedido
+    -- agarro el id que la bd le acaba de dar al pedido
     DECLARE @IdPedido INT = SCOPE_IDENTITY()
 
     -- todo pedido nace en el estado 1, pendiente de pago
@@ -544,13 +531,15 @@ END
 GO
 
 -- Martin - 13/11/26
--- lista todos los pedidos para el panel admin, los mas nuevos primero
+-- lista todos los pedidos para el panel admin con el nombre del cliente, los mas nuevos primero
 CREATE PROCEDURE spListarPedidos
 AS BEGIN
     SELECT
         P.Id,
         P.FechaCreacion,
         P.IdUsuario,
+        U.Nombre AS NombreCliente,
+        U.Apellido AS ApellidoCliente,
         FE.Descripcion AS FormaEntrega,
         FP.Descripcion AS FormaPago,
         E.Descripcion AS Estado,
@@ -558,6 +547,7 @@ AS BEGIN
         P.CodigoSeguimiento,
         P.EstadoComprobante
     FROM PEDIDOS P
+    INNER JOIN USUARIOS U ON P.IdUsuario = U.Id
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
     INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
     INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
@@ -565,7 +555,7 @@ AS BEGIN
 END
 GO
 
--- trae un pedido por su id, para ver el detalle
+-- trae un pedido por su id con los datos del cliente y la direccion, para ver el detalle
 CREATE PROCEDURE spBuscarPedidoPorId
 @Id INT
 AS BEGIN
@@ -573,9 +563,18 @@ AS BEGIN
         P.Id,
         P.FechaCreacion,
         P.IdUsuario,
+        U.Nombre AS NombreCliente,
+        U.Apellido AS ApellidoCliente,
+        U.Email,
+        U.Telefono,
         P.IdFormaEntrega,
         FE.Descripcion AS FormaEntrega,
         P.IdDireccion,
+        D.Calle,
+        D.Numero,
+        D.Localidad,
+        D.Provincia,
+        D.CodigoPostal,
         P.IdFormaPago,
         FP.Descripcion AS FormaPago,
         P.IdEstado,
@@ -585,6 +584,9 @@ AS BEGIN
         P.ComprobanteUrl,
         P.EstadoComprobante
     FROM PEDIDOS P
+    INNER JOIN USUARIOS U ON P.IdUsuario = U.Id
+    -- left join porque el retiro en local no tiene direccion
+    LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
     INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
     INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
@@ -631,11 +633,7 @@ AS BEGIN
 END
 GO
 
-
 -- cambia el estado de un pedido y lo anota en el historial con quien lo cambio
--- el UPDATE cambia el estado actual del pedido y el INSERT deja registrado el cambio en el historial. 
--- La fecha se carga sola por el DEFAULT. Así PEDIDOS siempre tiene el estado de ahora
--- y HISTORIAL_ESTADOS tiene todos los estados por los que pasó.
 CREATE PROCEDURE spCambiarEstadoPedido
 @IdPedido INT,
 @IdEstado INT,
@@ -718,18 +716,25 @@ AS BEGIN
 END
 GO
 
--- lista las observaciones de un pedido, las mas viejas primero
+-- lista las observaciones de un pedido con quien las escribio, las mas viejas primero
 CREATE PROCEDURE spListarObservacionesPorPedido
 @IdPedido INT
 AS BEGIN
-    SELECT Id, IdUsuario, Fecha, Observacion
-    FROM OBSERVACIONES_PEDIDO
-    WHERE IdPedido = @IdPedido
-    ORDER BY Fecha ASC
+    SELECT
+        O.Id,
+        O.IdUsuario,
+        U.Nombre AS NombreUsuario,
+        U.Apellido AS ApellidoUsuario,
+        O.Fecha,
+        O.Observacion
+    FROM OBSERVACIONES_PEDIDO O
+    INNER JOIN USUARIOS U ON O.IdUsuario = U.Id
+    WHERE O.IdPedido = @IdPedido
+    ORDER BY O.Fecha ASC
 END
 GO
 
--- lista los estados por los que paso un pedido para el seguimiento, los mas viejos primero
+-- lista los estados por los que paso un pedido con quien hizo cada cambio, los mas viejos primero
 CREATE PROCEDURE spListarHistorialPorPedido
 @IdPedido INT
 AS BEGIN
@@ -738,13 +743,13 @@ AS BEGIN
         H.IdEstado,
         E.Descripcion AS Estado,
         H.IdUsuario,
+        U.Nombre AS NombreUsuario,
+        U.Apellido AS ApellidoUsuario,
         H.Fecha
     FROM HISTORIAL_ESTADOS H
     INNER JOIN ESTADOS_PEDIDO E ON H.IdEstado = E.Id
+    INNER JOIN USUARIOS U ON H.IdUsuario = U.Id
     WHERE H.IdPedido = @IdPedido
     ORDER BY H.Fecha ASC
 END
 GO
-
-
-

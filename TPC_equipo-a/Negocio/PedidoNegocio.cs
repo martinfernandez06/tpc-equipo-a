@@ -75,6 +75,8 @@ namespace Negocio
                     // creo los objetos de adentro porque el constructor de Pedido no los inicializa, si no quedan en null y rompe al cargarles datos
                     aux.Cliente = new Usuario();
                     aux.Cliente.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Cliente.Nombre = (string)datos.Lector["NombreCliente"];
+                    aux.Cliente.Apellido = (string)datos.Lector["ApellidoCliente"];
                     aux.FormaPago = new FormaPago();
                     aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
                     aux.FormaEntrega = new FormaEntrega();
@@ -171,6 +173,13 @@ namespace Negocio
                     aux.FechaCreacion = (DateTime)datos.Lector["FechaCreacion"];
                     aux.Cliente = new Usuario();
                     aux.Cliente.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Cliente.Nombre = (string)datos.Lector["NombreCliente"];
+                    aux.Cliente.Apellido = (string)datos.Lector["ApellidoCliente"];
+                    aux.Cliente.Email = (string)datos.Lector["Email"];
+                    if (!(datos.Lector["Telefono"] is DBNull))
+                    {
+                        aux.Cliente.Telefono = (string)datos.Lector["Telefono"];
+                    }
                     aux.FormaEntrega = new FormaEntrega();
                     aux.FormaEntrega.Id = (int)datos.Lector["IdFormaEntrega"];
                     aux.FormaEntrega.Descripcion = (string)datos.Lector["FormaEntrega"];
@@ -178,6 +187,11 @@ namespace Negocio
                     {
                         aux.Direccion = new Direccion();
                         aux.Direccion.Id = (int)datos.Lector["IdDireccion"];
+                        aux.Direccion.Calle = (string)datos.Lector["Calle"];
+                        aux.Direccion.Numero = (string)datos.Lector["Numero"];
+                        aux.Direccion.Localidad = (string)datos.Lector["Localidad"];
+                        aux.Direccion.Provincia = (string)datos.Lector["Provincia"];
+                        aux.Direccion.CodigoPostal = (string)datos.Lector["CodigoPostal"];
                     }
                     aux.FormaPago = new FormaPago();
                     aux.FormaPago.Id = (int)datos.Lector["IdFormaPago"];
@@ -270,6 +284,8 @@ namespace Negocio
                     aux.Estado.Descripcion = (string)datos.Lector["Estado"];
                     aux.Usuario = new Usuario();
                     aux.Usuario.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Usuario.Nombre = (string)datos.Lector["NombreUsuario"];
+                    aux.Usuario.Apellido = (string)datos.Lector["ApellidoUsuario"];
                     aux.Fecha = (DateTime)datos.Lector["Fecha"];
                     listaHistorialEstado.Add(aux);
                 }
@@ -303,6 +319,8 @@ namespace Negocio
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Usuario = new Usuario();
                     aux.Usuario.Id = (int)datos.Lector["IdUsuario"];
+                    aux.Usuario.Nombre = (string)datos.Lector["NombreUsuario"];
+                    aux.Usuario.Apellido = (string)datos.Lector["ApellidoUsuario"];
                     aux.Fecha = (DateTime)datos.Lector["Fecha"];
                     aux.Observacion = (string)datos.Lector["Observacion"];
                     listaObservaciones.Add(aux);
