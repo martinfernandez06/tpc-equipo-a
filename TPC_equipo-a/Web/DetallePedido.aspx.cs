@@ -32,11 +32,19 @@ namespace Web
                     return "badge bg-light text-dark";
             }
         }
+
         // carga todos los datos del pedido, se llama al entrar y despues de cada cambio para refrescar
         private void CargarPedido(int id)
         {
             PedidoNegocio negocio = new PedidoNegocio();
             Pedido seleccionado = negocio.buscarPorId(id);
+
+            // si el id no existe en la bd el pedido viene vacio con id 0, lo mando de vuelta a la lista
+            if (seleccionado.Id == 0)
+            {
+                Response.Redirect("AdminPedidos.aspx", false);
+                return;
+            }
 
             lblNumero.Text = seleccionado.Id.ToString();
             // el formato dd/MM/yyyy HH:mm saca los segundos para que se lea mas limpio
@@ -51,7 +59,6 @@ namespace Web
             // la C da formato de pesos, solo sirve con numeros, no con textos
             lblTotal.Text = seleccionado.Total.ToString("C");
 
-            // Cargo el dgv de Items
             dgvItems.DataSource = negocio.ListarItems(id);
             dgvItems.DataBind();
 
@@ -60,23 +67,41 @@ namespace Web
 
             dgvObservaciones.DataSource = negocio.ListarObservaciones(id);
             dgvObservaciones.DataBind();
+
+            // cargo solo los estados que vienen despues del actual, asi no se puede elegir uno para atras
+            // el clear es porque este metodo se llama de nuevo despues de cada cambio y si no se repiten
+            int estadoActual = seleccionado.Estado.Id;
+            ddlEstado.Items.Clear();
+
+            if (estadoActual < 2)
+                ddlEstado.Items.Add(new ListItem("Pagado", "2"));
+            if (estadoActual < 3)
+                ddlEstado.Items.Add(new ListItem("En preparación", "3"));
+            if (estadoActual < 4)
+                ddlEstado.Items.Add(new ListItem("Enviado", "4"));
+            if (estadoActual < 5)
+                ddlEstado.Items.Add(new ListItem("Entregado", "5"));
+
+            // si el pedido esta cerrado se oculta la card, y cancelar solo se ve si todavia no salio
+            pnlAcciones.Visible = estadoActual < 5;
+            btnCancelar.Visible = estadoActual < 4;
         }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // leo el id de la url, si no vino queda vacio
-                string id = Request.QueryString["id"] != null ? Request.QueryString["id"].ToString() : "";
-                if (id != "")
+                // tryparse devuelve false si el id no vino o no es un numero, asi no rompe nada con ?id=abc
+                int id;
+                if (int.TryParse(Request.QueryString["id"], out id))
                 {
-                    CargarPedido(int.Parse(id));
+                    CargarPedido(id);
                 }
                 else
                 {
                     // si entran sin id en la url los mando de vuelta a la lista
-                    Response.Redirect("AdminPedidos.aspx");
+                    Response.Redirect("AdminPedidos.aspx", false);
                 }
-
             }
         }
 
@@ -86,6 +111,7 @@ namespace Web
             Page.Validate("observacion");
             if (!Page.IsValid)
                 return;
+
             int id = int.Parse(Request.QueryString["id"]);
             PedidoNegocio negocio = new PedidoNegocio();
             // el usuario 1 es fijo hasta que este el login
@@ -100,20 +126,43 @@ namespace Web
             try
             {
                 int id = int.Parse(Request.QueryString["id"]);
+                // el value de cada opcion es el id del estado en la bd
                 int elegido = int.Parse(ddlEstado.SelectedValue);
 
                 PedidoNegocio negocio = new PedidoNegocio();
                 // el usuario 1 es fijo hasta que este el login
                 negocio.CambiarEstado(id, elegido, 1);
-                lblMensaje.Text = "Estado Actualizado";
-                lblMensaje.CssClass = "text-success d-block mt-2";
+
+                lblMensaje.Text = "Estado actualizado";
+                lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
             }
             catch (Exception ex)
             {
-
+                // si el sp corta con un throw, el mensaje que escribimos en la bd llega aca en ex.Message
                 lblMensaje.Text = ex.Message;
-                lblMensaje.CssClass = "text-danger d-block mt-2";
+                lblMensaje.CssClass = "text-danger d-block my-2";
+            }
+        }
+
+        protected void btnCancelar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int id = int.Parse(Request.QueryString["id"]);
+                PedidoNegocio negocio = new PedidoNegocio();
+                // el usuario 1 es fijo hasta que este el login
+                negocio.CancelarPedido(id, 1);
+
+                lblMensaje.Text = "Pedido cancelado, las unidades volvieron al stock";
+                lblMensaje.CssClass = "text-success d-block my-2";
+                CargarPedido(id);
+            }
+            catch (Exception ex)
+            {
+                // igual que en cambiar estado, el error del sp se muestra en rojo
+                lblMensaje.Text = ex.Message;
+                lblMensaje.CssClass = "text-danger d-block my-2";
             }
         }
     }

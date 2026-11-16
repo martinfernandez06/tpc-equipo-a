@@ -8,57 +8,37 @@
         <a href="AdminPedidos.aspx" class="btn btn-sm btn-outline-secondary">Volver</a>
     </div>
 
-    <%-- datos generales, el texto en negrita es fijo --%>
+    <%-- datos generales, el texto en negrita es fijo y el label lo llena el code behind --%>
     <div class="card mb-4">
         <div class="card-body">
-            <p>
-                <strong>Numero de pedido:</strong>
-                <asp:Label ID="lblNumero" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Fecha:</strong>
-                <asp:Label ID="lblFecha" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Cliente:</strong>
-                <asp:Label ID="lblCliente" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Estado:</strong>
-                <asp:Label ID="lblEstado" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Forma de pago:</strong>
-                <asp:Label ID="lblFormaPago" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Forma de entrega:</strong>
-                <asp:Label ID="lblFormaEntrega" runat="server"></asp:Label>
-            </p>
-            <p>
-                <strong>Codigo de seguimiento:</strong>
-                <asp:Label ID="lblCodigoSeguimiento" runat="server"></asp:Label>
-            </p>
-            <p class="mb-0">
-                <strong>Total:</strong>
-                <asp:Label ID="lblTotal" runat="server"></asp:Label>
-            </p>
+            <p><strong>Numero de pedido:</strong> <asp:Label ID="lblNumero" runat="server"></asp:Label></p>
+            <p><strong>Fecha:</strong> <asp:Label ID="lblFecha" runat="server"></asp:Label></p>
+            <p><strong>Cliente:</strong> <asp:Label ID="lblCliente" runat="server"></asp:Label></p>
+            <p><strong>Estado:</strong> <asp:Label ID="lblEstado" runat="server"></asp:Label></p>
+            <p><strong>Forma de pago:</strong> <asp:Label ID="lblFormaPago" runat="server"></asp:Label></p>
+            <p><strong>Forma de entrega:</strong> <asp:Label ID="lblFormaEntrega" runat="server"></asp:Label></p>
+            <p><strong>Codigo de seguimiento:</strong> <asp:Label ID="lblCodigoSeguimiento" runat="server"></asp:Label></p>
+            <p class="mb-0"><strong>Total:</strong> <asp:Label ID="lblTotal" runat="server"></asp:Label></p>
         </div>
     </div>
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5>Acciones</h5>
-            <asp:DropDownList ID="ddlEstado" CssClass="form-select" runat="server">
-                <asp:ListItem Text="Pagado" Value="2"></asp:ListItem>
-                <asp:ListItem Text="En preparación" Value="3"></asp:ListItem>
-                <asp:ListItem Text="Enviado" Value="4"></asp:ListItem>
-                <asp:ListItem Text="Entregado" Value="5"></asp:ListItem>
-            </asp:DropDownList>
-            <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-primary mt-2" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
-            <asp:Label ID="lblMensaje" runat="server" Text="" CssClass="d-block mt-2"></asp:Label>
+
+    <%-- el panel envuelve la card para ocultarla entera cuando el pedido esta entregado o cancelado --%>
+    <asp:Panel ID="pnlAcciones" runat="server">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Acciones</h5>
+                <%-- las opciones se cargan desde el code behind segun el estado actual --%>
+                <asp:DropDownList ID="ddlEstado" runat="server" CssClass="form-select"></asp:DropDownList>
+                <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-primary mt-2" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
+                <%-- el confirm pide confirmacion en el navegador antes de cancelar --%>
+                <asp:Button ID="btnCancelar" runat="server" Text="Cancelar pedido" CssClass="btn btn-outline-danger mt-2 ms-2" ValidationGroup="cancelar" OnClientClick="return confirm('Seguro que queres cancelar el pedido? Las unidades vuelven al stock');" OnClick="btnCancelar_Click" />
+            </div>
         </div>
-    </div>
-        <h5>Productos</h5>
+    </asp:Panel>
+    <%-- el mensaje va afuera del panel para que se siga viendo cuando la card se oculta --%>
+    <asp:Label ID="lblMensaje" runat="server" CssClass="d-block my-2"></asp:Label>
+
+    <h5>Productos</h5>
     <asp:GridView ID="dgvItems" runat="server" AutoGenerateColumns="false" CssClass="table table-striped table-bordered align-middle">
         <Columns>
             <asp:TemplateField HeaderText="Nombre">
