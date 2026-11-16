@@ -100,7 +100,8 @@
             </asp:TemplateField>
             <asp:TemplateField HeaderText="Usuario">
                 <ItemTemplate>
-                    <%# Eval("Usuario.Id") %>
+                    <%# Eval("Usuario.Nombre") %>
+                    <%# Eval("Usuario.Apellido") %>
                 </ItemTemplate>
             </asp:TemplateField>
         </Columns>
@@ -112,7 +113,8 @@
             <asp:BoundField HeaderText="Fecha" DataField="Fecha" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
             <asp:TemplateField HeaderText="Usuario">
                 <ItemTemplate>
-                    <%# Eval("Usuario.Id") %>
+                    <%# Eval("Usuario.Nombre") %>
+                    <%# Eval("Usuario.Apellido") %>
                 </ItemTemplate>
             </asp:TemplateField>
             <asp:BoundField HeaderText="Observacion" DataField="Observacion" />
