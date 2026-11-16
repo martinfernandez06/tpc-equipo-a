@@ -181,8 +181,8 @@ INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en e
 INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
 GO
 
--- Guillermo - 14/11/2026
--- =============================================
+-- Guillermo
+-- tablas y sp de usuarios, perfiles y direcciones
 
 -- Tabla PERFILES
 CREATE TABLE PERFILES (
@@ -226,14 +226,9 @@ CREATE TABLE DIRECCIONES (
 );
 GO
 
-
--- =============================================
 -- PROCEDIMIENTOS ALMACENADOS - USUARIOS
--- Guillermo - 14/11/2026
--- =============================================
 
 -- 1. Alta usuario (Registro)
-
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50),
     @Apellido VARCHAR(50),
@@ -250,19 +245,7 @@ BEGIN
 END;
 GO
 
--- Prueba 
-
-EXEC spAltaUsuario 
-    @Nombre = 'Test', 
-    @Apellido = 'User', 
-    @Email = 'test@user.com', 
-    @Clave = '1234', 
-    @Telefono = '1122334455', 
-    @IdPerfil = 2; 
-
-
 -- 2. Buscar / Validar usuario por Email y Clave (Login)
-
 CREATE PROCEDURE spBuscarUsuarioPorEmailYClave
     @Email VARCHAR(100),
     @Clave VARCHAR(50)
@@ -288,15 +271,7 @@ BEGIN
 END;
 GO
 
--- Prueba 
-
-EXEC spBuscarUsuarioPorEmailYClave 
-    @Email = 'test@user.com', 
-    @Clave = '1234';
-
-
 -- 3. Modificar datos de un usuario existente
-
 CREATE PROCEDURE spModificarUsuario
     @Id INT,
     @Nombre VARCHAR(50),
@@ -316,9 +291,7 @@ BEGIN
 END;
 GO
 
-
 -- 4. Activar o Desactivar usuario (Baja lógica)
-
 CREATE PROCEDURE spCambiarEstadoUsuario
     @Id INT,
     @Activo BIT
@@ -330,14 +303,9 @@ BEGIN
 END;
 GO
 
-
--- =============================================
 -- PROCEDIMIENTOS ALMACENADOS - DIRECCIONES
--- Guillermo - 14/11/2026
-
 
 -- 1. Alta de dirección
-
 CREATE PROCEDURE spAltaDireccion
     @IdUsuario INT,
     @Calle VARCHAR(100),
@@ -367,24 +335,7 @@ BEGIN
 END;
 GO
 
--- Prueba
-
-
-EXEC spAltaDireccion 
-    @IdUsuario = 1, 
-    @Calle = 'Corrientes', 
-    @Numero = '1234', 
-    @Provincia = 'Buenos Aires', 
-    @Localidad = 'Capital Federal', 
-    @CodigoPostal = '1043', 
-    @Observaciones = 'Piso 3', 
-    @Principal = 1;
-
-EXEC spListarDireccionesPorUsuario @IdUsuario = 1;
-
-
 -- 2. Modificar dirección existente
-
 CREATE PROCEDURE spModificarDireccion
     @Id INT,
     @Calle VARCHAR(100),
@@ -406,9 +357,7 @@ BEGIN
 END;
 GO
 
-
 -- 3. Listar direcciones
-
 CREATE PROCEDURE spListarDireccionesPorUsuario
     @IdUsuario INT
 AS
@@ -430,12 +379,7 @@ BEGIN
 END;
 GO
 
-
-EXEC spListarDireccionesPorUsuario @IdUsuario = 1;
-
-
 -- 4. Marcar dirección principal
-
 CREATE PROCEDURE spMarcarDireccionPrincipal
     @Id INT,
     @IdUsuario INT
@@ -454,9 +398,7 @@ BEGIN
 END;
 GO
 
-
 -- 5. Desactivar o activar dirección (Baja lógica)
-
 CREATE PROCEDURE spCambiarEstadoDireccion
     @Id INT,
     @Activa BIT
