@@ -143,6 +143,10 @@ namespace Negocio
                     {
                         aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
                     }
+                    if (!(datos.Lector["EmpresaEnvio"] is DBNull))
+                    {
+                        aux.EmpresaEnvio = (string)datos.Lector["EmpresaEnvio"];
+                    }
                     if (!(datos.Lector["EstadoComprobante"] is DBNull))
                     {
                         aux.EstadoComprobante = (string)datos.Lector["EstadoComprobante"];
@@ -210,6 +214,10 @@ namespace Negocio
                     if (!(datos.Lector["CodigoSeguimiento"] is DBNull))
                     {
                         aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
+                    }
+                    if (!(datos.Lector["EmpresaEnvio"] is DBNull))
+                    {
+                        aux.EmpresaEnvio = (string)datos.Lector["EmpresaEnvio"];
                     }
                     if (!(datos.Lector["EstadoComprobante"] is DBNull))
                     {
@@ -344,7 +352,7 @@ namespace Negocio
             }
         }
 
-        public void CambiarEstado(int idPedido, int idEstado, int idUsuario)
+        public void CambiarEstado(int idPedido, int idEstado, int idUsuario, string empresaEnvio, string codigoSeguimiento)
         {
             AccesoDatos datos = new AccesoDatos();
 
@@ -354,12 +362,36 @@ namespace Negocio
                 datos.setearParametro("@IdPedido",idPedido);
                 datos.setearParametro("@IdEstado",idEstado);
                 datos.setearParametro("@IdUsuario",idUsuario);
+                //si viene vacío o con espacios manda el NULL de la bd, y si tiene algo manda el texto
+                datos.setearParametro("@EmpresaEnvio", string.IsNullOrWhiteSpace(empresaEnvio) ? DBNull.Value : (object)empresaEnvio);
+                datos.setearParametro("@CodigoSeguimiento", string.IsNullOrWhiteSpace(codigoSeguimiento) ? DBNull.Value : (object)codigoSeguimiento);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
             {
 
                 throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        public void ActualizarSeguimiento(int idPedido, string codigoSeguimiento)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spActualizarSeguimiento");
+                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@CodigoSeguimiento", string.IsNullOrWhiteSpace(codigoSeguimiento) ? DBNull.Value : (object)codigoSeguimiento);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex; 
             }
             finally
             {

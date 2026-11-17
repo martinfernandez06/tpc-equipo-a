@@ -19,6 +19,7 @@ namespace Dominio
         public List<ObservacionPedido> Observaciones { get; set; }
         //Un pedido puede tener muchas observaciones asi que la relacion 1 a muchos del DER
         public string CodigoSeguimiento { get; set; }
+        public string EmpresaEnvio { get; set; }
         public string ComprobanteUrl { get; set; }
         public string EstadoComprobante { get; set; }
         public List<HistorialEstado> Historial { get; set; }

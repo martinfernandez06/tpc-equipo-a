@@ -33,6 +33,23 @@ namespace Web
             }
         }
 
+        private void MostrarEnvio()
+        {
+            // el value de cada opcion es el id del estado en la bd
+            int elegido = int.Parse(ddlEstado.SelectedValue);
+
+            if (elegido == 4)
+            {
+                pnlEnvio.Visible = true;
+            }
+            else
+            {
+                pnlEnvio.Visible = false;
+                ddlEmpresaEnvio.SelectedIndex = 0;
+                txtCodigoSeguimiento.Text = "";
+            }
+        }
+
         // carga todos los datos del pedido, se llama al entrar y despues de cada cambio para refrescar
         private void CargarPedido(int id)
         {
@@ -57,8 +74,35 @@ namespace Web
             lblFormaPago.Text = seleccionado.FormaPago.Descripcion;
             lblFormaEntrega.Text = seleccionado.FormaEntrega.Descripcion;
             lblDireccion.Text = seleccionado.Direccion != null ? $"{seleccionado.Direccion.Calle} {seleccionado.Direccion.Numero} <br /> {seleccionado.Direccion.Localidad}, {seleccionado.Direccion.Provincia} (CP: {seleccionado.Direccion.CodigoPostal})" : lblDireccion.Text = "No aplica";
-            // ternario, si no tiene codigo viene null y muestro un texto en vez de dejarlo vacio
-            lblCodigoSeguimiento.Text = seleccionado.CodigoSeguimiento != null ? seleccionado.CodigoSeguimiento : "Sin codigo";
+
+            // el link arranca oculto y solo se activa si el codigo es una url
+            hlSeguimiento.Visible = false;
+            if (seleccionado.Direccion == null)
+            {
+                lblEmpresaEnvio.Text = "No aplica";
+                lblCodigoSeguimiento.Text = "";
+            }else if (seleccionado.EmpresaEnvio == null)
+            {
+                lblEmpresaEnvio.Text = "Todavia no se envio";
+                lblCodigoSeguimiento.Text = "";
+            }
+            else
+            {
+                lblEmpresaEnvio.Text = $"Enviado por {seleccionado.EmpresaEnvio}";
+                if(seleccionado.CodigoSeguimiento == null)
+                {
+                    lblCodigoSeguimiento.Text = "Sin codigo.";
+                }else if (seleccionado.CodigoSeguimiento.StartsWith("http://") || seleccionado.CodigoSeguimiento.StartsWith("https://"))
+                {
+                    lblCodigoSeguimiento.Text = "";
+                    hlSeguimiento.NavigateUrl = seleccionado.CodigoSeguimiento;
+                    hlSeguimiento.Visible = true;
+                }
+                else
+                {
+                    lblCodigoSeguimiento.Text = seleccionado.CodigoSeguimiento;
+                }
+            }
             // la C da formato de pesos, solo sirve con numeros, no con textos
             lblTotal.Text = seleccionado.Total.ToString("C");
 
@@ -80,10 +124,15 @@ namespace Web
                 ddlEstado.Items.Add(new ListItem("Pagado", "2"));
             if (estadoActual < 3)
                 ddlEstado.Items.Add(new ListItem("En preparación", "3"));
-            if (estadoActual < 4)
+            // los de retiro no tienen direccion, asi que nunca pasan por enviado
+            if (estadoActual < 4 && seleccionado.Direccion != null)
                 ddlEstado.Items.Add(new ListItem("Enviado", "4"));
             if (estadoActual < 5)
                 ddlEstado.Items.Add(new ListItem("Entregado", "5"));
+
+            // solo si el pedido no esta cerrado, si no el ddl queda vacio y el parse rompe
+            if (estadoActual < 5)
+                MostrarEnvio();
 
             // si el pedido esta cerrado se oculta la card, y cancelar solo se ve si todavia no salio
             pnlAcciones.Visible = estadoActual < 5;
@@ -126,6 +175,11 @@ namespace Web
 
         protected void btnCambiarEstado_Click(object sender, EventArgs e)
         {
+
+            // vuelvo a validar en el servidor por si se saltean la validacion del navegador
+            Page.Validate("estado");
+            if (!Page.IsValid)
+                return;
             try
             {
                 int id = int.Parse(Request.QueryString["id"]);
@@ -134,7 +188,7 @@ namespace Web
 
                 PedidoNegocio negocio = new PedidoNegocio();
                 // el usuario 1 es fijo hasta que este el login
-                negocio.CambiarEstado(id, elegido, 1);
+                negocio.CambiarEstado(id, elegido, 1, ddlEmpresaEnvio.SelectedValue, txtCodigoSeguimiento.Text.Trim());
 
                 lblMensaje.Text = "Estado actualizado";
                 lblMensaje.CssClass = "text-success d-block my-2";
@@ -167,6 +221,11 @@ namespace Web
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
             }
+        }
+
+        protected void ddlEstado_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            MostrarEnvio();
         }
     }
 }

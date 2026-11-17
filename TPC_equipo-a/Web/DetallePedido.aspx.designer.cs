@@ -15,6 +15,15 @@ namespace Web
     {
 
         /// <summary>
+        /// Control upDetalle.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upDetalle;
+
+        /// <summary>
         /// Control lblNumero.
         /// </summary>
         /// <remarks>
@@ -105,6 +114,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.Label lblDireccion;
 
         /// <summary>
+        /// Control lblEmpresaEnvio.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblEmpresaEnvio;
+
+        /// <summary>
         /// Control lblCodigoSeguimiento.
         /// </summary>
         /// <remarks>
@@ -112,6 +130,15 @@ namespace Web
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblCodigoSeguimiento;
+
+        /// <summary>
+        /// Control hlSeguimiento.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink hlSeguimiento;
 
         /// <summary>
         /// Control pnlAcciones.
@@ -130,6 +157,42 @@ namespace Web
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlEstado;
+
+        /// <summary>
+        /// Control pnlEnvio.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEnvio;
+
+        /// <summary>
+        /// Control ddlEmpresaEnvio.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlEmpresaEnvio;
+
+        /// <summary>
+        /// Control txtCodigoSeguimiento.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtCodigoSeguimiento;
+
+        /// <summary>
+        /// Control rfvEmpresaEnvio.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEmpresaEnvio;
 
         /// <summary>
         /// Control btnCambiarEstado.
