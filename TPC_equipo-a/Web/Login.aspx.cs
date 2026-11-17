@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using Dominio;
 using Negocio;
 
@@ -8,56 +9,87 @@ namespace Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Solo se ejecuta la primera vez que carga la página (no en los postbacks)
             if (!IsPostBack)
             {
-                // Si el usuario ya inició sesión previamente, lo mandamos al inicio
+                // Si se inició sesión previamente redirige al destino correspondiente
                 if (Session["usuario"] != null)
                 {
-                    Response.Redirect("Default.aspx", false);
+                    if (Session["volverAlCheckout"] != null &&
+                        (bool)Session["volverAlCheckout"])
+                    {
+                        Session.Remove("volverAlCheckout");
+                        Response.Redirect("Checkout.aspx", false);
+                    }
+                    else
+                    {
+                        Response.Redirect("Default.aspx", false);
+                    }
+
+                    Context.ApplicationInstance.CompleteRequest();
                     return;
                 }
 
-                // Verificamos si viene el parámetro de registro exitoso desde Registro.aspx
+                // Muestra alerta de éxito si viene del registro
                 if (Request.QueryString["registrado"] == "exito")
                 {
                     pnlExito.Visible = true;
+                }
+
+                // Muestra aviso si viene del Checkout
+                if (Session["mensajeCheckout"] != null)
+                {
+                    pnlAvisoCheckout.Visible = true;
+                    Session.Remove("mensajeCheckout");
                 }
             }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            // Validar los controles del lado del servidor asociados al ValidationGroup
             if (!Page.IsValid)
                 return;
 
             try
             {
                 UsuarioNegocio negocio = new UsuarioNegocio();
+
+                // Intenta buscar el usuario por email y contraseña (el SP ya filtra Activo = 1)
                 Usuario user = negocio.Login(txtEmail.Text.Trim(), txtPassword.Text);
 
                 if (user != null)
                 {
-                    // 1. Actualizar la fecha y hora del último acceso en la base de datos
+                    // Actualiza fecha y hora del último acceso en la BD
                     negocio.ActualizarUltimoAcceso(user.Id);
 
-                    // 2. Sincronizar la propiedad local y guardar el objeto actualizado en la sesión
+                    // Sincroniza la propiedad local y guarda el objeto en sesión
                     user.UltimoAcceso = DateTime.Now;
-                    Session.Add("usuario", user);
+                    Session["usuario"] = user;
 
-                    // Redirección segura
-                    Response.Redirect("Default.aspx", false);
+                    // Si venía intentando comprar, lo manda al Checkout
+                    if (Session["volverAlCheckout"] != null &&
+                        (bool)Session["volverAlCheckout"])
+                    {
+                        Session.Remove("volverAlCheckout");
+                        Response.Redirect("Checkout.aspx", false);
+                    }
+                    else
+                    {
+                        // Si entró al login, redirige a página principal
+                        Response.Redirect("Default.aspx", false);
+                    }
+
+                    Context.ApplicationInstance.CompleteRequest();
                 }
                 else
                 {
-                    lblError.Text = "Correo electrónico o contraseña incorrectos.";
+                    // Si retorna null las credenciales son incorrectas o el usuario está inactivo
+                    lblError.Text = "Correo electrónico o contraseña incorrectos, o la cuenta se encuentra desactivada.";
                     lblError.Visible = true;
                 }
             }
             catch (Exception ex)
             {
-                lblError.Text = "No fue posible iniciar sesión. Intentá nuevamente.";
+                lblError.Text = "No fue posible iniciar sesión. Intentá nuevamente: " + ex.Message;
                 lblError.Visible = true;
             }
         }

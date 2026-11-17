@@ -1,4 +1,5 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web.SiteMaster" %>
+﻿
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web.SiteMaster" %>
 
 <!DOCTYPE html>
 
@@ -61,18 +62,42 @@
                     </ul>
                     <%-- Derecha: lo del usuario --%>
                     <ul class="navbar-nav mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>
-                        </li>
-                        <li class="nav-item ms-lg-2">
-                            <a class="btn btn-ecommerce-primario" runat="server" href="~/Registro">Registrarse</a>
-                        </li>
+                        <% if (Session["usuario"] != null) { %>
+
+                            <li class="nav-item">
+                                <span class="nav-link">
+                                    Hola, <%: ((Dominio.Usuario)Session["usuario"]).Nombre %>
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-ecommerce-primario" runat="server" href="~/CerrarSesion">
+                                    Cerrar sesión
+                                </a>
+                            </li>
+
+                        <% } else { %>
+
+                            <li class="nav-item">
+                                <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>
+                            </li>
+                            <li class="nav-item ms-lg-2">
+                                <a class="btn btn-ecommerce-primario" runat="server" href="~/Registro">Registrarse</a>
+                            </li>
+
+                        <% } %>
                     </ul>
                 </div>
             </div>

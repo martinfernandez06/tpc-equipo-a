@@ -1,4 +1,5 @@
-﻿<%@ Page Title="Iniciar Sesión" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Web.Login" %>
+﻿
+<%@ Page Title="Iniciar Sesión" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Web.Login" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container my-5">
@@ -14,6 +15,13 @@
                         <asp:Panel ID="pnlExito" runat="server" CssClass="alert alert-success alert-dismissible fade show mb-3" Visible="false" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i> ¡Registro exitoso! Ya podés iniciar sesión con tus datos.
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </asp:Panel>
+
+                        <!-- Alerta cuando intenta comprar sin iniciar sesión -->
+                        <asp:Panel ID="pnlAvisoCheckout" runat="server" CssClass="alert alert-info alert-dismissible fade show mb-3" Visible="false" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Para continuar con tu compra, necesitás iniciar sesión o registrarte. Una vez que ingreses, volverás automáticamente al proceso de compra.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                         </asp:Panel>
 
                         <div id="formLogin">
@@ -67,11 +75,11 @@
                     </div>
 
                     <!-- Enlace fin -->
-                    <div class="card-footer text-center py-3 bg-light border-0">
-                        <span class="text-muted">¿No tenés una cuenta? </span>
-                        <a href="Registro.aspx" class="fw-bold text-decoration-none">Registrate acá</a>
+                    <!-- Si vino del checkout, pasamos el redirect también al enlace de registro -->
+                    <div class="text-center mt-3">
+                        <p class="small">¿No tenés cuenta? <a href="Registro.aspx?redirect=checkout">Registrate aquí</a></p>
                     </div>
-                </div>
+                   </div>
             </div>
         </div>
     </div>

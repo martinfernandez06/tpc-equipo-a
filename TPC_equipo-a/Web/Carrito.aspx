@@ -1,4 +1,5 @@
-﻿<%@ Page Title="Carrito de Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Carrito.aspx.cs" Inherits="Web.Carrito" %>
+﻿
+<%@ Page Title="Carrito de Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Carrito.aspx.cs" Inherits="Web.Carrito" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     
@@ -22,7 +23,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- item 1 Ejemplo-->
+                                
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -49,7 +50,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- 2Ejemplo  -->
+                                   
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -117,7 +118,7 @@
                         <!-- Checkout -->
 
                         <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-success btn-lg">
+                            <a href="Checkout.aspx" class="btn btn-success btn-lg">
                                 Iniciar Checkout / Iniciar Compra
                             </a>
                         </div>
