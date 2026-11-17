@@ -36,6 +36,10 @@ namespace Negocio
                     aux.ImagenUrl = !(datos.Lector["ImagenUrl"] is DBNull) ? (string)datos.Lector["ImagenUrl"] : "";
                     aux.Activo = (bool)datos.Lector["Activo"];
 
+                    // Leemos el código que devuelve la base de datos
+                    if (!(datos.Lector["Codigo"] is DBNull))
+                        aux.Codigo = (string)datos.Lector["Codigo"];
+
                     lista.Add(aux);
                 }
 
@@ -70,11 +74,11 @@ namespace Negocio
             datos.setearParametro("@Stock", nuevo.Stock) ;
             datos.setearParametro("@IdCategoria", nuevo.Categoria.Id);
             datos.setearParametro("@ImagenUrl", nuevo.ImagenUrl);
+            // Mandamos el código si lo tipearon, o DBNull.Value si lo dejaron vacío para que SQL lo autogenere
+            datos.setearParametro("@CodigoPropio", string.IsNullOrEmpty(nuevo.Codigo) ? (object)DBNull.Value : nuevo.Codigo);
 
             // Activo es 1 en la BD
-
             datos.setearParametro("@Activo", true);
-
             datos.ejecutarAccion();
         }
         catch (Exception ex)
