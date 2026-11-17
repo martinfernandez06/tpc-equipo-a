@@ -37,7 +37,7 @@ GO
 -- Tabla Productos --
 CREATE TABLE PRODUCTOS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Codigo VARCHAR(50) NULL UNIQUE, -- Código autogenerado o manual (Etapa 3)
+    Codigo VARCHAR(50) NULL,
     Nombre VARCHAR(100) NOT NULL,
     Descripcion VARCHAR(255) NULL,
     PrecioVenta MONEY NOT NULL CHECK (PrecioVenta > 0),
@@ -46,6 +46,10 @@ CREATE TABLE PRODUCTOS (
     ImagenUrl VARCHAR(500) NULL,
     Activo BIT DEFAULT 1
 );
+GO
+
+-- Índice que hace que el Código sea único, pero ignora cuando es NULL
+CREATE UNIQUE NONCLUSTERED INDEX UQ_Productos_Codigo ON PRODUCTOS(Codigo) WHERE Codigo IS NOT NULL;
 GO
 
 -- TABLAS DE FORMAS DE PAGO Y ENTREGA (Pablo 06/11/2026)
@@ -240,7 +244,7 @@ BEGIN
 END;
 GO
 
--- 2. Alta de un nuevo producto (Autogeneración de código con SCOPE_IDENTITY)
+-- 2. Alta de un nuevo producto (Autogeneración de código con SCOPE_IDENTITY, Validacion,etc.)
 CREATE PROCEDURE spAltaProducto
     @Nombre VARCHAR(100), @Descripcion VARCHAR(255), @PrecioVenta MONEY, @Stock INT, @IdCategoria INT, @ImagenUrl VARCHAR(500), @Activo BIT, @CodigoPropio VARCHAR(50) = NULL
 AS
@@ -248,6 +252,13 @@ BEGIN
     DECLARE @NuevoId INT;
     DECLARE @CodigoFinal VARCHAR(50);
     DECLARE @PrefijoCategoria VARCHAR(3);
+
+    -- VALIDACIÓN: Si el dueño tipeó un código, revisamos que no exista
+    IF @CodigoPropio IS NOT NULL AND LTRIM(RTRIM(@CodigoPropio)) <> ''
+    BEGIN
+        IF EXISTS(SELECT 1 FROM PRODUCTOS WHERE Codigo = @CodigoPropio)
+            THROW 50006, 'El código de producto ingresado ya existe.', 1;
+    END
 
     INSERT INTO PRODUCTOS (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo, Codigo)
     VALUES (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo, @CodigoPropio);
@@ -396,12 +407,19 @@ AS BEGIN
 END
 GO
 
+-- cambia el estado de un pedido y lo anota en el historial con quien lo cambio
 CREATE PROCEDURE spCambiarEstadoPedido @IdPedido INT, @IdEstado INT, @IdUsuario INT
 AS BEGIN
     DECLARE @EstadoActual INT;
     SELECT @EstadoActual = IdEstado FROM PEDIDOS WHERE Id = @IdPedido;
+
+    -- si ya esta entregado o cancelado no se toca mas
     IF @EstadoActual IN (5, 6) THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
+
+    -- para cancelar se usa spCancelarPedido, aca solo se avanza entre 2 y 5
     IF @IdEstado NOT IN (2, 3, 4, 5) THROW 50004, 'Estado no valido para este cambio', 1;
+
+    -- solo se puede avanzar, ni el mismo estado ni para atras
     IF @IdEstado <= @EstadoActual THROW 50005, 'El estado nuevo tiene que ser posterior al actual', 1;
     BEGIN TRY
         BEGIN TRANSACTION
@@ -415,11 +433,14 @@ AS BEGIN
 END
 GO
 
+-- cancela un pedido si todavia no salio y devuelve las unidades al stock
 CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT
 AS BEGIN
+    -- si ya esta enviado, entregado o cancelado no se puede cancelar
     IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6)) THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
     BEGIN TRY
         BEGIN TRANSACTION
+        -- devuelvo al stock lo que compro de cada producto
         UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
         UPDATE PEDIDOS SET IdEstado = 6 WHERE Id = @IdPedido
         INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, 6, @IdUsuario)
