@@ -1,10 +1,3 @@
--- ==============================================================================
--- PROYECTO E-COMMERCE - SCRIPT DE BASE DE DATOS
--- ==============================================================================
-
--- =========================================
--- 1. RESETEO DE ENTORNO (DROP Y CREATE)
--- =========================================
 USE master;
 GO
 
@@ -120,7 +113,8 @@ CREATE TABLE PEDIDOS(
     IdFormaPago INT NOT NULL,
     IdEstado INT NOT NULL CONSTRAINT DF_PEDIDOS_IDESTADO DEFAULT 1,
     Total MONEY NOT NULL,
-    CodigoSeguimiento VARCHAR(50) NULL,
+    CodigoSeguimiento VARCHAR(255) NULL,
+    EmpresaEnvio VARCHAR(50) NULL,
     ComprobanteUrl VARCHAR(500) NULL,
     EstadoComprobante VARCHAR(20) NULL,
 
@@ -205,14 +199,7 @@ GO
 INSERT INTO ESTADOS_PEDIDO(Descripcion) VALUES ('Pendiente de pago'),('Pagado'),('En preparación'),('Enviado'),('Entregado'),('Cancelado');
 GO
 
-
--- =========================================
 -- 4. PROCEDIMIENTOS ALMACENADOS
--- =========================================
-
--- -----------------------------------------
--- MÓDULO CATEGORIAS
--- -----------------------------------------
 -- Martin -> 31/10/26 1530
 CREATE PROCEDURE spAltaCategoria @Nombre VARCHAR(100), @Descripcion VARCHAR(255) AS BEGIN INSERT INTO CATEGORIAS (Nombre,Descripcion,Activa) VALUES (@Nombre,@Descripcion,1) END
 GO
@@ -374,7 +361,7 @@ GO
 
 CREATE PROCEDURE spBuscarPedidoPorId @Id INT
 AS BEGIN
-    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, U.Telefono, P.IdFormaEntrega, FE.Descripcion AS FormaEntrega, P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal, P.IdFormaPago, FP.Descripcion AS FormaPago, P.IdEstado, E.Descripcion AS Estado, P.Total, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante
+    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, U.Telefono, P.IdFormaEntrega, FE.Descripcion AS FormaEntrega, P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal, P.IdFormaPago, FP.Descripcion AS FormaPago, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante
     FROM PEDIDOS P
     INNER JOIN USUARIOS U ON P.IdUsuario = U.Id LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
     WHERE P.Id = @Id
@@ -383,7 +370,7 @@ GO
 
 CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT
 AS BEGIN
-    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.CodigoSeguimiento, P.EstadoComprobante
+    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.EstadoComprobante
     FROM PEDIDOS P INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
     WHERE P.IdUsuario = @IdUsuario ORDER BY P.FechaCreacion DESC
 END
@@ -396,22 +383,73 @@ AS BEGIN
 END
 GO
 
-CREATE PROCEDURE spCambiarEstadoPedido @IdPedido INT, @IdEstado INT, @IdUsuario INT
+CREATE PROCEDURE spCambiarEstadoPedido
+@IdPedido INT,
+@IdEstado INT,
+@IdUsuario INT,
+@EmpresaEnvio VARCHAR(50) = NULL,
+@CodigoSeguimiento VARCHAR(255) = NULL
 AS BEGIN
     DECLARE @EstadoActual INT;
-    SELECT @EstadoActual = IdEstado FROM PEDIDOS WHERE Id = @IdPedido;
-    IF @EstadoActual IN (5, 6) THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
-    IF @IdEstado NOT IN (2, 3, 4, 5) THROW 50004, 'Estado no valido para este cambio', 1;
-    IF @IdEstado <= @EstadoActual THROW 50005, 'El estado nuevo tiene que ser posterior al actual', 1;
+    DECLARE @RequiereDireccion BIT;
+
+    -- traigo el estado actual y si la forma de entrega es con envio
+    SELECT @EstadoActual = P.IdEstado, @RequiereDireccion = FE.RequiereDireccion
+    FROM PEDIDOS P
+    INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
+    WHERE P.Id = @IdPedido;
+
+    -- si ya esta entregado o cancelado no se toca mas
+    IF @EstadoActual IN (5, 6)
+        THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
+
+    -- para cancelar se usa spCancelarPedido, aca solo se avanza entre 2 y 5
+    IF @IdEstado NOT IN (2, 3, 4, 5)
+        THROW 50004, 'Estado no valido para este cambio', 1;
+
+    -- solo se puede avanzar, ni el mismo estado ni para atras
+    IF @IdEstado <= @EstadoActual
+        THROW 50005, 'El estado nuevo tiene que ser posterior al actual', 1;
+
+    -- si retira en el local no hay envio, pasa de en preparacion a entregado
+    IF @IdEstado = 4 AND @RequiereDireccion = 0
+        THROW 50006, 'El pedido se retira en el local y no pasa por enviado', 1;
+
+    -- para marcarlo como enviado hay que decir con quien se mando, el codigo es opcional
+    IF @IdEstado = 4 AND (@EmpresaEnvio IS NULL OR LTRIM(RTRIM(@EmpresaEnvio)) = '')
+        THROW 50007, 'Para marcarlo como enviado hay que elegir con quien se envia', 1;
+
     BEGIN TRY
         BEGIN TRANSACTION
-        UPDATE PEDIDOS SET IdEstado = @IdEstado WHERE Id = @IdPedido
-        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, @IdEstado, @IdUsuario)
+
+        -- la empresa y el codigo solo se guardan al pasar a enviado, en los otros estados quedan los que tenia
+        UPDATE PEDIDOS SET IdEstado = @IdEstado,
+            EmpresaEnvio = CASE WHEN @IdEstado = 4 THEN LTRIM(RTRIM(@EmpresaEnvio)) ELSE EmpresaEnvio END,
+            CodigoSeguimiento = CASE WHEN @IdEstado = 4 THEN NULLIF(LTRIM(RTRIM(@CodigoSeguimiento)), '') ELSE CodigoSeguimiento END
+        WHERE Id = @IdPedido
+
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+        VALUES (@IdPedido, @IdEstado, @IdUsuario)
+
         COMMIT TRANSACTION
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION; THROW;
+        ROLLBACK TRANSACTION;
+        THROW;
     END CATCH
+END
+GO
+
+-- carga o corrige el codigo de seguimiento cuando el pedido ya esta enviado, por si el correo lo da despues
+CREATE PROCEDURE spActualizarSeguimiento
+@IdPedido INT,
+@CodigoSeguimiento VARCHAR(255)
+AS BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado = 4)
+        THROW 50008, 'El codigo de seguimiento solo se puede cambiar mientras el pedido esta enviado', 1;
+
+    UPDATE PEDIDOS SET CodigoSeguimiento = NULLIF(LTRIM(RTRIM(@CodigoSeguimiento)), '')
+    WHERE Id = @IdPedido
 END
 GO
 
