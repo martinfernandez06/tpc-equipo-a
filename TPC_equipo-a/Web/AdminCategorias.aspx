@@ -41,12 +41,10 @@
                     <Columns>
                         <asp:BoundField HeaderText="Nombre" DataField="Nombre" />
                         <asp:BoundField HeaderText="Descripción" DataField="Descripcion" />
-                        <%-- badge verde si esta activa y gris si no, el ternario elige la clase y el texto --%>
+                        <%-- el badge lo arman los metodos claseactiva y textoactiva --%>
                         <asp:TemplateField HeaderText="Estado" HeaderStyle-Width="120px">
                             <ItemTemplate>
-                                <span class='<%# (bool)Eval("Activa") ? "badge bg-success" : "badge bg-secondary" %>'>
-                                    <%# (bool)Eval("Activa") ? "Activa" : "Inactiva" %>
-                                </span>
+                                <span class='<%# ClaseActiva(Eval("Activa")) %>'><%# TextoActiva(Eval("Activa")) %></span>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:CommandField HeaderText="Accion" ShowSelectButton="true" ButtonType="Button" ControlStyle-CssClass="btn btn-sm btn-ecommerce-primario" SelectText="Editar" HeaderStyle-Width="110px" />
