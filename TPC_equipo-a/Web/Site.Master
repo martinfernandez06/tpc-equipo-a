@@ -62,8 +62,16 @@
                     <%-- Derecha: lo del usuario --%>
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
+                            <a class="nav-link position-relative" runat="server" href="~/Carrito" style="padding-left: 32px;">
+
+                                <i class="bi bi-cart3 position-absolute" style="left: 4px; top: 50%; transform: translateY(-50%); font-size: 1.15rem;"></i>
+
+                                <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger position-absolute" Style="top: 2px; left: 10px; font-size: 0.65rem;" Visible="false"></asp:Label>
+
+                                Carrito
+                            </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
                         </li>
