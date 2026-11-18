@@ -204,7 +204,6 @@ namespace Web
 
         protected void btnCambiarEstado_Click(object sender, EventArgs e)
         {
-
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
             Page.Validate("estado");
             if (!Page.IsValid)
@@ -218,9 +217,10 @@ namespace Web
                 return;
             }
 
+            int id = int.Parse(Request.QueryString["id"]);
+
             try
             {
-                int id = int.Parse(Request.QueryString["id"]);
                 // el value de cada opcion es el id del estado en la bd
                 int elegido = int.Parse(ddlEstado.SelectedValue);
 
@@ -237,6 +237,7 @@ namespace Web
                 // si el sp corta con un throw, el mensaje que escribimos en la bd llega aca en ex.Message
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
+                CargarPedido(id);
             }
         }
 
@@ -263,9 +264,10 @@ namespace Web
 
         protected void btnSiCancelar_Click(object sender, EventArgs e)
         {
+            int id = int.Parse(Request.QueryString["id"]);
+
             try
             {
-                int id = int.Parse(Request.QueryString["id"]);
                 PedidoNegocio negocio = new PedidoNegocio();
                 // el usuario 1 es fijo hasta que este el login
                 negocio.CancelarPedido(id, 1);
@@ -279,14 +281,16 @@ namespace Web
                 // igual que en cambiar estado, el error del sp se muestra en rojo
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
+                CargarPedido(id);
             }
         }
 
         protected void btnSiEntregado_Click(object sender, EventArgs e)
         {
+            int id = int.Parse(Request.QueryString["id"]);
+
             try
             {
-                int id = int.Parse(Request.QueryString["id"]);
                 PedidoNegocio negocio = new PedidoNegocio();
                 // el usuario 1 es fijo hasta que este el login
                 negocio.CambiarEstado(id, 5, 1, "", "");
@@ -299,6 +303,7 @@ namespace Web
             {
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
+                CargarPedido(id);
             }
         }
 
@@ -320,10 +325,10 @@ namespace Web
             Page.Validate("seguimiento");
             if (!Page.IsValid)
                 return;
+            int id = int.Parse(Request.QueryString["id"]);
 
             try
             {
-                int id = int.Parse(Request.QueryString["id"]);
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.ActualizarSeguimiento(id, ddlEditarEmpresa.SelectedValue, txtEditarCodigo.Text.Trim());
                 lblMensaje.Text = "Seguimiento actualizado";
@@ -336,6 +341,7 @@ namespace Web
                 // igual que en cambiar estado, el error del sp se muestra en rojo
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
+                CargarPedido(id);
             }
         }
     }
