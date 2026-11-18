@@ -4,7 +4,7 @@
 }
 
 .menu-admin {
-    width: 220px; /* ancho fijo del menu, no cambia con la pantalla */
+    width: 240px; /* ancho fijo del menu, no cambia con la pantalla */
     flex-shrink: 0; /* para que no se achique cuando la tabla es ancha */
     background-color: var(--color-fondo-oscuro); /* mismo oscuro que la barra de arriba */
 }
@@ -232,3 +232,45 @@
     border-top: 2px solid #512BD4;
     box-shadow: none;
 }
+
+/* cuadradito violeta con el icono de la tienda en la barra de arriba */
+.logo-admin {
+    width: 30px;
+    height: 30px;
+    background-color: var(--color-boton-primario);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+/* texto chiquito abajo de tienda */
+.sub-logo-admin {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-texto-suave);
+}
+
+/* icono al lado de cada opcion del menu */
+.menu-admin .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .menu-admin .nav-link i {
+        font-size: 1.1rem;
+    }
+
+/* opcion del menu de la pagina en la que estas, borde violeta a la izquierda */
+.menu-admin .nav-link.activo {
+    color: var(--color-texto-claro);
+    background-color: #1d1d27;
+    border-left: 3px solid #7C5CFF;
+    border-radius: 0;
+}
+
+    .menu-admin .nav-link.activo i {
+        color: #9F87FF;
+    }

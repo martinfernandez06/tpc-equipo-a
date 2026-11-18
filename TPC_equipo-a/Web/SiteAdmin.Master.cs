@@ -11,7 +11,33 @@ namespace Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // marca en el menu la pagina en la que estas, busca una palabra asi tambien marca los formularios y el detalle
+            string pagina = Page.AppRelativeVirtualPath;
 
+            if (pagina.Contains("Producto"))
+            {
+                lnkProductos.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Categoria"))
+            {
+                lnkCategorias.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Pago"))
+            {
+                lnkFormasPago.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Entrega"))
+            {
+                lnkFormasEntrega.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Pedido"))
+            {
+                lnkPedidos.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Reporte"))
+            {
+                lnkReportes.Attributes["class"] += " activo";
+            }
         }
     }
 }
