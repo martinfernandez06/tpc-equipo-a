@@ -8,7 +8,15 @@
         <div class="row">
           
             <div class="col-lg-8">
-                <div class="card shadow-sm mb-4">
+                <!-- Cartel para errores de stock -->
+                <asp:Label ID="lblError" runat="server" CssClass="alert alert-danger d-block mb-3" Visible="false"></asp:Label>
+                
+                <!-- Cartel cuando el carrito está vacío -->
+                <asp:Label ID="lblVacio" runat="server" CssClass="alert alert-info d-block mb-3" Visible="false">
+                    Tu carrito está vacío. ¡Agregá productos desde el catálogo!
+                </asp:Label>
+
+                <div class="card shadow-sm mb-4" id="divTablaCarrito" runat="server">
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
@@ -22,59 +30,41 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- item 1 Ejemplo-->
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://via.placeholder.com/60" class="img-thumbnail me-3" alt="Producto 1" style="width: 60px; height: 60px; object-fit: cover;">
-                                                <div>
-                                                    <h6 class="mb-0">Auriculares Inalámbricos Bluetooth</h6>
-                                                    <small class="text-muted">Categoría: Electrónica</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>$15.500,00</td>
-                                        <td>
-                                            <div class="input-group input-group-sm" style="width: 100px;">
-                                                <button class="btn btn-outline-secondary" type="button">-</button>
-                                                <input type="text" class="form-control text-center" value="1" readonly>
-                                                <button class="btn btn-outline-secondary" type="button">+</button>
-                                            </div>
-                                        </td>
-                                        <td class="fw-bold">$15.500,00</td>
-                                        <td>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- 2Ejemplo  -->
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://via.placeholder.com/60" class="img-thumbnail me-3" alt="Producto 2" style="width: 60px; height: 60px; object-fit: cover;">
-                                                <div>
-                                                    <h6 class="mb-0">Zapatillas Deportivas Running</h6>
-                                                    <small class="text-muted">Categoría: Deportes</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>$45.000,00</td>
-                                        <td>
-                                            <div class="input-group input-group-sm" style="width: 100px;">
-                                                <button class="btn btn-outline-secondary" type="button">-</button>
-                                                <input type="text" class="form-control text-center" value="2" readonly>
-                                                <button class="btn btn-outline-secondary" type="button">+</button>
-                                            </div>
-                                        </td>
-                                        <td class="fw-bold">$90.000,00</td>
-                                        <td>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    <!-- Inicio del Repeater que imprime las filas dinámicamente -->
+                                    <asp:Repeater ID="rptCarrito" runat="server" OnItemCommand="rptCarrito_ItemCommand">
+                                        <ItemTemplate>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src='<%# Eval("Producto.ImagenUrl") %>' class="img-thumbnail me-3" alt='<%# Eval("Producto.Nombre") %>' style="width: 60px; height: 60px; object-fit: cover;">
+                                                        <div>
+                                                            <h6 class="mb-0"><%# Eval("Producto.Nombre") %></h6>
+                                                            <small class="text-muted">Categoría: <%# Eval("Producto.Categoria.Nombre") %></small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><%# Eval("Producto.PrecioVenta", "{0:C}") %></td>
+                                                <td>
+                                                    <div class="input-group input-group-sm" style="width: 100px;">
+                                                        <!-- Botón Restar (-) -->
+                                                        <asp:LinkButton ID="btnRestar" runat="server" CssClass="btn btn-outline-secondary" CommandName="Restar" CommandArgument='<%# Eval("Producto.Id") %>'>-</asp:LinkButton>
+                                                        
+                                                        <asp:TextBox ID="txtCantidad" runat="server" CssClass="form-control text-center" Text='<%# Eval("Cantidad") %>' ReadOnly="true"></asp:TextBox>
+                                                        
+                                                        <!-- Botón Sumar (+) -->
+                                                        <asp:LinkButton ID="btnSumar" runat="server" CssClass="btn btn-outline-secondary" CommandName="Sumar" CommandArgument='<%# Eval("Producto.Id") %>'>+</asp:LinkButton>
+                                                    </div>
+                                                </td>
+                                                <td class="fw-bold"><%# Eval("Subtotal", "{0:C}") %></td>
+                                                <td>
+                                                    <!-- Botón Eliminar -->
+                                                    <asp:LinkButton ID="btnEliminar" runat="server" CssClass="btn btn-outline-danger btn-sm" CommandName="Eliminar" CommandArgument='<%# Eval("Producto.Id") %>' title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </asp:LinkButton>
+                                                </td>
+                                            </tr>
+                                        </ItemTemplate>
+                                    </asp:Repeater>
                                 </tbody>
                             </table>
                         </div>
@@ -82,7 +72,6 @@
                 </div>
 
                 <!-- Seguir Comprando -->
-
                 <div class="mb-3">
                     <a href="Default.aspx" class="btn btn-outline-primary">
                         ← Continuar Comprando
@@ -91,8 +80,6 @@
             </div>
 
             <!-- Resumen  -->
-
-
             <div class="col-lg-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
@@ -102,7 +89,7 @@
                         <ul class="list-group list-group-flush mb-3">
                             <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
                                 Subtotal de productos
-                                <span>$105.500,00</span>
+                                <span><asp:Label ID="lblSubtotalResumen" runat="server" Text="$0,00"></asp:Label></span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                                 Envío
@@ -110,21 +97,17 @@
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pt-3 border-top fw-bold fs-5">
                                 Total
-                                <span>$105.500,00</span>
+                                <span><asp:Label ID="lblTotalResumen" runat="server" Text="$0,00"></asp:Label></span>
                             </li>
                         </ul>
 
                         <!-- Checkout -->
-
                         <div class="d-grid gap-2">
-                            <a href="#" class="btn btn-success btn-lg">
-                                Iniciar Checkout / Iniciar Compra
-                            </a>
+                            <asp:Button ID="btnCheckout" runat="server" CssClass="btn btn-success btn-lg" Text="Iniciar Compra" OnClick="btnCheckout_Click" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </asp:Content>

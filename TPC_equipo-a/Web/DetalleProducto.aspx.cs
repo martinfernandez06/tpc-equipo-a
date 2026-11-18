@@ -37,6 +37,13 @@ namespace Web
                         lblPrecio.Text = seleccionado.PrecioVenta.ToString("C"); // "C" le da formato de moneda local
                         lblStock.Text = seleccionado.Stock.ToString();
                         imgProducto.Src = seleccionado.ImagenUrl;
+
+                        // Atrapamos el aviso oculto adentro del if del producto seleccionado
+                        if (Request.QueryString["error"] == "stock")
+                        {
+                            lblError.Text = "No podés agregar más unidades. Alcanzaste el límite de stock disponible.";
+                            lblError.Visible = true;
+                        }
                     }
                     else
                     {
@@ -73,12 +80,43 @@ namespace Web
             }
             else
             {
-                // Acá se guardará el producto y la cantidad en la Session del carrito
-                string idString = Request.QueryString["id"];
-                System.Diagnostics.Debug.WriteLine("Al carrito -> Producto ID: " + idString + " | Cantidad: " + cantidadSolicitada);
+                // Buscamos el producto real de la base de datos
+                int idProducto = int.Parse(Request.QueryString["id"]);
+                ProductoNegocio negocio = new ProductoNegocio();
+                Producto seleccionado = negocio.Listar().Find(x => x.Id == idProducto);
 
-                // Ejemplo de redirección cuando la pantalla del carrito exista:
-                // Response.Redirect("Carrito.aspx", false);
+                // Traemos el carrito de la Session (o creamos uno nuevo vacío si es el primer producto)
+                Dominio.Carrito carrito = Session["Carrito"] != null ? (Dominio.Carrito)Session["Carrito"] : new Dominio.Carrito();
+
+                // Nos fijamos si el cliente ya tenía este mismo producto en el carrito
+                ItemCarrito itemExistente = carrito.Items.Find(i => i.Producto.Id == seleccionado.Id);
+
+                if (itemExistente != null)
+                {
+                    // Si ya estaba, sumamos la cantidad (validando que la suma no supere el stock de la base)
+                    if (itemExistente.Cantidad + cantidadSolicitada > stockDisponible)
+                    {
+                        lblError.Text = "Ya tenés " + itemExistente.Cantidad + " unidades en el carrito. No podés superar el stock.";
+                        lblError.Visible = true;
+                        return; // Cortamos acá para que no lo agregue
+                    }
+                    itemExistente.Cantidad += cantidadSolicitada;
+                }
+                else
+                {
+                    // Si no estaba, creamos el ítem nuevo y lo metemos en la lista
+                    ItemCarrito nuevoItem = new ItemCarrito();
+                    nuevoItem.Producto = seleccionado;
+                    nuevoItem.Cantidad = cantidadSolicitada;
+
+                    carrito.Items.Add(nuevoItem);
+                }
+
+                // Sobreescribimos la Session con el carrito actualizado
+                Session["Carrito"] = carrito;
+
+                // Llevamos al cliente a ver su carrito
+                Response.Redirect("Carrito.aspx", false);
             }
         }
     }

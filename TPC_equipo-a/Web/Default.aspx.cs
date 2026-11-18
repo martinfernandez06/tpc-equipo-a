@@ -75,15 +75,57 @@ namespace Web
         {
             CargarCatalogo();
         }
-
-        // Evento del botón Al Carrito
         protected void btnAgregarCarrito_Click(object sender, EventArgs e)
         {
+            // Capturamos el botón que fue clickeado y leemos el ID del producto
             LinkButton btn = (LinkButton)sender;
             int idProducto = int.Parse(btn.CommandArgument);
 
-            // Lógica para guardar en Session
-            System.Diagnostics.Debug.WriteLine("Agregar producto ID: " + idProducto);
+            // Buscamos el producto real en la base de datos
+            ProductoNegocio negocio = new ProductoNegocio();
+            Producto seleccionado = negocio.Listar().Find(x => x.Id == idProducto);
+
+            // Validamos que haya al menos 1 en stock en la base de datos
+            if (seleccionado.Stock < 1)
+            {
+                // Validación 1: Cuando el stock absoluto es menor a 1.
+                Response.Redirect("DetalleProducto.aspx?id=" + idProducto + "&error=stock", false);
+                return;
+            }
+
+            // Traemos el carrito de la Session (o creamos uno nuevo)
+            Dominio.Carrito carrito = Session["Carrito"] != null ? (Dominio.Carrito)Session["Carrito"] : new Dominio.Carrito();
+
+            // Nos fijamos si ya lo tenía agregado de antes
+            ItemCarrito itemExistente = carrito.Items.Find(i => i.Producto.Id == seleccionado.Id);
+
+            if (itemExistente != null)
+            {
+                // Si ya lo tiene, le sumamos 1 (validando que la suma no supere el stock máximo)
+                if (itemExistente.Cantidad + 1 <= seleccionado.Stock)
+                {
+                    itemExistente.Cantidad += 1;
+                }
+                else
+                {
+                    // Validación 2: Cuando sumar 1 supera el stock máximo
+                    Response.Redirect("DetalleProducto.aspx?id=" + idProducto + "&error=stock", false);
+                    return;
+                }
+            }
+            else
+            {
+                // Si es la primera vez que lo elige, creamos el ítem.
+                ItemCarrito nuevoItem = new ItemCarrito();
+                nuevoItem.Producto = seleccionado;
+                nuevoItem.Cantidad = 1; // El agregado rápido suma de a 1.
+
+                carrito.Items.Add(nuevoItem);
+            }
+
+            // Guardamos en la memoria y lo llevamos a ver su carrito actualizado.
+            Session["Carrito"] = carrito;
+            Response.Redirect("Carrito.aspx", false);
         }
     }
 }
