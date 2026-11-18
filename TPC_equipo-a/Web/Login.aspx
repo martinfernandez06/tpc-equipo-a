@@ -10,7 +10,7 @@
                         <h4 class="mb-0 fw-bold">Iniciar Sesión</h4>
                     </div>
                     <div class="card-body p-4">
-                        
+
                         <!-- Alerta de éxito por registro -->
                         <asp:Panel ID="pnlExito" runat="server" CssClass="alert alert-success alert-dismissible fade show mb-3" Visible="false" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i> ¡Registro exitoso! Ya podés iniciar sesión con tus datos.
@@ -42,7 +42,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" MaxLength="50" placeholder="••••••••" />
-                                    
+
                                     <!-- Botón del Ojito -->
                                     <button class="btn btn-outline-secondary" type="button" id="btnTogglePassword" onclick="togglePasswordVisibility()">
                                         <i class="bi bi-eye" id="iconoOjo"></i>
@@ -51,18 +51,27 @@
                                 <asp:RequiredFieldValidator ID="rfvPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="La contraseña es obligatoria." CssClass="text-danger small" Display="Dynamic" ValidationGroup="Login" />
                             </div>
 
-                            <!-- Recordarme y Olvidé contraseña -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
+                            <!-- Recordarme -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="form-check">
-                                    <asp:CheckBox ID="chkRecordarme" runat="server" CssClass="form-check-input" />
-                                    <label class="form-check-label text-muted" for="chkRecordarme">
+                                    <asp:CheckBox ID="chkRecordarme" runat="server" />
+                                    <label class="form-check-label text-muted" for="<%= chkRecordarme.ClientID %>">
                                         Recordarme
                                     </label>
                                 </div>
                                 <a href="#" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
                             </div>
 
-                            <!-- Label para mostrar errores -->
+                            <!-- Acceso de administrador -->
+                            <div class="form-check mb-4">
+                                <asp:CheckBox ID="chkAdministrador" runat="server" />
+                                <label class="form-check-label fw-semibold" for="<%= chkAdministrador.ClientID %>">
+                                    <i class="bi bi-shield-lock me-1"></i>
+                                    Ingresar como administrador
+                                </label>
+                            </div>
+
+                            <!-- Label para errores -->
                             <div class="mb-3">
                                 <asp:Label ID="lblError" runat="server" CssClass="text-danger fw-bold" Visible="false" />
                             </div>
@@ -74,18 +83,26 @@
                         </div>
                     </div>
 
-                    <!-- Enlace fin -->
-                    <!-- Si vino del checkout, pasamos el redirect también al enlace de registro -->
+                    <!-- Enlace a registro -->
                     <div class="text-center mt-3">
                         <p class="small">¿No tenés cuenta? <a href="Registro.aspx?redirect=checkout">Registrate aquí</a></p>
                     </div>
-                   </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Script para alternar visibilidad de la contraseña -->
+    <!-- Corrección visual de los checkbox -->
+    <style>
+        .form-check input[type="checkbox"] {
+            appearance: auto;
+            -webkit-appearance: checkbox;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+    </style>
 
+    <!-- visibilidad de la contraseña -->
     <script>
         function togglePasswordVisibility() {
             const inputPass = document.getElementById('<%= txtPassword.ClientID %>');
@@ -94,11 +111,11 @@
             if (inputPass.type === 'password') {
                 inputPass.type = 'text';
                 iconoOjo.classList.remove('bi-eye');
-                iconoOjo.classList.add('bi-eye-slash'); // Cambia a ojo tachado
+                iconoOjo.classList.add('bi-eye-slash');
             } else {
                 inputPass.type = 'password';
                 iconoOjo.classList.remove('bi-eye-slash');
-                iconoOjo.classList.add('bi-eye'); // Vuelve al ojo normal
+                iconoOjo.classList.add('bi-eye');
             }
         }
     </script>

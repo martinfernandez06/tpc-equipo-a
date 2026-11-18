@@ -78,6 +78,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.CheckBox chkRecordarme;
 
         /// <summary>
+        /// chkAdministrador control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox chkAdministrador;
+
+        /// <summary>
         /// lblError control.
         /// </summary>
         /// <remarks>

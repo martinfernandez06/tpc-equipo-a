@@ -6,6 +6,7 @@
 -- =========================================
 -- 1. RESETEO DE ENTORNO (DROP Y CREATE)
 -- =========================================
+
 USE master;
 GO
 
@@ -591,3 +592,23 @@ BEGIN
     ORDER BY H.Fecha ASC;
 END;
 GO
+
+USE ECommerceDB;
+GO
+
+SELECT 
+    U.Id,
+    U.Nombre,
+    U.Apellido,
+    U.Email,
+    U.IdPerfil,
+    P.Descripcion AS Perfil
+FROM USUARIOS U
+INNER JOIN PERFILES P ON U.IdPerfil = P.Id;
+
+USE ECommerceDB;
+GO
+
+UPDATE USUARIOS
+SET IdPerfil = 1
+WHERE Email = 'phelanguille@gmail.com';
