@@ -81,7 +81,19 @@ namespace Web
             }
             else if (seleccionado.EmpresaEnvio == null)
             {
-                lblEmpresaEnvio.Text = "Todavia no se envio";
+                // si nunca se cargo envio, el texto depende de si el pedido sigue abierto o ya se cerro
+                if (seleccionado.Estado.Id == 5)
+                {
+                    lblEmpresaEnvio.Text = "Entregado sin datos de envio";
+                }
+                else if (seleccionado.Estado.Id == 6)
+                {
+                    lblEmpresaEnvio.Text = "No se envio";
+                }
+                else
+                {
+                    lblEmpresaEnvio.Text = "Todavia no se envio";
+                }
                 lblCodigoSeguimiento.Text = "";
             }
             else
@@ -119,7 +131,7 @@ namespace Web
             int estadoActual = seleccionado.Estado.Id;
             ddlEstado.Items.Clear();
             // arranca sin nada elegido, asi no se cambia el estado de un click sin querer
-            ddlEstado.Items.Add(new ListItem("Elegi el nuevo estado",""));
+            ddlEstado.Items.Add(new ListItem("Elegí el nuevo estado", ""));
 
             // sin cobrar no se avanza, de pendiente solo se puede pasar a pagado
             if (estadoActual == 1)
@@ -136,12 +148,17 @@ namespace Web
                 if (estadoActual < 5)
                     ddlEstado.Items.Add(new ListItem("Entregado", "5"));
             }
-                MostrarEnvio();
+            MostrarEnvio();
 
             // si el pedido esta cerrado se oculta la card, y cancelar solo se ve si todavia no salio
             pnlAcciones.Visible = estadoActual < 5;
             btnCancelar.Visible = estadoActual < 4;
             pnlSeguimiento.Visible = estadoActual == 4;
+
+            // vuelven los botones de siempre y se esconden las confirmaciones
+            pnlBotones.Visible = true;
+            pnlConfirmarEntregado.Visible = false;
+            pnlConfirmarCancelar.Visible = false;
 
             if (estadoActual == 4)
             {
@@ -192,6 +209,15 @@ namespace Web
             Page.Validate("estado");
             if (!Page.IsValid)
                 return;
+            // entregado cierra el pedido para siempre, asi que primero pregunto
+            if (ddlEstado.SelectedValue == "5")
+            {
+                pnlConfirmarEntregado.Visible = true;
+                pnlBotones.Visible = false;
+                pnlSeguimiento.Visible = false;
+                return;
+            }
+
             try
             {
                 int id = int.Parse(Request.QueryString["id"]);
@@ -216,6 +242,27 @@ namespace Web
 
         protected void btnCancelar_Click(object sender, EventArgs e)
         {
+            int id = int.Parse(Request.QueryString["id"]);
+            PedidoNegocio negocio = new PedidoNegocio();
+            Pedido seleccionado = negocio.buscarPorId(id);
+
+            // si ya estaba pagado aviso que hay que devolverle la plata
+            if (seleccionado.Estado.Id == 1)
+            {
+                lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock.";
+            }
+            else
+            {
+                lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock. El pedido ya estaba pagado, acordate de devolverle la plata al cliente.";
+            }
+
+            pnlConfirmarCancelar.Visible = true;
+            pnlBotones.Visible = false;
+            pnlSeguimiento.Visible = false;
+        }
+
+        protected void btnSiCancelar_Click(object sender, EventArgs e)
+        {
             try
             {
                 int id = int.Parse(Request.QueryString["id"]);
@@ -233,6 +280,33 @@ namespace Web
                 lblMensaje.Text = ex.Message;
                 lblMensaje.CssClass = "text-danger d-block my-2";
             }
+        }
+
+        protected void btnSiEntregado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int id = int.Parse(Request.QueryString["id"]);
+                PedidoNegocio negocio = new PedidoNegocio();
+                // el usuario 1 es fijo hasta que este el login
+                negocio.CambiarEstado(id, 5, 1, "", "");
+
+                lblMensaje.Text = "Pedido marcado como entregado";
+                lblMensaje.CssClass = "text-success d-block my-2";
+                CargarPedido(id);
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.Text = ex.Message;
+                lblMensaje.CssClass = "text-danger d-block my-2";
+            }
+        }
+
+        // lo usan los dos botones de no, vuelve a cargar el pedido como estaba
+        protected void btnNoConfirmar_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(Request.QueryString["id"]);
+            CargarPedido(id);
         }
 
         protected void ddlEstado_SelectedIndexChanged(object sender, EventArgs e)
