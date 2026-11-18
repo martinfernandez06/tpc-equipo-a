@@ -35,10 +35,7 @@ namespace Web
 
         private void MostrarEnvio()
         {
-            // el value de cada opcion es el id del estado en la bd
-            int elegido = int.Parse(ddlEstado.SelectedValue);
-
-            if (elegido == 4)
+            if (ddlEstado.SelectedValue == "4")
             {
                 pnlEnvio.Visible = true;
             }
@@ -121,6 +118,8 @@ namespace Web
             // el clear es porque este metodo se llama de nuevo despues de cada cambio y si no se repiten
             int estadoActual = seleccionado.Estado.Id;
             ddlEstado.Items.Clear();
+            // arranca sin nada elegido, asi no se cambia el estado de un click sin querer
+            ddlEstado.Items.Add(new ListItem("Elegi el nuevo estado",""));
 
             // sin cobrar no se avanza, de pendiente solo se puede pasar a pagado
             if (estadoActual == 1)
@@ -137,9 +136,6 @@ namespace Web
                 if (estadoActual < 5)
                     ddlEstado.Items.Add(new ListItem("Entregado", "5"));
             }
-
-            // solo si el pedido no esta cerrado, si no el ddl queda vacio y el parse rompe
-            if (estadoActual < 5)
                 MostrarEnvio();
 
             // si el pedido esta cerrado se oculta la card, y cancelar solo se ve si todavia no salio

@@ -86,6 +86,9 @@
                             </div>
                         </asp:Panel>
                         <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-ecommerce-primario" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
+                        <div>
+                            <asp:RequiredFieldValidator ID="rfvEstado" runat="server" ControlToValidate="ddlEstado" InitialValue="" ErrorMessage="Elegí el nuevo estado" Display="Dynamic" CssClass="text-danger" ValidationGroup="estado" />
+                        </div>
                         <%-- el confirm pide confirmacion en el navegador antes de cancelar --%>
                         <asp:Button ID="btnCancelar" runat="server" Text="Cancelar pedido" CssClass="btn btn-admin-peligro ms-auto" ValidationGroup="cancelar" OnClientClick="return confirm('Seguro que queres cancelar el pedido? Las unidades vuelven al stock');" OnClick="btnCancelar_Click" />
                     </div>
