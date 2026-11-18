@@ -6,7 +6,12 @@
         
         <!-- Filtros -->
         <div class="row mb-4 bg-light p-3 rounded border">
-            <div class="col-md-4 mb-2">
+            <div class="col-md-2 mb-2">
+                <label class="form-label fw-bold">Filtrar por código:</label>
+                <asp:TextBox ID="txtFiltroCodigo" runat="server" CssClass="form-control" placeholder="Ej: ROP-0012"></asp:TextBox>
+            </div>
+
+            <div class="col-md-3 mb-2">
                 <label class="form-label fw-bold">Filtrar por nombre:</label>
                 <asp:TextBox ID="txtFiltroNombre" runat="server" CssClass="form-control" placeholder="Ingrese nombre..."></asp:TextBox>
             </div>
@@ -41,6 +46,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Id</th>
+                        <th>Código</th>
                         <th>Imagen</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
@@ -56,6 +62,7 @@
                         <ItemTemplate>
                             <tr>
                                 <td><%# Eval("Id") %></td>
+                                <td><span class="badge bg-secondary"><%# Eval("Codigo") ?? "N/A" %></span></td>
                                 <td>
                                     <img src='<%# Eval("ImagenUrl") %>' alt="Imagen" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/50';" />
                                 </td>

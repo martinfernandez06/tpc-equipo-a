@@ -14,16 +14,21 @@
 
                         <asp:HiddenField ID="hfId" runat="server" />
 
-                        <!-- Nombre y Categoria -->
+                        <!-- Nombre y Categoria y Codigo -->
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <label for="txtCodigo" class="form-label fw-bold text-nowrap">Código Propio</label>
+                                <asp:TextBox ID="txtCodigo" runat="server" CssClass="form-control" placeholder="(Opcional)" />
+                                <div class="form-text small">Dejar vacío para auto-generar.</div>
+                            </div>
+                            <div class="col-md-4">
                                 <label for="txtNombre" class="form-label fw-bold">Nombre del Producto</label>
                                 <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" placeholder="Ej: Notebook Gamer" />
                                 <asp:RequiredFieldValidator ID="rfvNombre" runat="server" ControlToValidate="txtNombre" 
                                     ErrorMessage="El nombre es obligatorio." CssClass="text-danger small" Display="Dynamic" />
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-5">
                                 <label for="ddlCategoria" class="form-label fw-bold">Categoría</label>
                                 <asp:DropDownList ID="ddlCategoria" runat="server" CssClass="form-select">
                                 </asp:DropDownList>
@@ -80,6 +85,10 @@
                         </div>
 
                         <!-- Accion y Navegacion -->
+                        <!-- Mensaje de Error y Botones -->
+                        <div class="mt-3">
+                            <asp:Label ID="lblError" runat="server" CssClass="text-danger fw-bold d-block mb-2" Visible="false"></asp:Label>
+                        </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                             <a href="AdminProductos.aspx" class="btn btn-outline-secondary">
