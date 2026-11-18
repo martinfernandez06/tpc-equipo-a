@@ -443,12 +443,18 @@ GO
 -- carga o corrige el codigo de seguimiento cuando el pedido ya esta enviado, por si el correo lo da despues
 CREATE PROCEDURE spActualizarSeguimiento
 @IdPedido INT,
-@CodigoSeguimiento VARCHAR(255)
+@EmpresaEnvio VARCHAR(50),
+@CodigoSeguimiento VARCHAR(255) = NULL
 AS BEGIN
     IF NOT EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado = 4)
-        THROW 50008, 'El codigo de seguimiento solo se puede cambiar mientras el pedido esta enviado', 1;
+        THROW 50008, 'El seguimiento solo se puede cambiar mientras el pedido esta enviado', 1;
 
-    UPDATE PEDIDOS SET CodigoSeguimiento = NULLIF(LTRIM(RTRIM(@CodigoSeguimiento)), '')
+    IF @EmpresaEnvio IS NULL OR LTRIM(RTRIM(@EmpresaEnvio)) = ''
+        THROW 50009, 'Hay que elegir con quien se envia', 1;
+
+    UPDATE PEDIDOS SET
+        EmpresaEnvio = LTRIM(RTRIM(@EmpresaEnvio)),
+        CodigoSeguimiento = NULLIF(LTRIM(RTRIM(@CodigoSeguimiento)), '')
     WHERE Id = @IdPedido
 END
 GO

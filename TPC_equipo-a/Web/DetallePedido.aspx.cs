@@ -137,6 +137,14 @@ namespace Web
             // si el pedido esta cerrado se oculta la card, y cancelar solo se ve si todavia no salio
             pnlAcciones.Visible = estadoActual < 5;
             btnCancelar.Visible = estadoActual < 4;
+            pnlSeguimiento.Visible = estadoActual == 4;
+
+            if (estadoActual == 4)
+            {
+                txtEditarCodigo.Text = seleccionado.CodigoSeguimiento;
+                ddlEditarEmpresa.SelectedValue = seleccionado.EmpresaEnvio;
+
+            }
         }
 
         protected void Page_Load(object sender, EventArgs e)
@@ -226,6 +234,31 @@ namespace Web
         protected void ddlEstado_SelectedIndexChanged(object sender, EventArgs e)
         {
             MostrarEnvio();
+        }
+
+        protected void btnGuardarSeguimiento_Click(object sender, EventArgs e)
+        {
+            // vuelvo a validar en el servidor por si se saltean la validacion del navegador
+            Page.Validate("seguimiento");
+            if (!Page.IsValid)
+                return;
+
+            try
+            {
+                int id = int.Parse(Request.QueryString["id"]);
+                PedidoNegocio negocio = new PedidoNegocio();
+                negocio.ActualizarSeguimiento(id,ddlEditarEmpresa.SelectedValue,txtEditarCodigo.Text.Trim());
+                lblMensaje.Text = "Seguimiento actualizado";
+                lblMensaje.CssClass = "text-success d-block my-2";
+                CargarPedido(id);
+            }
+            catch (Exception ex)
+            {
+
+                // igual que en cambiar estado, el error del sp se muestra en rojo
+                lblMensaje.Text = ex.Message;
+                lblMensaje.CssClass = "text-danger d-block my-2";
+            }
         }
     }
 }

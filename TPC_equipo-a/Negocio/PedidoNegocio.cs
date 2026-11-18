@@ -377,7 +377,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-        public void ActualizarSeguimiento(int idPedido, string codigoSeguimiento)
+        public void ActualizarSeguimiento(int idPedido, string empresaEnvio, string codigoSeguimiento)
         {
             AccesoDatos datos = new AccesoDatos();
 
@@ -385,6 +385,7 @@ namespace Negocio
             {
                 datos.setearProcedimiento("spActualizarSeguimiento");
                 datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@EmpresaEnvio", string.IsNullOrWhiteSpace(empresaEnvio) ? DBNull.Value : (object)empresaEnvio);
                 datos.setearParametro("@CodigoSeguimiento", string.IsNullOrWhiteSpace(codigoSeguimiento) ? DBNull.Value : (object)codigoSeguimiento);
                 datos.ejecutarAccion();
             }

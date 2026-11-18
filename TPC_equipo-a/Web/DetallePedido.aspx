@@ -81,11 +81,36 @@
                             <div>
                                 <asp:RequiredFieldValidator ID="rfvEmpresaEnvio" runat="server" ControlToValidate="ddlEmpresaEnvio" InitialValue="" ErrorMessage="Elegí con quién se envía" Display="Dynamic" CssClass="text-danger" ValidationGroup="estado" />
                             </div>
+                            <div>
+                                <asp:RegularExpressionValidator ID="revCodigoSeguimiento" runat="server" ControlToValidate="txtCodigoSeguimiento" ValidationExpression="^\s*\S+\s*$" ErrorMessage="El codigo no puede tener espacios en el medio" Display="Dynamic" CssClass="text-danger" ValidationGroup="estado" />
+                            </div>
                         </asp:Panel>
                         <asp:Button ID="btnCambiarEstado" runat="server" Text="Cambiar estado" CssClass="btn btn-ecommerce-primario" ValidationGroup="estado" OnClick="btnCambiarEstado_Click" />
                         <%-- el confirm pide confirmacion en el navegador antes de cancelar --%>
                         <asp:Button ID="btnCancelar" runat="server" Text="Cancelar pedido" CssClass="btn btn-admin-peligro ms-auto" ValidationGroup="cancelar" OnClientClick="return confirm('Seguro que queres cancelar el pedido? Las unidades vuelven al stock');" OnClick="btnCancelar_Click" />
                     </div>
+                    <%-- solo aparece con el pedido enviado, para corregir con quien se mando o cargar el codigo despues --%>
+                    <asp:Panel ID="pnlSeguimiento" runat="server" Visible="false" CssClass="card-body border-top">
+                        <div class="dato-titulo mb-2">Seguimiento del envio</div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <asp:DropDownList ID="ddlEditarEmpresa" runat="server" CssClass="form-select input-admin w-auto">
+                                <asp:ListItem Text="Elegí con quién se envía" Value=""></asp:ListItem>
+                                <asp:ListItem Text="Correo Argentino" Value="Correo Argentino"></asp:ListItem>
+                                <asp:ListItem Text="Andreani" Value="Andreani"></asp:ListItem>
+                                <asp:ListItem Text="Moto o Uber" Value="Moto o Uber"></asp:ListItem>
+                                <asp:ListItem Text="Envío propio" Value="Envío propio"></asp:ListItem>
+                                <asp:ListItem Text="Otro" Value="Otro"></asp:ListItem>
+                            </asp:DropDownList>
+                            <asp:TextBox ID="txtEditarCodigo" runat="server" CssClass="form-control input-admin w-auto" MaxLength="255" placeholder="Código o link de seguimiento (opcional)"></asp:TextBox>
+                            <asp:Button ID="btnGuardarSeguimiento" runat="server" Text="Guardar seguimiento" CssClass="btn btn-ecommerce-primario" ValidationGroup="seguimiento" OnClick="btnGuardarSeguimiento_Click" />
+                        </div>
+                        <div>
+                            <asp:RequiredFieldValidator ID="rfvEditarEmpresa" runat="server" ControlToValidate="ddlEditarEmpresa" InitialValue="" ErrorMessage="Elegí con quién se envía" Display="Dynamic" CssClass="text-danger" ValidationGroup="seguimiento" />
+                        </div>
+                        <div>
+                            <asp:RegularExpressionValidator ID="revEditarCodigo" runat="server" ControlToValidate="txtEditarCodigo" ValidationExpression="^\s*\S+\s*$" ErrorMessage="El codigo no puede tener espacios en el medio" Display="Dynamic" CssClass="text-danger" ValidationGroup="seguimiento" />
+                        </div>
+                    </asp:Panel>
                 </div>
             </asp:Panel>
             <%-- el mensaje va afuera del panel para que se siga viendo cuando la card se oculta --%>
