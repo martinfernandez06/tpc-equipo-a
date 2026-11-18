@@ -148,3 +148,87 @@
     background-color: var(--color-boton-primario);
     color: #fff;
 }
+/* tarjetas de reportes, degradado con un icono grande de fondo */
+.tarjeta-reporte {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    color: #fff;
+}
+
+    .tarjeta-reporte .card-body {
+        position: relative;
+        z-index: 1;
+        padding: 1.25rem 1.5rem;
+    }
+
+    /* titulo chico arriba del numero, blanco un poco transparente */
+    .tarjeta-reporte .titulo-reporte {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* la sombra suave ayuda a que el numero se lea en la parte clara del degradado */
+    .tarjeta-reporte .numero-reporte {
+        font-size: 1.9rem;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    /* icono grande en la esquina, transparente para que no tape el numero */
+    .tarjeta-reporte .icono-reporte {
+        position: absolute;
+        right: -10px;
+        bottom: -22px;
+        font-size: 7rem;
+        color: #fff;
+        opacity: 0.18;
+        z-index: 0;
+    }
+
+/* un color por tarjeta, el violeta es el de los botones del ecommerce */
+.tarjeta-ventas {
+    background: linear-gradient(135deg, #512BD4, #7C5CFF);
+}
+
+.tarjeta-pedidos {
+    background: linear-gradient(135deg, #0F766E, #0D9488);
+}
+
+.tarjeta-ticket {
+    background: linear-gradient(135deg, #C2410C, #EA580C);
+}
+
+/* filtro de reportes, fondo lila suave con la franja violeta del ecommerce */
+.filtro-reporte {
+    background-color: #F5F3FF;
+    border: 0;
+    border-left: 4px solid #512BD4;
+    border-radius: 0;
+}
+
+    /* titulo del filtro en violeta oscuro para que se lea sobre el lila */
+    .filtro-reporte .encabezado-filtro {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #3F1FB0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* desde y hasta en un violeta apagado que combina con el fondo */
+    .filtro-reporte .dato-titulo {
+        color: #6D5BBA;
+    }
+
+/* fila del total al pie de pedidos por estado, mismo violeta que el filtro */
+.tabla-admin > tbody > tr.fila-total > td {
+    background-color: #EDE9FE;
+    color: #3F1FB0;
+    border-top: 2px solid #512BD4;
+    box-shadow: none;
+}
