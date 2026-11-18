@@ -12,8 +12,11 @@ namespace Web
 {
     public partial class FormularioProducto : System.Web.UI.Page
     {
+        protected global::System.Web.UI.WebControls.TextBox txtCodigo;
+        protected global::System.Web.UI.WebControls.Label lblError;
         protected void Page_Load(object sender, EventArgs e)
         {
+
             if (!IsPostBack)
             {
                 // leo el id de la url, si no vino queda vacio
@@ -42,6 +45,8 @@ namespace Web
                     // el id viene como texto, lo paso a int para compararlo con el id del producto
                     Producto seleccionado = lista.Find(x => x.Id == int.Parse(id));
 
+                    // Cargamos el código si estamos modificando
+                    if (txtCodigo != null) txtCodigo.Text = seleccionado.Codigo;
                     txtNombre.Text = seleccionado.Nombre;
                     txtDescripcion.Text = seleccionado.Descripcion;
                     // paso el precio a texto con punto decimal, que es lo que entiende el campo numerico
@@ -79,6 +84,8 @@ namespace Web
                 Producto producto = new Producto();
                 producto.Categoria = new Categoria();
 
+                // Pasamos el código propio (o nulo para autogenerar)
+                producto.Codigo = (txtCodigo != null && !string.IsNullOrWhiteSpace(txtCodigo.Text)) ? txtCodigo.Text.Trim() : null;
                 producto.Nombre = txtNombre.Text.Trim();
                 producto.Descripcion = txtDescripcion.Text.Trim();
                 producto.PrecioVenta = precio;
@@ -106,7 +113,18 @@ namespace Web
             }
             catch (Exception ex)
             {
-                throw ex;
+                // Buscamos palabras clave en minúsculas para ignorar comillas, puntos o saltos de línea ocultos de SQL
+                if (ex.Message.ToLower().Contains("ya existe") || ex.Message.ToLower().Contains("código"))
+                {
+                    lblError.Text = "Este código ya está en uso. Elegí otro o dejalo vacío.";
+                    lblError.Visible = true;
+                }
+                else
+                {
+                    // Mostramos el error real en pantalla en lugar de romper la página.
+                    lblError.Text = "Error de base de datos: " + ex.Message;
+                    lblError.Visible = true;
+                }
             }
         }
     }
