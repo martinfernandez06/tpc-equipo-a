@@ -57,7 +57,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-        public List<Pedido> listarPedido()
+        public List<Pedido> listarPedido(int? idEstado, DateTime? fechaDesde, DateTime? fechaHasta, string cliente)
         {
             List<Pedido> lista = new List<Pedido>();
             AccesoDatos datos = new AccesoDatos();
@@ -65,6 +65,13 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spListarPedidos");
+                // cada filtro que viene vacio lo mando como null y el sp no filtra por ese dato
+                datos.setearParametro("@IdEstado", idEstado.HasValue ? (object)idEstado.Value : DBNull.Value);
+                // hasvalue me dice si eligio una fecha, si no mando null
+                datos.setearParametro("@FechaDesde", fechaDesde.HasValue ? (object)fechaDesde.Value : DBNull.Value);
+                datos.setearParametro("@FechaHasta", fechaHasta.HasValue ? (object)fechaHasta.Value : DBNull.Value);
+                // si no escribio nada o solo espacios mando null, el trim saca los espacios de los costados
+                datos.setearParametro("@Cliente", string.IsNullOrWhiteSpace(cliente) ? DBNull.Value : (object)cliente.Trim());
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())

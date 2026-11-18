@@ -11,6 +11,33 @@ namespace Web
 {
     public partial class AdminCategorias : System.Web.UI.Page
     {
+
+        // devuelve la clase del badge, verde si esta activa y gris si no
+        protected string ClaseActiva(object activa)
+        {
+            if ((bool)activa)
+            {
+                return "badge bg-success";
+            }
+            else
+            {
+                return "badge bg-secondary";
+            }
+        }
+
+        // devuelve el texto del badge
+        protected string TextoActiva(object activa)
+        {
+            if ((bool)activa)
+            {
+                return "Activa";
+            }
+            else
+            {
+                return "Inactiva";
+            }
+        }
+
         // filtra la lista guardada en session por nombre y por estado
         // la llaman los dos filtros y el paginado, asi siempre se aplican juntos
         private void filtrar()

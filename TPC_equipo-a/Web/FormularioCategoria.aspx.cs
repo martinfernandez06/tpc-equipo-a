@@ -32,15 +32,23 @@ namespace Web
                         txtDescripcion.Text = seleccionada.Descripcion;
                         lblTitulo.Text = "Modificar categoria";
                         btnAceptar.Text = "Modificar";
-
+                        // primero cargo todo como activa y si no lo esta el if de abajo lo cambia
+                        lblEstado.Text = "Activa";
+                        lblEstado.CssClass = "badge bg-success";
+                        // si esta inactiva el badge va en gris y el boton pasa a activar en violeta
                         if (!seleccionada.Activa)
                         {
                             btnEstado.Text = "Activar";
+                            lblEstado.Text = "Inactiva";
+                            lblEstado.CssClass = "badge bg-secondary";
+                            btnEstado.CssClass = "btn btn-admin-secundario ms-auto";
                         }
                     }
                     else
                     {
+                        // en el alta no hay estado para mostrar ni para cambiar
                         btnEstado.Visible = false;
+                        lblEstado.Visible = false;
                         lblTitulo.Text = "Nueva categoria";
                         btnAceptar.Text = "Crear";
                     }
@@ -106,6 +114,14 @@ namespace Web
         {
             try
             {
+                // si va a desactivar primero muestro el recuadro para confirmar y corto aca
+                // si dice activar sigue de largo y lo activa directo
+                if (btnEstado.Text == "Desactivar")
+                {
+                    pnlConfirmar.Visible = true;
+                    pnlBotones.Visible = false;
+                    return;
+                }
                 // solo si vino id en la url
                 if (Request.QueryString["id"] != null)
                 {
@@ -121,6 +137,29 @@ namespace Web
 
                     Response.Redirect("AdminCategorias.aspx", false);
                 }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        protected void btnNoDesactivar_Click(object sender, EventArgs e)
+        {
+            pnlConfirmar.Visible = false;
+            pnlBotones.Visible = true;
+        }
+
+        protected void btnSiDesactivar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // ya confirmo, asi que la paso a inactiva directo con false
+                int id = int.Parse(Request.QueryString["id"]);
+                CategoriaNegocio negocio = new CategoriaNegocio();
+                negocio.cambiarEstadoCategoria(id, false);
+                Response.Redirect("AdminCategorias.aspx", false);
             }
             catch (Exception ex)
             {
