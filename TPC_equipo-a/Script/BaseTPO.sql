@@ -508,3 +508,49 @@ GO
 CREATE PROCEDURE spListarHistorialPorPedido @IdPedido INT
 AS BEGIN SELECT H.Id, H.IdEstado, E.Descripcion AS Estado, H.IdUsuario, U.Nombre AS NombreUsuario, U.Apellido AS ApellidoUsuario, H.Fecha FROM HISTORIAL_ESTADOS H INNER JOIN ESTADOS_PEDIDO E ON H.IdEstado = E.Id INNER JOIN USUARIOS U ON H.IdUsuario = U.Id WHERE H.IdPedido = @IdPedido ORDER BY H.Fecha ASC END
 GO
+
+-- Martin -- 18/11/26
+-- reportes del admin, solo cuentan los pedidos cobrados (de pagado a entregado), pendientes y cancelados no
+CREATE PROCEDURE spReporteTotalVendido
+@FechaDesde DATE = NULL,
+@FechaHasta DATE = NULL
+AS BEGIN
+    SELECT COUNT(*) AS CantidadPedidos, ISNULL(SUM(Total), 0) AS TotalVendido, ISNULL(AVG(Total), 0) AS TicketPromedio
+    FROM PEDIDOS
+    WHERE IdEstado BETWEEN 2 AND 5
+    AND (@FechaDesde IS NULL OR FechaCreacion >= @FechaDesde)
+    AND (@FechaHasta IS NULL OR FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+END
+GO
+
+-- el left join con las fechas en el on hace que aparezcan todos los estados, aunque tengan 0 pedidos
+CREATE PROCEDURE spReportePedidosPorEstado
+@FechaDesde DATE = NULL,
+@FechaHasta DATE = NULL
+AS BEGIN
+    SELECT E.Id, E.Descripcion AS Estado, COUNT(P.Id) AS Cantidad
+    FROM ESTADOS_PEDIDO E
+    LEFT JOIN PEDIDOS P ON P.IdEstado = E.Id
+        AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
+        AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+    GROUP BY E.Id, E.Descripcion
+    ORDER BY E.Id
+END
+GO
+
+-- los 10 que mas unidades vendieron, el total usa el precio que se pago en cada pedido
+CREATE PROCEDURE spReporteProductosMasVendidos
+@FechaDesde DATE = NULL,
+@FechaHasta DATE = NULL
+AS BEGIN
+    SELECT TOP 10 PR.Id, PR.Codigo, PR.Nombre, SUM(I.Cantidad) AS Unidades, SUM(I.Cantidad * I.PrecioUnitario) AS TotalVendido
+    FROM ITEMS_PEDIDO I
+    INNER JOIN PEDIDOS P ON I.IdPedido = P.Id
+    INNER JOIN PRODUCTOS PR ON I.IdProducto = PR.Id
+    WHERE P.IdEstado BETWEEN 2 AND 5
+    AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
+    AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+    GROUP BY PR.Id, PR.Codigo, PR.Nombre
+    ORDER BY Unidades DESC
+END
+GO

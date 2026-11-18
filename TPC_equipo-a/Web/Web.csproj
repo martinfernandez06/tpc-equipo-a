@@ -95,6 +95,7 @@
   <ItemGroup>
     <Content Include="AdminFormasEntrega.aspx" />
     <Content Include="AdminFormasPago.aspx" />
+    <Content Include="AdminReportes.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminPedidos.aspx" />
@@ -210,6 +211,13 @@
     </Compile>
     <Compile Include="AdminProductos.aspx.designer.cs">
       <DependentUpon>AdminProductos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminReportes.aspx.cs">
+      <DependentUpon>AdminReportes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminReportes.aspx.designer.cs">
+      <DependentUpon>AdminReportes.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
