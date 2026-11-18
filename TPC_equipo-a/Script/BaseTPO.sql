@@ -399,6 +399,10 @@ AS BEGIN
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
     WHERE P.Id = @IdPedido;
 
+    -- si el select no encontro nada el pedido no existe
+    IF @EstadoActual IS NULL
+        THROW 50011, 'El pedido no existe', 1;
+
     -- si ya esta entregado o cancelado no se toca mas
     IF @EstadoActual IN (5, 6)
         THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
@@ -410,6 +414,10 @@ AS BEGIN
     -- solo se puede avanzar, ni el mismo estado ni para atras
     IF @IdEstado <= @EstadoActual
         THROW 50005, 'El estado nuevo tiene que ser posterior al actual', 1;
+
+    -- sin cobrar no se prepara ni se entrega nada, de pendiente solo se pasa a pagado
+    IF @EstadoActual = 1 AND @IdEstado <> 2
+        THROW 50010, 'Primero hay que marcar el pedido como pagado', 1;
 
     -- si retira en el local no hay envio, pasa de en preparacion a entregado
     IF @IdEstado = 4 AND @RequiereDireccion = 0

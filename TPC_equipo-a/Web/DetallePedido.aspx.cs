@@ -81,7 +81,8 @@ namespace Web
             {
                 lblEmpresaEnvio.Text = "No aplica";
                 lblCodigoSeguimiento.Text = "";
-            }else if (seleccionado.EmpresaEnvio == null)
+            }
+            else if (seleccionado.EmpresaEnvio == null)
             {
                 lblEmpresaEnvio.Text = "Todavia no se envio";
                 lblCodigoSeguimiento.Text = "";
@@ -89,10 +90,11 @@ namespace Web
             else
             {
                 lblEmpresaEnvio.Text = $"Enviado por {seleccionado.EmpresaEnvio}";
-                if(seleccionado.CodigoSeguimiento == null)
+                if (seleccionado.CodigoSeguimiento == null)
                 {
                     lblCodigoSeguimiento.Text = "Sin codigo.";
-                }else if (seleccionado.CodigoSeguimiento.StartsWith("http://") || seleccionado.CodigoSeguimiento.StartsWith("https://"))
+                }
+                else if (seleccionado.CodigoSeguimiento.StartsWith("http://") || seleccionado.CodigoSeguimiento.StartsWith("https://"))
                 {
                     lblCodigoSeguimiento.Text = "";
                     hlSeguimiento.NavigateUrl = seleccionado.CodigoSeguimiento;
@@ -120,15 +122,21 @@ namespace Web
             int estadoActual = seleccionado.Estado.Id;
             ddlEstado.Items.Clear();
 
-            if (estadoActual < 2)
+            // sin cobrar no se avanza, de pendiente solo se puede pasar a pagado
+            if (estadoActual == 1)
+            {
                 ddlEstado.Items.Add(new ListItem("Pagado", "2"));
-            if (estadoActual < 3)
-                ddlEstado.Items.Add(new ListItem("En preparación", "3"));
-            // los de retiro no tienen direccion, asi que nunca pasan por enviado
-            if (estadoActual < 4 && seleccionado.Direccion != null)
-                ddlEstado.Items.Add(new ListItem("Enviado", "4"));
-            if (estadoActual < 5)
-                ddlEstado.Items.Add(new ListItem("Entregado", "5"));
+            }
+            else
+            {
+                if (estadoActual < 3)
+                    ddlEstado.Items.Add(new ListItem("En preparación", "3"));
+                // los de retiro no tienen direccion, asi que nunca pasan por enviado
+                if (estadoActual < 4 && seleccionado.Direccion != null)
+                    ddlEstado.Items.Add(new ListItem("Enviado", "4"));
+                if (estadoActual < 5)
+                    ddlEstado.Items.Add(new ListItem("Entregado", "5"));
+            }
 
             // solo si el pedido no esta cerrado, si no el ddl queda vacio y el parse rompe
             if (estadoActual < 5)
@@ -247,7 +255,7 @@ namespace Web
             {
                 int id = int.Parse(Request.QueryString["id"]);
                 PedidoNegocio negocio = new PedidoNegocio();
-                negocio.ActualizarSeguimiento(id,ddlEditarEmpresa.SelectedValue,txtEditarCodigo.Text.Trim());
+                negocio.ActualizarSeguimiento(id, ddlEditarEmpresa.SelectedValue, txtEditarCodigo.Text.Trim());
                 lblMensaje.Text = "Seguimiento actualizado";
                 lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
