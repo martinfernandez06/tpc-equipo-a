@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Negocio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -37,6 +38,25 @@ namespace Web
             else if (pagina.Contains("Reporte"))
             {
                 lnkReportes.Attributes["class"] += " activo";
+            }
+            else if (pagina.Contains("Comprobante"))
+            {
+                lnkComprobantes.Attributes["class"] += " activo";
+            }
+        }
+        // cuenta los comprobantes pendientes para el numerito del menu, va en prerender porque corre despues de los clics y asi ya cuenta el que aceptaron o rechazaron
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            PedidoNegocio negocio = new PedidoNegocio();
+            int cantidad = negocio.ContarComprobantesPendientes();
+            if (cantidad > 0)
+            {
+                lblPendientes.Text = cantidad.ToString();
+                lblPendientes.Visible = true;
+            }
+            else
+            {
+                lblPendientes.Visible = false ;
             }
         }
     }

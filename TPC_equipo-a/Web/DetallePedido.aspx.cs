@@ -133,10 +133,27 @@ namespace Web
             // arranca sin nada elegido, asi no se cambia el estado de un click sin querer
             ddlEstado.Items.Add(new ListItem("Elegí el nuevo estado", ""));
 
+            // por defecto el aviso oculto y el desplegable con su boton a la vista, este metodo se llama varias veces y hay que dejarlos como siempre
+            pnlAvisoComprobante.Visible = false;
+            ddlEstado.Visible = true;
+            btnCambiarEstado.Visible = true;
+            rfvEstado.Visible = true;
+
             // sin cobrar no se avanza, de pendiente solo se puede pasar a pagado
             if (estadoActual == 1)
             {
-                ddlEstado.Items.Add(new ListItem("Pagado", "2"));
+                // las transferencias pasan a pagado solo desde la bandeja, aca muestro el aviso en vez del desplegable
+                if (seleccionado.FormaPago.RequiereComprobante)
+                {
+                    pnlAvisoComprobante.Visible = true;
+                    ddlEstado.Visible = false;
+                    btnCambiarEstado.Visible = false;
+                    rfvEstado.Visible = false;
+                }
+                else
+                {
+                    ddlEstado.Items.Add(new ListItem("Pagado", "2"));
+                }
             }
             else
             {
