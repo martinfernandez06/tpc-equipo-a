@@ -6,7 +6,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> Magva</title>
+    <title></title>
 
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
@@ -66,7 +66,12 @@
 
                                 <i class="bi bi-cart3 position-absolute" style="left: 4px; top: 50%; transform: translateY(-50%); font-size: 1.15rem;"></i>
 
-                                <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger position-absolute" Style="top: 2px; left: 10px; font-size: 0.65rem;" Visible="false"></asp:Label>
+                                <!-- UpdatePanel inline para que el contador se actualice con los clics AJAX del carrito -->
+                                <asp:UpdatePanel ID="updBadgeCarrito" runat="server" UpdateMode="Always" RenderMode="Inline">
+                                    <ContentTemplate>
+                                        <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger position-absolute" Style="top: 2px; left: 10px; font-size: 0.65rem;" Visible="false"></asp:Label>
+                                    </ContentTemplate>
+                                </asp:UpdatePanel>
 
                                 Carrito
                             </a>

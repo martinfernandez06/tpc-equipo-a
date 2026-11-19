@@ -18,9 +18,8 @@ namespace Web
                 // Capturamos el ID que viene en la URL
                 string idString = Request.QueryString["id"];
 
-                if (!string.IsNullOrEmpty(idString))
+                if (int.TryParse(idString, out int idProducto))
                 {
-                    int idProducto = int.Parse(idString);
                     ProductoNegocio negocio = new ProductoNegocio();
 
                     // Traemos la lista y buscamos el producto específico
@@ -53,7 +52,7 @@ namespace Web
                 }
                 else
                 {
-                    // Si entran directo a la página sin ID en la URL, los devolvemos al catálogo
+                    // Si entran directo a la página sin un ID válido en la URL, los devolvemos al catálogo
                     Response.Redirect("Default.aspx", false);
                 }
             }
@@ -62,20 +61,23 @@ namespace Web
         protected void btnAgregarCarrito_Click(object sender, EventArgs e)
         {
             lblError.Visible = false;
+            lblExito.Visible = false;
 
-            // Leemos lo que escribió el cliente y lo que hay de stock real en pantalla
+            // Validamos que lo que escribió el cliente sea un número válido mayor a cero
+            if (!int.TryParse(txtCantidad.Text, out int cantidadSolicitada) || cantidadSolicitada <= 0)
+            {
+                lblError.Text = "La cantidad debe ser un número válido mayor a cero.";
+                lblError.Visible = true;
+                return;
+            }
+
+            // Leemos lo que hay de stock real en pantalla
             int stockDisponible = int.Parse(lblStock.Text);
-            int cantidadSolicitada = int.Parse(txtCantidad.Text);
 
-            // Validación: No pueden pedir más de lo que hay, ni números menores a uno
+            // Validación: No pueden pedir más de lo que hay
             if (cantidadSolicitada > stockDisponible)
             {
                 lblError.Text = "No hay suficiente stock. Solo quedan " + stockDisponible + " unidades.";
-                lblError.Visible = true;
-            }
-            else if (cantidadSolicitada <= 0)
-            {
-                lblError.Text = "La cantidad debe ser mayor a cero.";
                 lblError.Visible = true;
             }
             else
@@ -115,8 +117,10 @@ namespace Web
                 // Sobreescribimos la Session con el carrito actualizado
                 Session["Carrito"] = carrito;
 
-                // Llevamos al cliente a ver su carrito
-                Response.Redirect("Carrito.aspx", false);
+                // Mostramos confirmación sin salir de la página y reseteamos la cantidad a 1
+                lblExito.Text = "Producto agregado al carrito.";
+                lblExito.Visible = true;
+                txtCantidad.Text = "1";
             }
         }
     }
