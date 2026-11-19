@@ -68,14 +68,20 @@ namespace Web
             repProductos.DataSource = lista;
             repProductos.DataBind();
 
-            // si no quedo ningun producto activo muestro el aviso
+            // si no quedo ningun producto muestro un aviso distinto si es por la busqueda o porque la tienda no tiene productos
+            bool hayFiltro = !string.IsNullOrEmpty(txtBuscar.Text.Trim()) || ddlCategorias.SelectedIndex > 0;
+            lblSinProductos.Visible = false;
+            pnlSinResultados.Visible = false;
             if (lista.Count == 0)
             {
-                lblSinProductos.Visible = true;
-            }
-            else
-            {
-                lblSinProductos.Visible = false; // Apagamos el aviso si la búsqueda encuentra algo
+                if (hayFiltro)
+                {
+                    pnlSinResultados.Visible = true;
+                }
+                else
+                {
+                    lblSinProductos.Visible = true;
+                }
             }
             // cantidad de productos que quedaron, el if es para que con uno solo no diga 1 productos
             if (lista.Count == 1)

@@ -221,6 +221,30 @@ body {
     pointer-events: none; /* no se puede tocar */
 }
 
+/* aviso cuando la busqueda no trae productos */
+.sin-resultados {
+    padding: 48px 16px;
+}
+
+/* lupa grande adentro de un circulo lila */
+.icono-sin-resultados {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario);
+    font-size: 1.8rem;
+}
+
+.titulo-sin-resultados {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+}
+
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);
