@@ -207,6 +207,7 @@ namespace Negocio
                     aux.FormaPago = new FormaPago();
                     aux.FormaPago.Id = (int)datos.Lector["IdFormaPago"];
                     aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    aux.FormaPago.RequiereComprobante = (bool)datos.Lector["RequiereComprobante"];
                     aux.Estado = new EstadoPedido();
                     aux.Estado.Id = (int)datos.Lector["IdEstado"];
                     aux.Estado.Descripcion = (string)datos.Lector["Estado"];
