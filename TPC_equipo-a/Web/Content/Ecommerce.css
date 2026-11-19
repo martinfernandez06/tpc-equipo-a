@@ -7,6 +7,10 @@
     --color-boton-primario: #512BD4;
     --color-boton-primario-hover: #3F1FB0;
     --color-boton-secundario-oscuro: #8B6CFF;
+    --color-lila-fondo: #F5F3FF;
+    --color-lila-chip: #EDE9FE;
+    --color-lila-chip-hover: #DDD6FE;
+    --color-violeta-titulo: #6D5BBA;
     --fuente-texto: "Mooli", system-ui, sans-serif;
 }
 
@@ -56,6 +60,7 @@ body {
     --bs-btn-border-radius: 0;
 }
 
+/* secundario para fondo oscuro, como ingresar en la navbar */
 .btn-ecommerce-secundario {
     --bs-btn-color: var(--color-boton-secundario-oscuro);
     --bs-btn-bg: transparent;
@@ -69,10 +74,74 @@ body {
     --bs-btn-border-radius: 0;
 }
 
-/* cards del catalogo */
+/* secundario para fondo claro, como limpiar en el filtro */
+.btn-tienda-secundario {
+    --bs-btn-color: var(--color-boton-primario);
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: var(--color-boton-primario);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--color-boton-primario);
+    --bs-btn-hover-border-color: var(--color-boton-primario);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--color-boton-primario-hover);
+    --bs-btn-active-border-color: var(--color-boton-primario-hover);
+    --bs-btn-border-radius: 0;
+}
+
+/* filtro del catalogo */
+/* la sombra pinta el lila hasta los bordes de la pantalla sin romper el container de la master */
+.filtro-catalogo {
+    background-color: var(--color-lila-fondo);
+    box-shadow: 0 0 0 100vmax var(--color-lila-fondo);
+    clip-path: inset(0 -100vmax);
+    margin-top: -15px; /* site.css le pone 15px arriba al contenido, aca lo saco para que quede pegado a la navbar */
+    padding: 16px 0;
+}
+
+.titulo-campo {
+    font-size: 0.75rem;
+    color: var(--color-violeta-titulo);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.input-tienda {
+    border-radius: 0;
+    max-width: none; /* site.css le pone un ancho maximo a las cajas, aca lo saco */
+}
+
+    .input-tienda:focus {
+        border-color: var(--color-boton-primario);
+        box-shadow: 0 0 0 0.2rem rgba(81, 43, 212, 0.25);
+    }
+
+/* cajita de la lupa al lado del buscador */
+.filtro-catalogo .input-group-text {
+    background-color: #fff;
+    border-radius: 0;
+}
+
+/* chip con el filtro activo, la x lo saca */
+.chip-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario-hover);
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    text-decoration: none;
+}
+
+    .chip-filtro:hover {
+        background-color: var(--color-lila-chip-hover);
+        color: var(--color-boton-primario-hover);
+    }
+
+/* tarjetas del catalogo */
 .img-card-producto {
-    aspect-ratio: 1 / 1; /* cuadro cuadrado para todas las fotos */
-    object-fit: contain; /* la foto entra entera sin cortarse */
+    aspect-ratio: 1 / 1;
+    object-fit: contain; /* la foto entra entera en el cuadrado sin cortarse */
 }
 
 /* titulo cortado en 2 renglones asi los precios quedan a la misma altura */

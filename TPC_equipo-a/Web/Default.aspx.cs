@@ -68,6 +68,24 @@ namespace Web
             {
                 lblSinProductos.Visible = false; // Apagamos el aviso si la búsqueda encuentra algo
             }
+            // cantidad de productos que quedaron, el if es para que con uno solo no diga 1 productos
+            if (lista.Count == 1)
+            {
+                lblCantidad.Text = "1 producto";
+            }
+            else
+            {
+                lblCantidad.Text = $"{lista.Count} productos";
+            }
+
+            // chips con lo que de verdad se filtro, el htmlencode es para que si escriben codigo se muestre como texto y no se ejecute
+            bool hayTexto = !string.IsNullOrEmpty(txtBuscar.Text.Trim());
+            bool hayCategoria = ddlCategorias.SelectedIndex > 0;
+            btnQuitarTexto.Visible = hayTexto;
+            btnQuitarTexto.Text = "\"" + HttpUtility.HtmlEncode(txtBuscar.Text.Trim()) + "\" <i class=\"bi bi-x\"></i>";
+            btnQuitarCategoria.Visible = hayCategoria;
+            btnQuitarCategoria.Text = ddlCategorias.SelectedItem.Text + " <i class=\"bi bi-x\"></i>";
+            pnlFiltrando.Visible = hayTexto || hayCategoria;
         }
 
         // Evento del botón Buscar
@@ -141,6 +159,29 @@ namespace Web
             lblMensaje.CssClass = "alert alert-success d-block mb-3";
             lblMensaje.Text = "Se agregó \"" + seleccionado.Nombre + "\" al carrito.";
             lblMensaje.Visible = true;
+        }
+        // deja el filtro como al entrar y vuelve a mostrar todos los productos
+        protected void btnLimpiar_Click(object sender, EventArgs e)
+        {
+            lblMensaje.Visible = false;
+            txtBuscar.Text = "";
+            ddlCategorias.SelectedIndex = 0;
+            CargarCatalogo();
+        }
+
+        // saca solo lo escrito y deja la categoria como estaba
+        protected void btnQuitarTexto_Click(object sender, EventArgs e)
+        {
+            lblMensaje.Visible = false;
+            txtBuscar.Text = "";
+            CargarCatalogo();
+        }
+        // saca solo la categoria y deja lo escrito como estaba
+        protected void btnQuitarCategoria_Click(object sender, EventArgs e)
+        {
+            lblMensaje.Visible = false;
+            ddlCategorias.SelectedIndex = 0;
+            CargarCatalogo();
         }
     }
 }

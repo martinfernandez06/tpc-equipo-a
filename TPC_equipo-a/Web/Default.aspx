@@ -1,22 +1,37 @@
 ﻿<%@ Page Title="Catalogo Productos" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Web._Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>Catalogo de Productos</h2>
-    <div class="row mb-4 bg-light p-3 rounded border align-items-end">
-        <div class="col-md-5 mb-2">
-            <label class="form-label fw-bold">Buscar producto:</label>
-            <asp:TextBox ID="txtBuscar" runat="server" CssClass="form-control" placeholder="Nombre o código (Ej: ROP-0012)"></asp:TextBox>
-        </div>
-        <div class="col-md-4 mb-2">
-            <label class="form-label fw-bold">Categoría:</label>
-            <asp:DropDownList ID="ddlCategorias" runat="server" CssClass="form-select">
-            </asp:DropDownList>
-        </div>
-        <div class="col-md-3 mb-2">
-            <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary w-100" OnClick="btnBuscar_Click" />
+    <%-- filtro pegado a la navbar, el fondo lila llega a los bordes y los campos quedan alineados con las tarjetas --%>
+    <div class="filtro-catalogo">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <div class="titulo-campo">Buscar</div>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <asp:TextBox ID="txtBuscar" runat="server" CssClass="form-control input-tienda" placeholder="Nombre o código, ej: ROP-0012"></asp:TextBox>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="titulo-campo">Categoría</div>
+                <asp:DropDownList ID="ddlCategorias" runat="server" CssClass="form-select input-tienda"></asp:DropDownList>
+            </div>
+            <div class="col-md-3 col-lg-auto d-flex gap-2">
+                <%-- buscar sigue siendo button y no linkbutton, asi el enter en la caja de texto sigue buscando --%>
+                <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-ecommerce-primario flex-grow-1" OnClick="btnBuscar_Click" />
+                <%-- en el celular queda solo la x para que entre al lado de buscar --%>
+                <asp:LinkButton ID="btnLimpiar" runat="server" CssClass="btn btn-tienda-secundario text-nowrap" OnClick="btnLimpiar_Click" ToolTip="Limpiar filtro"><i class="bi bi-x-lg"></i><span class="d-none d-lg-inline ms-1">Limpiar</span></asp:LinkButton>
+            </div>
         </div>
     </div>
-
+    <%-- fila con lo que de verdad se esta filtrando y cuantos productos quedaron, la x de cada chip saca solo ese filtro --%>
+    <div class="d-flex flex-wrap align-items-center gap-2 my-3">
+        <asp:Panel ID="pnlFiltrando" runat="server" Visible="false" CssClass="d-flex flex-wrap align-items-center gap-2">
+            <span class="small text-secondary">Filtrando por</span>
+            <asp:LinkButton ID="btnQuitarTexto" OnClick="btnQuitarTexto_Click" runat="server" CssClass="chip-filtro" ToolTip="Quitar este filtro"></asp:LinkButton>
+            <asp:LinkButton ID="btnQuitarCategoria" OnClick="btnQuitarCategoria_Click" runat="server" CssClass="chip-filtro" ToolTip="Quitar este filtro"></asp:LinkButton>
+        </asp:Panel>
+        <asp:Label ID="lblCantidad" runat="server" CssClass="ms-auto small text-secondary"></asp:Label>
+    </div>
     <!-- Aviso de confirmación o error de stock al agregar desde el catálogo -->
     <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
 
@@ -24,12 +39,12 @@
         <asp:Repeater runat="server" ID="repProductos">
             <ItemTemplate>
                 <div class="col">
-                    <div class="card h-100 card-producto d-flex flex-column"> 
+                    <div class="card h-100 card-producto d-flex flex-column">
                         <img class="card-img-top img-card-producto" src='<%# Eval("ImagenUrl") %>' alt='<%# Eval("Nombre") %>' />
-                        
+
                         <div class="card-body d-flex flex-column">
-                            
-                            <!-- Código del producto  --> 
+
+                            <!-- Código del producto  -->
                             <div class="mb-2">
                                 <span class="badge bg-secondary"><%# Eval("Codigo") ?? "N/A" %></span>
                             </div>
@@ -37,13 +52,13 @@
                             <a href='DetalleProducto.aspx?id=<%# Eval("Id") %>' class="stretched-link text-decoration-none">
                                 <h6 class="card-title titulo-card-producto"><%# Eval("Nombre") %> </h6>
                             </a>
-                            <p class="fs-5 fw-bold mb-3"><%# Eval("PrecioVenta", "{0:C}") %></p> 
-                            
-                            <!-- Botón Agregar al Carrito --> 
+                            <p class="fs-5 fw-bold mb-3"><%# Eval("PrecioVenta", "{0:C}") %></p>
+
+                            <!-- Botón Agregar al Carrito -->
                             <div class="mt-auto position-relative" style="z-index: 2;">
-                                <asp:LinkButton ID="btnAgregarCarrito" runat="server" 
-                                    CssClass="btn btn-outline-success w-100" 
-                                    CommandArgument='<%# Eval("Id") %>' 
+                                <asp:LinkButton ID="btnAgregarCarrito" runat="server"
+                                    CssClass="btn btn-outline-success w-100"
+                                    CommandArgument='<%# Eval("Id") %>'
                                     OnClick="btnAgregarCarrito_Click">
                                     <i class="bi bi-cart-plus"></i> Al Carrito
                                 </asp:LinkButton>
