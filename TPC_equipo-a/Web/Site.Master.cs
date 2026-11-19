@@ -35,6 +35,15 @@ namespace Web
             {
                 lblCantidadCarrito.Visible = false;
             }
+            // Aseguramos que el título completo incluya la marca incluso en postbacks de UpdatePanel
+            if (string.IsNullOrWhiteSpace(Page.Title))
+            {
+                Page.Title = "Magva";
+            }
+            else if (!Page.Title.EndsWith("Magva"))
+            {
+                Page.Title += " Magva";
+            }
         }
     }
 }

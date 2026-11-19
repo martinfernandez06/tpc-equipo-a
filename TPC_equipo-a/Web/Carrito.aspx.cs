@@ -28,6 +28,18 @@ namespace Web
             // Si hay productos, mostramos la tabla. Si no, mostramos el cartel de vacío.
             if (carrito.Items.Count > 0)
             {
+                // Actualizamos el stock de cada ítem con la base de datos para deshabilitar el botón + correctamente
+                ProductoNegocio negocio = new ProductoNegocio();
+                List<Producto> listaDb = negocio.Listar();
+                foreach (ItemCarrito item in carrito.Items)
+                {
+                    Producto productoDb = listaDb.Find(x => x.Id == item.Producto.Id);
+                    if (productoDb != null)
+                    {
+                        item.Producto.Stock = productoDb.Stock;
+                    }
+                }
+
                 rptCarrito.DataSource = carrito.Items;
                 rptCarrito.DataBind();
 
@@ -68,26 +80,23 @@ namespace Web
                     ProductoNegocio negocio = new ProductoNegocio();
                     Producto productoDb = negocio.Listar().Find(x => x.Id == idProducto);
 
-                    if (item.Cantidad < productoDb.Stock)
+                    if (productoDb != null && item.Cantidad < productoDb.Stock)
                     {
                         item.Cantidad++;
+                        item.Producto.Stock = productoDb.Stock;
                     }
                     else
                     {
-                        lblError.Text = "No podés sumar más unidades de '" + productoDb.Nombre + "' porque llegaste al límite del stock disponible.";
+                        lblError.Text = "No podés sumar más unidades de '" + item.Producto.Nombre + "' porque llegaste al límite del stock disponible.";
                         lblError.Visible = true;
                     }
                 }
                 else if (e.CommandName == "Restar")
                 {
+                    // Solo restamos si hay más de 1 unidad; el borrado queda exclusivo para el botón eliminar
                     if (item.Cantidad > 1)
                     {
                         item.Cantidad--;
-                    }
-                    else
-                    {
-                        // Si tiene 1 y toca restar de nuevo, directamente lo eliminamos del carrito
-                        carrito.Items.Remove(item);
                     }
                 }
                 else if (e.CommandName == "Eliminar")
@@ -103,7 +112,7 @@ namespace Web
 
         protected void btnCheckout_Click(object sender, EventArgs e)
         {
-            // Dejamos esto listo para cuando arranques tu próxima tarjeta mañana
+            // Dejo listo para la proxima tarjeta...
             Response.Redirect("Checkout.aspx", false);
         }
     }

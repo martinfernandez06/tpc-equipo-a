@@ -73,10 +73,14 @@ namespace Web
         // Evento del botón Buscar
         protected void btnBuscar_Click(object sender, EventArgs e)
         {
+            lblMensaje.Visible = false;
             CargarCatalogo();
         }
+
         protected void btnAgregarCarrito_Click(object sender, EventArgs e)
         {
+            lblMensaje.Visible = false;
+
             // Capturamos el botón que fue clickeado y leemos el ID del producto
             LinkButton btn = (LinkButton)sender;
             int idProducto = int.Parse(btn.CommandArgument);
@@ -85,11 +89,18 @@ namespace Web
             ProductoNegocio negocio = new ProductoNegocio();
             Producto seleccionado = negocio.Listar().Find(x => x.Id == idProducto);
 
+            if (seleccionado == null)
+            {
+                return;
+            }
+
             // Validamos que haya al menos 1 en stock en la base de datos
             if (seleccionado.Stock < 1)
             {
                 // Validación 1: Cuando el stock absoluto es menor a 1.
-                Response.Redirect("DetalleProducto.aspx?id=" + idProducto + "&error=stock", false);
+                lblMensaje.CssClass = "alert alert-danger d-block mb-3";
+                lblMensaje.Text = "No hay stock disponible para \"" + seleccionado.Nombre + "\".";
+                lblMensaje.Visible = true;
                 return;
             }
 
@@ -109,7 +120,9 @@ namespace Web
                 else
                 {
                     // Validación 2: Cuando sumar 1 supera el stock máximo
-                    Response.Redirect("DetalleProducto.aspx?id=" + idProducto + "&error=stock", false);
+                    lblMensaje.CssClass = "alert alert-danger d-block mb-3";
+                    lblMensaje.Text = "No podés agregar más unidades de \"" + seleccionado.Nombre + "\". Alcanzaste el límite de stock disponible (" + seleccionado.Stock + ").";
+                    lblMensaje.Visible = true;
                     return;
                 }
             }
@@ -123,9 +136,11 @@ namespace Web
                 carrito.Items.Add(nuevoItem);
             }
 
-            // Guardamos en la memoria y lo llevamos a ver su carrito actualizado.
+            // Guardamos en la memoria y mostramos confirmación sin salir del catálogo
             Session["Carrito"] = carrito;
-            Response.Redirect("Carrito.aspx", false);
+            lblMensaje.CssClass = "alert alert-success d-block mb-3";
+            lblMensaje.Text = "Se agregó \"" + seleccionado.Nombre + "\" al carrito.";
+            lblMensaje.Visible = true;
         }
     }
 }

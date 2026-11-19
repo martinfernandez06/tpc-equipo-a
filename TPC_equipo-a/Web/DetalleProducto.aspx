@@ -48,6 +48,8 @@
 
             <!-- Etiqueta oculta por si el cliente pide más cantidad de la que hay en stock -->
             <asp:Label ID="lblError" runat="server" CssClass="alert alert-danger d-block mt-2 mb-4" Visible="false"></asp:Label>
+            <!-- Etiqueta oculta para confirmar que el producto se sumó al carrito sin cambiar de página -->
+            <asp:Label ID="lblExito" runat="server" CssClass="alert alert-success d-block mt-2 mb-4" Visible="false"></asp:Label>
 
             <div class="mt-4 border-top pt-4">
                 <a class="btn btn-outline-secondary" runat="server" href="~/Default">
