@@ -49,7 +49,8 @@ GO
 CREATE TABLE FORMAS_PAGO (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Descripcion VARCHAR(100) UNIQUE NOT NULL,
-    Activa BIT DEFAULT 1 NOT NULL
+    Activa BIT DEFAULT 1 NOT NULL,
+    RequiereComprobante BIT DEFAULT 0 NOT NULL
 );
 GO
 
@@ -186,7 +187,7 @@ INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Deportes', 'Equipa
 GO
 
 INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Efectivo');
-INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Transferencia');
+INSERT INTO FORMAS_PAGO (Descripcion, RequiereComprobante) VALUES ('Transferencia', 1);
 INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Mercado Pago');
 GO
 
@@ -404,11 +405,13 @@ CREATE PROCEDURE spCambiarEstadoPedido
 AS BEGIN
     DECLARE @EstadoActual INT;
     DECLARE @RequiereDireccion BIT;
+    DECLARE @RequiereComprobante BIT;
 
-    -- traigo el estado actual y si la forma de entrega es con envio
-    SELECT @EstadoActual = P.IdEstado, @RequiereDireccion = FE.RequiereDireccion
+    -- traigo el estado actual, si la forma de entrega es con envio y si la forma de pago pide comprobante
+    SELECT @EstadoActual = P.IdEstado, @RequiereDireccion = FE.RequiereDireccion, @RequiereComprobante = FP.RequiereComprobante
     FROM PEDIDOS P
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
+    INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
     WHERE P.Id = @IdPedido;
 
     -- si el select no encontro nada el pedido no existe
@@ -430,6 +433,10 @@ AS BEGIN
     -- sin cobrar no se prepara ni se entrega nada, de pendiente solo se pasa a pagado
     IF @EstadoActual = 1 AND @IdEstado <> 2
         THROW 50010, 'Primero hay que marcar el pedido como pagado', 1;
+
+    -- las transferencias solo pasan a pagado aceptando el comprobante en la bandeja
+    IF @IdEstado = 2 AND @RequiereComprobante = 1
+        THROW 50013, 'Este pedido se paga con transferencia, pasa a pagado aceptando el comprobante', 1;
 
     -- si retira en el local no hay envio, pasa de en preparacion a entregado
     IF @IdEstado = 4 AND @RequiereDireccion = 0
@@ -552,5 +559,98 @@ AS BEGIN
     AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
     GROUP BY PR.Id, PR.Codigo, PR.Nombre
     ORDER BY Unidades DESC
+END
+GO
+
+-- bandeja de comprobantes, solo los pendientes de pedidos que siguen sin pagar, el mas viejo primero
+CREATE PROCEDURE spListarComprobantesPendientes
+AS BEGIN
+    SELECT P.Id, P.FechaCreacion, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, FP.Descripcion AS FormaPago, P.Total, P.ComprobanteUrl
+    FROM PEDIDOS P
+    INNER JOIN USUARIOS U ON P.IdUsuario = U.Id
+    INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    WHERE P.EstadoComprobante = 'Pendiente' AND P.IdEstado = 1
+    ORDER BY P.FechaCreacion ASC
+END
+GO
+
+-- el numerito del menu, cuenta con el mismo filtro que la bandeja
+CREATE PROCEDURE spContarComprobantesPendientes
+AS BEGIN
+    SELECT COUNT(*) AS Cantidad FROM PEDIDOS WHERE EstadoComprobante = 'Pendiente' AND IdEstado = 1
+END
+GO
+
+-- acepta el comprobante y el pedido pasa solo a pagado, todo junto o nada
+CREATE PROCEDURE spAceptarComprobante @IdPedido INT, @IdUsuario INT
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+
+    SELECT @EstadoActual = IdEstado, @EstadoComprobante = EstadoComprobante FROM PEDIDOS WHERE Id = @IdPedido;
+
+    IF @EstadoActual IS NULL
+        THROW 50011, 'El pedido no existe', 1;
+
+    -- si otro admin ya lo reviso o el cliente todavia no subio nada
+    IF @EstadoComprobante IS NULL OR @EstadoComprobante <> 'Pendiente'
+        THROW 50014, 'El comprobante ya fue revisado o no hay comprobante para revisar', 1;
+
+    -- si mientras tanto lo cancelaron ya no se puede pagar
+    IF @EstadoActual <> 1
+        THROW 50015, 'El pedido ya no esta pendiente de pago', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+        UPDATE PEDIDOS SET EstadoComprobante = 'Aceptado', IdEstado = 2 WHERE Id = @IdPedido
+
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
+        VALUES (@IdPedido, 2, @IdUsuario)
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END
+GO
+
+-- rechaza el comprobante, el pedido sigue pendiente de pago y el motivo queda como observacion
+CREATE PROCEDURE spRechazarComprobante @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+
+    SELECT @EstadoActual = IdEstado, @EstadoComprobante = EstadoComprobante FROM PEDIDOS WHERE Id = @IdPedido;
+
+    IF @EstadoActual IS NULL
+        THROW 50011, 'El pedido no existe', 1;
+
+    IF @EstadoComprobante IS NULL OR @EstadoComprobante <> 'Pendiente'
+        THROW 50014, 'El comprobante ya fue revisado o no hay comprobante para revisar', 1;
+
+    IF @EstadoActual <> 1
+        THROW 50015, 'El pedido ya no esta pendiente de pago', 1;
+
+    -- el motivo es obligatorio porque se le manda al cliente por mail
+    IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
+        THROW 50016, 'Hay que escribir el motivo del rechazo', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+        UPDATE PEDIDOS SET EstadoComprobante = 'Rechazado' WHERE Id = @IdPedido
+
+        INSERT INTO OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Observacion)
+        VALUES (@IdPedido, @IdUsuario, 'Comprobante rechazado. ' + LTRIM(RTRIM(@Motivo)))
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
 END
 GO
