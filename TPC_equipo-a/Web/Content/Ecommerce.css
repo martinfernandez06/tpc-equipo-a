@@ -11,6 +11,8 @@
     --color-lila-chip: #EDE9FE;
     --color-lila-chip-hover: #DDD6FE;
     --color-violeta-titulo: #6D5BBA;
+    --color-borde-claro: #E4E4E7;
+    --color-fondo-imagen: #F4F4F5;
     --fuente-texto: "Mooli", system-ui, sans-serif;
 }
 
@@ -139,9 +141,16 @@ body {
     }
 
 /* tarjetas del catalogo */
+.card-tienda {
+    background-color: #fff;
+    border: 1px solid var(--color-borde-claro);
+}
+
 .img-card-producto {
     aspect-ratio: 1 / 1;
     object-fit: contain; /* la foto entra entera en el cuadrado sin cortarse */
+    width: 100%;
+    background-color: var(--color-fondo-imagen); /* gris clarito de fondo mientras la foto no llena el cuadrado */
 }
 
 /* titulo cortado en 2 renglones asi los precios quedan a la misma altura */
@@ -153,6 +162,29 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 2.6em;
+}
+
+/* codigo del producto arriba del nombre */
+.codigo-producto {
+    background-color: var(--color-linea);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+}
+
+.precio-card {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+    white-space: nowrap; /* el signo y el numero siempre en el mismo renglon */
+}
+
+/* en celulares muy chicos achico el precio para que no se parta en dos renglones */
+@media (max-width: 400px) {
+    .precio-card {
+        font-size: 1rem;
+    }
 }
 
 /* footer */

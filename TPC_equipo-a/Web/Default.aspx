@@ -35,33 +35,26 @@
     <!-- Aviso de confirmación o error de stock al agregar desde el catálogo -->
     <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
 
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+    <%-- 2 por fila en el celular hasta 6 en pantallas grandes, el mb-5 deja espacio con el footer --%>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3 mb-5">
         <asp:Repeater runat="server" ID="repProductos">
             <ItemTemplate>
                 <div class="col">
-                    <div class="card h-100 card-producto d-flex flex-column">
-                        <img class="card-img-top img-card-producto" src='<%# Eval("ImagenUrl") %>' alt='<%# Eval("Nombre") %>' />
-
-                        <div class="card-body d-flex flex-column">
-
-                            <!-- Código del producto  -->
-                            <div class="mb-2">
-                                <span class="badge bg-secondary"><%# Eval("Codigo") ?? "N/A" %></span>
+                    <%-- position-relative hace que el link del nombre cubra toda la tarjeta --%>
+                    <div class="card-tienda h-100 d-flex flex-column position-relative">
+                        <%-- si el link de la foto esta roto el navegador muestra la imagen generica, el onerror null es para que no se quede probando para siempre --%>
+                        <img class="img-card-producto" src='<%# Eval("ImagenUrl") %>' alt='<%# Eval("Nombre") %>' onerror="this.onerror=null; this.src='<%# ResolveUrl("~/Imagenes/sin-imagen.svg") %>';" />
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div>
+                                <span class="codigo-producto"><%# Eval("Codigo") ?? "N/A" %></span>
                             </div>
-
                             <a href='DetalleProducto.aspx?id=<%# Eval("Id") %>' class="stretched-link text-decoration-none">
-                                <h6 class="card-title titulo-card-producto"><%# Eval("Nombre") %> </h6>
+                                <h6 class="titulo-card-producto mt-2 mb-1"><%# Eval("Nombre") %></h6>
                             </a>
-                            <p class="fs-5 fw-bold mb-3"><%# Eval("PrecioVenta", "{0:C}") %></p>
-
-                            <!-- Botón Agregar al Carrito -->
-                            <div class="mt-auto position-relative" style="z-index: 2;">
-                                <asp:LinkButton ID="btnAgregarCarrito" runat="server"
-                                    CssClass="btn btn-outline-success w-100"
-                                    CommandArgument='<%# Eval("Id") %>'
-                                    OnClick="btnAgregarCarrito_Click">
-                                    <i class="bi bi-cart-plus"></i> Al Carrito
-                                </asp:LinkButton>
+                            <div class="precio-card"><%# Eval("PrecioVenta", "{0:C}") %></div>
+                            <%-- el z-index deja el boton por encima del link de la tarjeta, si no el clic iria al detalle --%>
+                            <div class="mt-auto pt-3 position-relative" style="z-index: 2;">
+                                <asp:LinkButton ID="btnAgregarCarrito" runat="server" CssClass="btn btn-ecommerce-primario w-100 text-nowrap" CommandArgument='<%# Eval("Id") %>' OnClick="btnAgregarCarrito_Click"><i class="bi bi-cart-plus me-1"></i>Agregar</asp:LinkButton>
                             </div>
                         </div>
                     </div>

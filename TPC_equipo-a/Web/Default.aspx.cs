@@ -55,6 +55,15 @@ namespace Web
                 lista = lista.FindAll(x => x.Categoria.Id == idCategoria);
             }
 
+            // si el producto no tiene foto cargada en la bd le pongo la imagen generica, como en la clase del perfil
+            foreach (Producto p in lista)
+            {
+                if (string.IsNullOrEmpty(p.ImagenUrl))
+                {
+                    p.ImagenUrl = ResolveUrl("~/Imagenes/sin-imagen.svg");
+                }
+            }
+
             // le paso la lista al repeater y la dibujo
             repProductos.DataSource = lista;
             repProductos.DataBind();
