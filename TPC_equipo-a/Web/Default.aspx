@@ -41,7 +41,7 @@
             <ItemTemplate>
                 <div class="col">
                     <%-- position-relative hace que el link del nombre cubra toda la tarjeta --%>
-                    <div class="card-tienda h-100 d-flex flex-column position-relative">
+                    <div class='card-tienda h-100 d-flex flex-column position-relative <%# ClaseStock(Eval("Stock")) %>'>
                         <%-- si el link de la foto esta roto el navegador muestra la imagen generica, el onerror null es para que no se quede probando para siempre --%>
                         <img class="img-card-producto" src='<%# Eval("ImagenUrl") %>' alt='<%# Eval("Nombre") %>' onerror="this.onerror=null; this.src='<%# ResolveUrl("~/Imagenes/sin-imagen.svg") %>';" />
                         <div class="p-3 d-flex flex-column flex-grow-1">
@@ -52,9 +52,10 @@
                                 <h6 class="titulo-card-producto mt-2 mb-1"><%# Eval("Nombre") %></h6>
                             </a>
                             <div class="precio-card"><%# Eval("PrecioVenta", "{0:C}") %></div>
+                            <div class='texto-stock <%# ClaseStock(Eval("Stock")) %>'><%# TextoStock(Eval("Stock")) %></div>
                             <%-- el z-index deja el boton por encima del link de la tarjeta, si no el clic iria al detalle --%>
                             <div class="mt-auto pt-3 position-relative" style="z-index: 2;">
-                                <asp:LinkButton ID="btnAgregarCarrito" runat="server" CssClass="btn btn-ecommerce-primario w-100 text-nowrap" CommandArgument='<%# Eval("Id") %>' OnClick="btnAgregarCarrito_Click"><i class="bi bi-cart-plus me-1"></i>Agregar</asp:LinkButton>
+                                <asp:LinkButton ID="btnAgregarCarrito" runat="server" CssClass="btn btn-ecommerce-primario w-100 text-nowrap" CommandArgument='<%# Eval("Id") %>' Enabled='<%# HayStock(Eval("Stock")) %>' OnClick="btnAgregarCarrito_Click"><i class="bi bi-cart-plus me-1"></i>Agregar</asp:LinkButton>
                             </div>
                         </div>
                     </div>

@@ -13,6 +13,9 @@
     --color-violeta-titulo: #6D5BBA;
     --color-borde-claro: #E4E4E7;
     --color-fondo-imagen: #F4F4F5;
+    --color-stock-ok: #15803D;
+    --color-stock-pocos: #C2410C;
+    --color-stock-sin: #71717A;
     --fuente-texto: "Mooli", system-ui, sans-serif;
 }
 
@@ -185,6 +188,37 @@ body {
     .precio-card {
         font-size: 1rem;
     }
+}
+
+/* texto del stock abajo del precio, el color cambia segun cuanto quede */
+.texto-stock {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+    .texto-stock.stock-ok {
+        color: var(--color-stock-ok);
+    }
+
+    .texto-stock.stock-pocos {
+        color: var(--color-stock-pocos);
+    }
+
+    .texto-stock.stock-sin {
+        color: var(--color-stock-sin);
+    }
+
+/* tarjeta sin stock, la foto queda apagada */
+.card-tienda.stock-sin .img-card-producto {
+    opacity: 0.45;
+}
+
+/* boton agregar cuando no hay stock, asp le pone la clase aspNetDisabled al deshabilitarlo */
+.btn-ecommerce-primario.aspNetDisabled {
+    --bs-btn-bg: var(--color-stock-sin);
+    --bs-btn-border-color: var(--color-stock-sin);
+    opacity: 0.6;
+    pointer-events: none; /* no se puede tocar */
 }
 
 /* footer */

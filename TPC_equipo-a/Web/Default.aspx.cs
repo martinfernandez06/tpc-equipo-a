@@ -97,6 +97,51 @@ namespace Web
             pnlFiltrando.Visible = hayTexto || hayCategoria;
         }
 
+        // texto del stock que se ve en la tarjeta 3 o menos es pocos
+        protected string TextoStock(object stock)
+        {
+            int cantidad = Convert.ToInt32(stock);
+            if (cantidad <= 0)
+            {
+                return "Sin stock";
+            }
+            if (cantidad == 1)
+            {
+                return "Última unidad";
+            }
+            if (cantidad <= 3)
+            {
+                return "Últimas " + cantidad + " unidades";
+            }
+            return "En stock";
+        }
+
+        // clase del color del stock, se define en ecommerce.css
+        protected string ClaseStock(object stock)
+        {
+            int cantidad = Convert.ToInt32(stock);
+            if (cantidad <= 0)
+            {
+                return "stock-sin";
+            }
+            if (cantidad <= 3)
+            {
+                return "stock-pocos";
+            }
+            return "stock-ok";
+        }
+
+        // si no hay stock el boton agregar queda deshabilitado
+        protected bool HayStock(object stock)
+        {
+            int cantidad = Convert.ToInt32(stock);
+            if (cantidad > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         // Evento del botón Buscar
         protected void btnBuscar_Click(object sender, EventArgs e)
         {
