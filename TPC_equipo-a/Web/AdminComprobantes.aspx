@@ -18,6 +18,19 @@
                 <asp:LinkButton ID="btnSiAceptar" OnClick="btnSiAceptar_Click" runat="server" CssClass="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>Sí, aceptar</asp:LinkButton>
                 <asp:LinkButton ID="btnNoAceptar" OnClick="btnNoAceptar_Click" runat="server" CssClass="btn btn-sm btn-outline-secondary">Volver</asp:LinkButton>
             </asp:Panel>
+            <%-- confirmacion del rechazo, pide el motivo porque le llega por mail al cliente --%>
+            <asp:Panel ID="pnlConfirmarRechazo" runat="server" Visible="false" CssClass="alert alert-danger">
+                <asp:Label ID="lblConfirmarRechazo" runat="server" CssClass="fw-bold d-block mb-2"></asp:Label>
+                <div class="dato-titulo">Motivo, le llega por mail al cliente</div>
+                <%-- maxlength 400 porque el parametro del sp acepta hasta 400 --%>
+                <asp:TextBox ID="txtMotivo" runat="server" TextMode="MultiLine" Rows="2" MaxLength="400" CssClass="form-control input-admin mb-1" placeholder="Ej: el monto transferido no coincide con el total del pedido" />
+                <%-- el requiredfield tambien toma como vacio si escriben solo espacios --%>
+                <asp:RequiredFieldValidator ID="rfvMotivo" runat="server" ControlToValidate="txtMotivo" ErrorMessage="Escribí el motivo del rechazo" ValidationGroup="rechazo" Display="Dynamic" CssClass="text-danger small d-block mb-2" />
+                <div class="d-flex gap-2 mt-2">
+                    <asp:LinkButton ID="btnSiRechazar" OnClick="btnSiRechazar_Click" runat="server" CssClass="btn btn-sm btn-danger" ValidationGroup="rechazo"><i class="bi bi-x-lg me-1"></i>Confirmar rechazo</asp:LinkButton>
+                    <asp:LinkButton ID="btnNoRechazar" OnClick="btnNoRechazar_Click" runat="server" CssClass="btn btn-sm btn-outline-secondary" CausesValidation="false">Volver</asp:LinkButton>
+                </div>
+            </asp:Panel>
             <div class="table-responsive">
                 <%-- guarda el id de cada fila para saber que pedido aceptan o rechazan --%>
                 <asp:GridView ID="dgvComprobantes" runat="server" DataKeyNames="Id" AutoGenerateColumns="false" CssClass="table table-bordered align-middle tabla-admin" EmptyDataText="No hay comprobantes esperando revisión">

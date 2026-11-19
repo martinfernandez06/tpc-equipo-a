@@ -47,6 +47,8 @@ namespace Web
         {
             // saco el mensaje del aceptar o rechazar anterior para que no quede colgado
             lblMensaje.Visible = false;
+            // cierro el cartel del rechazo para que no queden los dos abiertos
+            pnlConfirmarRechazo.Visible = false;
             // el sender es el boton que tocaron, llega como object y lo convierto para leer su commandargument
             LinkButton btn = (LinkButton)sender;
             // guardo el pedido en el hidden porque cuando toquen si aceptar ya no se sabe de que fila venia
@@ -56,9 +58,18 @@ namespace Web
             pnlConfirmarAceptar.Visible = true;
         }
 
+        // guarda el pedido de la fila y abre el cartel para escribir el motivo
         protected void btnRechazar_Click(object sender, EventArgs e)
         {
-
+            // saco el mensaje anterior y cierro el cartel del aceptar para que no queden los dos abiertos
+            lblMensaje.Visible = false;
+            pnlConfirmarAceptar.Visible = false;
+            LinkButton btn = (LinkButton)sender;
+            hfIdPedido.Value = btn.CommandArgument;
+            // vacio el motivo para que no quede escrito el del pedido anterior
+            txtMotivo.Text = "";
+            lblConfirmarRechazo.Text = $"Rechazar el comprobante del pedido #{btn.CommandArgument}. El pedido sigue pendiente de pago.";
+            pnlConfirmarRechazo.Visible = true;
         }
         // acepta el comprobante del pedido guardado en el hidden y muestra como salio
         protected void btnSiAceptar_Click(object sender, EventArgs e)
@@ -94,6 +105,48 @@ namespace Web
         {
             pnlConfirmarAceptar.Visible = false;
             hfIdPedido.Value = "";
+        }
+
+        // rechaza el comprobante con el motivo escrito, el pedido sigue pendiente de pago
+        protected void btnSiRechazar_Click(object sender, EventArgs e)
+        {
+            // vuelvo a validar en el servidor por si se saltean la validacion del navegador
+            Page.Validate("rechazo");
+            if (!Page.IsValid)
+                return;
+            // si no hay pedido guardado, por ejemplo si tocaron confirmar dos veces rapido, no hago nada
+            if (string.IsNullOrEmpty(hfIdPedido.Value))
+            {
+                return;
+            }
+            try
+            {
+                int idPedido = int.Parse(hfIdPedido.Value);
+                PedidoNegocio negocio = new PedidoNegocio();
+                negocio.RechazarComprobante(idPedido, 1, txtMotivo.Text);
+                lblMensaje.CssClass = "alert alert-success d-block";
+                lblMensaje.Text = $"Comprobante del pedido #{idPedido} rechazado. El pedido sigue pendiente de pago.";
+                lblMensaje.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                lblMensaje.CssClass = "alert alert-danger d-block";
+                lblMensaje.Text = ex.Message;
+                lblMensaje.Visible = true;
+            }
+            // pase lo que pase recargo la grilla y cierro el cartel
+            CargarComprobante();
+            pnlConfirmarRechazo.Visible = false;
+            hfIdPedido.Value = "";
+            txtMotivo.Text = "";
+        }
+
+        // cierra el cartel del rechazo sin hacer nada
+        protected void btnNoRechazar_Click(object sender, EventArgs e)
+        {
+            pnlConfirmarRechazo.Visible = false;
+            hfIdPedido.Value = "";
+            txtMotivo.Text = "";
         }
     }
 }
