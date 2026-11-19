@@ -38,6 +38,10 @@ namespace Web
             {
                 lnkReportes.Attributes["class"] += " activo";
             }
+            else if (pagina.Contains("Comprobante"))
+            {
+                lnkComprobantes.Attributes["class"] += " activo";
+            }
         }
     }
 }

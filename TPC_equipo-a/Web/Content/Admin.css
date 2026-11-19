@@ -112,7 +112,7 @@
     margin: 0 auto;
 }
 
-/* separacion entre cada numero */
+    /* separacion entre cada numero */
     .paginado-admin table td {
         padding: 0 3px;
         border: none;
@@ -263,14 +263,39 @@
         font-size: 1.1rem;
     }
 
-/* opcion del menu de la pagina en la que estas, borde violeta a la izquierda */
-.menu-admin .nav-link.activo {
-    color: var(--color-texto-claro);
-    background-color: #1d1d27;
-    border-left: 3px solid #7C5CFF;
-    border-radius: 0;
+    /* opcion del menu de la pagina en la que estas, borde violeta a la izquierda */
+    .menu-admin .nav-link.activo {
+        color: var(--color-texto-claro);
+        background-color: #1d1d27;
+        border-left: 3px solid #7C5CFF;
+        border-radius: 0;
+    }
+
+        .menu-admin .nav-link.activo i {
+            color: #9F87FF;
+        }
+
+/* miniatura del comprobante en la bandeja */
+.mini-comprobante {
+    width: 56px;
+    height: 72px;
+    object-fit: cover; /* recorta la imagen para que entre sin deformarse */
+    border: 1px solid #e4e4e7;
 }
 
-    .menu-admin .nav-link.activo i {
-        color: #9F87FF;
+/* cuadradito del pdf, mismo tamaño que la miniatura */
+.pdf-comprobante {
+    width: 56px;
+    height: 72px;
+    border: 1px solid #e4e4e7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #C2410C;
+    font-size: 0.7rem;
+}
+
+    .pdf-comprobante i {
+        font-size: 1.6rem;
     }
