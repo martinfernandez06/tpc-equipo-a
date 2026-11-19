@@ -62,7 +62,14 @@
                     <li class="nav-item"><a id="lnkFormasPago" class="nav-link" runat="server" href="~/AdminFormasPago"><i class="bi bi-credit-card"></i>Formas de pago</a></li>
                     <li class="nav-item"><a id="lnkFormasEntrega" class="nav-link" runat="server" href="~/AdminFormasEntrega"><i class="bi bi-truck"></i>Formas de entrega</a></li>
                     <li class="nav-item"><a id="lnkPedidos" class="nav-link" runat="server" href="~/AdminPedidos"><i class="bi bi-bag"></i>Pedidos</a></li>
-                    <li class="nav-item"><a id="lnkComprobantes" class="nav-link" runat="server" href="~/AdminComprobantes"><i class="bi bi-inbox"></i>Comprobantes</a></li>
+                    <li class="nav-item"><a id="lnkComprobantes" class="nav-link" runat="server" href="~/AdminComprobantes"><i class="bi bi-inbox"></i>Comprobantes
+                        <%-- updatepanel always para que el numero se actualice al aceptar o rechazar sin recargar --%>
+                        <asp:UpdatePanel ID="upPendientes" runat="server" UpdateMode="Always" RenderMode="Inline">
+                            <ContentTemplate>
+                                <asp:Label ID="lblPendientes" runat="server" CssClass="cuenta-menu" Visible="false"></asp:Label>
+                            </ContentTemplate>
+                        </asp:UpdatePanel>
+                    </a></li>
                     <li class="nav-item"><a id="lnkReportes" class="nav-link" runat="server" href="~/AdminReportes"><i class="bi bi-bar-chart-line"></i>Reportes</a></li>
 
                 </ul>

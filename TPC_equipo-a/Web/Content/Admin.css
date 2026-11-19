@@ -299,3 +299,11 @@
     .pdf-comprobante i {
         font-size: 1.6rem;
     }
+/* numerito de comprobantes pendientes en el menu, queda pegado a la derecha */
+.cuenta-menu {
+    margin-left: auto;
+    background-color: #7C5CFF;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 1px 7px;
+}
