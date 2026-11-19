@@ -16,14 +16,18 @@
             <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn btn-primary w-100" OnClick="btnBuscar_Click" />
         </div>
     </div>
+
+    <!-- Aviso de confirmación o error de stock al agregar desde el catálogo -->
+    <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
+
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
         <asp:Repeater runat="server" ID="repProductos">
             <ItemTemplate>
                 <div class="col">
-                    <div class="card h-100 card-producto d-flex flex-column"> <!-- d-flex flex-column para que los botones queden alineados abajo ---> 
+                    <div class="card h-100 card-producto d-flex flex-column"> 
                         <img class="card-img-top img-card-producto" src='<%# Eval("ImagenUrl") %>' alt='<%# Eval("Nombre") %>' />
                         
-                        <div class="card-body d-flex flex-column"> <!-- d-flex flex-column --->
+                        <div class="card-body d-flex flex-column">
                             
                             <!-- Código del producto  --> 
                             <div class="mb-2">
@@ -33,7 +37,7 @@
                             <a href='DetalleProducto.aspx?id=<%# Eval("Id") %>' class="stretched-link text-decoration-none">
                                 <h6 class="card-title titulo-card-producto"><%# Eval("Nombre") %> </h6>
                             </a>
-                            <p class="fs-5 fw-bold mb-3"><%# Eval("PrecioVenta", "{0:C}") %></p> <!-- mb-3 para darle margen --> 
+                            <p class="fs-5 fw-bold mb-3"><%# Eval("PrecioVenta", "{0:C}") %></p> 
                             
                             <!-- Botón Agregar al Carrito --> 
                             <div class="mt-auto position-relative" style="z-index: 2;">
