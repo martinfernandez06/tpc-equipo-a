@@ -264,8 +264,12 @@ namespace Web
             PedidoNegocio negocio = new PedidoNegocio();
             Pedido seleccionado = negocio.buscarPorId(id);
 
-            // si ya estaba pagado aviso que hay que devolverle la plata
-            if (seleccionado.Estado.Id == 1)
+            // el texto cambia segun si el cliente ya pudo haber pagado, asi el admin sabe si tiene que devolver plata
+            if (seleccionado.Estado.Id == 1 && seleccionado.EstadoComprobante == "Pendiente")
+            {
+                lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock. El cliente ya mandó un comprobante que está esperando revisión, fijate si transfirió para devolverle la plata.";
+            }
+            else if (seleccionado.Estado.Id == 1)
             {
                 lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock.";
             }
