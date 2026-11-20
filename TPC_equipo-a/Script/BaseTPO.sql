@@ -122,6 +122,8 @@ CREATE TABLE PEDIDOS(
     EmpresaEnvio VARCHAR(50) NULL,
     ComprobanteUrl VARCHAR(500) NULL,
     EstadoComprobante VARCHAR(20) NULL,
+-- lo escribe el admin o el cliente al cancelar, el cliente lo ve en mis compras y va en el mail
+    MotivoCancelacion VARCHAR(400) NULL,
 
     CONSTRAINT PK_PEDIDOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_PEDIDOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -515,16 +517,58 @@ AS BEGIN
 END
 GO
 
--- cancela un pedido si todavia no salio y devuelve las unidades al stock
-CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT
+-- cancela un pedido si todavia no salio, devuelve las unidades al stock y guarda el motivo que ve el cliente
+CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
 AS BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido)
+        THROW 50011, 'El pedido no existe', 1;
+
     -- si ya esta enviado, entregado o cancelado no se puede cancelar
-    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6)) THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
+    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6))
+        THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
+
+    -- el motivo es obligatorio porque el cliente lo ve en mis compras y le llega por mail
+    IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
+        THROW 50017, 'Hay que escribir el motivo de la cancelacion', 1;
+
     BEGIN TRY
         BEGIN TRANSACTION
         -- devuelvo al stock lo que compro de cada producto
         UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
-        UPDATE PEDIDOS SET IdEstado = 6 WHERE Id = @IdPedido
+        UPDATE PEDIDOS SET IdEstado = 6, MotivoCancelacion = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, 6, @IdUsuario)
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION; THROW;
+    END CATCH
+END
+GO
+
+-- el cliente cancela desde mis compras, solo si no pago nada y no mando comprobante, si no lo cancela la tienda
+CREATE PROCEDURE spCancelarPedidoCliente @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+
+    -- busco el pedido de ese cliente, asi nadie cancela uno ajeno cambiando el numero en la pagina
+    SELECT @EstadoActual = IdEstado, @EstadoComprobante = EstadoComprobante FROM PEDIDOS WHERE Id = @IdPedido AND IdUsuario = @IdUsuario;
+    IF @EstadoActual IS NULL
+        THROW 50018, 'El pedido no existe o no es tuyo', 1;
+    -- si ya pago o esta en camino hay plata o un paquete de por medio, eso lo maneja la tienda
+    IF @EstadoActual <> 1
+        THROW 50019, 'Este pedido ya no se puede cancelar desde mis compras, comunicate con la tienda', 1;
+    -- si mando el comprobante puede que ya haya transferido, la devolucion la maneja la tienda
+    IF @EstadoComprobante = 'Pendiente'
+        THROW 50020, 'Ya mandaste el comprobante, para cancelar comunicate con la tienda', 1;
+    IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
+        THROW 50021, 'Hay que elegir el motivo de la cancelacion', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+        UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
+        UPDATE PEDIDOS SET IdEstado = 6, MotivoCancelacion = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
+        -- en el historial queda el cliente como el que lo cancelo
         INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, 6, @IdUsuario)
         COMMIT TRANSACTION
     END TRY

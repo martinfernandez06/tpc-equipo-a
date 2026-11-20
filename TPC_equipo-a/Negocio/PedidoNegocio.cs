@@ -438,7 +438,8 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-        public void CancelarPedido(int idPedido, int idUsuario)
+        // cancela desde el admin, el motivo es obligatorio y el cliente lo ve en mis compras.
+        public void CancelarPedido(int idPedido, int idUsuario, string motivo)
         {
             AccesoDatos datos = new AccesoDatos();
 
@@ -447,6 +448,7 @@ namespace Negocio
                 datos.setearProcedimiento("spCancelarPedido");
                 datos.setearParametro("@IdPedido", idPedido);
                 datos.setearParametro("@IdUsuario", idUsuario);
+                datos.setearParametro("@Motivo", string.IsNullOrWhiteSpace(motivo) ? DBNull.Value : (object)motivo.Trim());
                 datos.ejecutarAccion();
             }
             catch (Exception ex)

@@ -273,7 +273,8 @@ namespace Web
             {
                 lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock. El pedido ya estaba pagado, acordate de devolverle la plata al cliente.";
             }
-
+            // la caja arranca vacia cada vez que se abre, por si antes escribio algo y toco no volver
+            txtMotivoCancelacion.Text = "";
             pnlConfirmarCancelar.Visible = true;
             pnlBotones.Visible = false;
             pnlSeguimiento.Visible = false;
@@ -282,14 +283,18 @@ namespace Web
         protected void btnSiCancelar_Click(object sender, EventArgs e)
         {
             int id = int.Parse(Request.QueryString["id"]);
+            // vuelvo a validar en el servidor por si se saltean la validacion del navegador
+            Page.Validate("motivo");
+            if (!Page.IsValid)
+                return;
 
             try
             {
                 PedidoNegocio negocio = new PedidoNegocio();
                 // el usuario 1 es fijo hasta que este el login
-                negocio.CancelarPedido(id, 1);
+                negocio.CancelarPedido(id, 1, txtMotivoCancelacion.Text);
 
-                lblMensaje.Text = "Pedido cancelado, las unidades volvieron al stock";
+                lblMensaje.Text = $"Pedido cancelado, las unidades volvieron al stock. Motivo: {txtMotivoCancelacion.Text.Trim()}";
                 lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
             }

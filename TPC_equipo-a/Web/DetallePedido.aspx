@@ -124,11 +124,21 @@
                         <asp:Button ID="btnSiEntregado" runat="server" Text="Sí, marcar entregado" CssClass="btn btn-admin-peligro" CausesValidation="false" OnClick="btnSiEntregado_Click" />
                         <asp:Button ID="btnNoEntregado" runat="server" Text="No, volver" CssClass="btn btn-admin-secundario" CausesValidation="false" OnClick="btnNoConfirmar_Click" />
                     </asp:Panel>
-                    <%-- aparece antes de cancelar, el texto cambia si el pedido ya estaba pagado --%>
+                    <%-- aparece antes de cancelar, el texto cambia si el pedido ya estaba pagado y el motivo lo ve el cliente en mis compras --%>
                     <asp:Panel ID="pnlConfirmarCancelar" runat="server" Visible="false" CssClass="card-body border-top border-danger">
                         <asp:Label ID="lblConfirmarCancelar" runat="server" CssClass="d-block mb-2"></asp:Label>
-                        <asp:Button ID="btnSiCancelar" runat="server" Text="Sí, cancelar pedido" CssClass="btn btn-admin-peligro" CausesValidation="false" OnClick="btnSiCancelar_Click" />
-                        <asp:Button ID="btnNoCancelar" runat="server" Text="No, volver" CssClass="btn btn-admin-secundario" CausesValidation="false" OnClick="btnNoConfirmar_Click" />
+                        <asp:TextBox ID="txtMotivoCancelacion" runat="server" CssClass="form-control input-admin mb-2" TextMode="MultiLine" Rows="3" placeholder="Ej: no tenemos stock real del producto"></asp:TextBox>
+                        <%-- grupo propio asi no se mezcla con el boton cancelar pedido que abre este panel --%>
+                        <div>
+                            <asp:RequiredFieldValidator ID="rfvMotivoCancelacion" runat="server" ControlToValidate="txtMotivoCancelacion" ErrorMessage="Escribí el motivo de la cancelación" Display="Dynamic" CssClass="text-danger" ValidationGroup="motivo" />
+                        </div>
+                        <div>
+                            <asp:RegularExpressionValidator ID="revMotivoCancelacion" runat="server" ControlToValidate="txtMotivoCancelacion" ValidationExpression="^[\s\S]{5,400}$" ErrorMessage="El motivo debe tener entre 5 y 400 caracteres" Display="Dynamic" CssClass="text-danger" ValidationGroup="motivo" />
+                        </div>
+                        <div class="mt-2">
+                            <asp:Button ID="btnSiCancelar" runat="server" Text="Sí, cancelar pedido" CssClass="btn btn-admin-peligro" ValidationGroup="motivo" OnClick="btnSiCancelar_Click" />
+                            <asp:Button ID="btnNoCancelar" runat="server" Text="No, volver" CssClass="btn btn-admin-secundario" CausesValidation="false" OnClick="btnNoConfirmar_Click" />
+                        </div>
                     </asp:Panel>
                 </div>
             </asp:Panel>
