@@ -31,19 +31,40 @@ namespace Negocio
                 {
                     idPedido = (int)datos.Lector[0];
                 }
-                // despues guardo el detalle, un renglon por cada producto del carrito en ITEMS_PEDIDO, el sp tambien descuenta el stock
-                foreach (ItemPedido item in nuevo.Items)
+
+                // me guardo el nombre del producto que se esta guardando, si falla se lo muestro al cliente
+                string productoActual = "";
+
+                try
                 {
-                    // uno nuevo por cada item porque datos sigue ocupado con el pedido
-                    AccesoDatos datosItem = new AccesoDatos();
-                    datosItem.setearProcedimiento("spAltaItemPedido");
-                    datosItem.setearParametro("@IdPedido", idPedido);
-                    datosItem.setearParametro("@IdProducto", item.Producto.Id);
-                    datosItem.setearParametro("@Cantidad", item.Cantidad);
-                    datosItem.setearParametro("@PrecioUnitario", item.PrecioUnitario);
-                    datosItem.ejecutarAccion();
-                    datosItem.cerrarLectura();
+                    // despues guardo el detalle, un renglon por cada producto del carrito en ITEMS_PEDIDO, el sp tambien descuenta el stock
+                    foreach (ItemPedido item in nuevo.Items)
+                    {
+                        productoActual = item.Producto.Nombre;
+                        // uno nuevo por cada item porque datos sigue ocupado con el pedido
+                        AccesoDatos datosItem = new AccesoDatos();
+                        datosItem.setearProcedimiento("spAltaItemPedido");
+                        datosItem.setearParametro("@IdPedido", idPedido);
+                        datosItem.setearParametro("@IdProducto", item.Producto.Id);
+                        datosItem.setearParametro("@Cantidad", item.Cantidad);
+                        datosItem.setearParametro("@PrecioUnitario", item.PrecioUnitario);
+                        datosItem.ejecutarAccion();
+                        datosItem.cerrarLectura();
+                    }
                 }
+                catch (Exception ex)
+                {
+                    // si un producto fallo deshago lo que se alcanzo a guardar, asi no queda un pedido a medias con stock tomado
+                    AnularPedidoIncompleto(idPedido);
+
+                    // si fue por stock le digo cual producto es, asi sabe cual sacar del carrito
+                    if (ex.Message.Contains("No hay stock suficiente"))
+                    {
+                        throw new Exception("No hay stock suficiente de \"" + productoActual + "\", otro cliente lo compró recién. Sacalo del carrito o bajá la cantidad para seguir.");
+                    }
+                    throw;
+                }
+
                 // devuelvo el numero para mostrarlo en la confirmacion de compra
                 return idPedido;
             }
@@ -57,6 +78,23 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
+        // borra el pedido que quedo a medias y devuelve el stock, lo usa AgregarPedido cuando falla un producto
+        private void AnularPedidoIncompleto(int idPedido)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("spAnularPedidoIncompleto");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.ejecutarAccion();
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
         public List<Pedido> listarPedido(int? idEstado, DateTime? fechaDesde, DateTime? fechaHasta, string cliente)
         {
             List<Pedido> lista = new List<Pedido>();
