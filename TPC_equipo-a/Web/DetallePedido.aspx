@@ -140,8 +140,8 @@
                 <Columns>
                     <asp:TemplateField HeaderText="Nombre">
                         <ItemTemplate>
-                            <%-- el src va con comillas simples porque adentro el eval usa dobles --%>
-                            <img src='<%# Eval("Producto.ImagenUrl") %>' alt="" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;" />
+                            <%-- el src va con comillas simples porque adentro el eval usa dobles, si el link de la foto esta roto muestra la imagen generica --%>
+                            <img src='<%# Eval("Producto.ImagenUrl") %>' alt="" class="me-2 rounded" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null; this.src='<%# ResolveUrl("~/Imagenes/sin-imagen.svg") %>';" />
                             <%# Eval("Producto.Nombre") %>
                         </ItemTemplate>
                     </asp:TemplateField>
