@@ -23,7 +23,7 @@ CREATE TABLE CATEGORIAS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Nombre VARCHAR(50) UNIQUE NOT NULL,
     Descripcion VARCHAR(255) NULL,
-    Activa BIT DEFAULT 1
+    Activa BIT DEFAULT 1 NOT NULL
 );
 GO
 
@@ -37,7 +37,7 @@ CREATE TABLE PRODUCTOS (
     Stock INT NOT NULL CHECK (Stock >= 0),
     IdCategoria INT NOT NULL FOREIGN KEY REFERENCES CATEGORIAS(Id),
     ImagenUrl VARCHAR(500) NULL,
-    Activo BIT DEFAULT 1
+    Activo BIT DEFAULT 1 NOT NULL
 );
 GO
 
@@ -303,6 +303,10 @@ GO
 CREATE PROCEDURE spCambiarEstadoUsuario @Id INT, @Activo BIT AS BEGIN UPDATE USUARIOS SET Activo = @Activo WHERE Id = @Id; END;
 GO
 
+-- 5. guarda cuando entro el usuario por ultima vez, lo llama el login
+CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = GETDATE() WHERE Id = @Id; END;
+GO
+
 -- 1. Alta de dirección
 CREATE PROCEDURE spAltaDireccion
     @IdUsuario INT, @Calle VARCHAR(100), @Numero VARCHAR(20), @Provincia VARCHAR(100), @Localidad VARCHAR(100), @CodigoPostal VARCHAR(20), @Observaciones VARCHAR(255), @Principal BIT
@@ -356,6 +360,31 @@ AS BEGIN
     UPDATE PRODUCTOS SET Stock = Stock - @Cantidad WHERE Id = @IdProducto AND Stock >= @Cantidad;
     IF @@ROWCOUNT = 0 THROW 50001, 'No hay stock suficiente para este producto', 1;
     INSERT INTO ITEMS_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) VALUES (@IdPedido, @IdProducto, @Cantidad, @PrecioUnitario);
+END
+GO
+
+-- si un producto del pedido no tenia stock, deshace lo que se alcanzo a guardar como si el pedido nunca se hubiera hecho
+CREATE PROCEDURE spAnularPedidoIncompleto @IdPedido INT
+AS BEGIN
+    -- solo un pedido recien creado, asi nunca borra uno que ya avanzo
+    IF NOT EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado = 1)
+        RETURN;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+        -- devuelvo al stock lo que ya se habia descontado
+        UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
+        -- borro primero lo que depende del pedido y al final el pedido, si no las foreign key no dejan
+        DELETE FROM ITEMS_PEDIDO WHERE IdPedido = @IdPedido
+        DELETE FROM HISTORIAL_ESTADOS WHERE IdPedido = @IdPedido
+        DELETE FROM PEDIDOS WHERE Id = @IdPedido
+
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
 END
 GO
 
