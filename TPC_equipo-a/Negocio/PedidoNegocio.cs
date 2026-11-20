@@ -266,6 +266,10 @@ namespace Negocio
                     {
                         aux.ComprobanteUrl = (string)datos.Lector["ComprobanteUrl"];
                     }
+                    if (!(datos.Lector["MotivoCancelacion"] is DBNull))
+                    {
+                        aux.MotivoCancelacion = (string)datos.Lector["MotivoCancelacion"];
+                    }
                 }
                 return aux;
             }

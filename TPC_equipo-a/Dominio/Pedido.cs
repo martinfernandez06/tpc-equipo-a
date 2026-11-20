@@ -22,6 +22,7 @@ namespace Dominio
         public string EmpresaEnvio { get; set; }
         public string ComprobanteUrl { get; set; }
         public string EstadoComprobante { get; set; }
+        public string MotivoCancelacion { get; set; } // lo escribe el admin o el cliente al cancelar null si el pedido no se cancelo
         public List<HistorialEstado> Historial { get; set; }
         public decimal Total { get; set; }
 

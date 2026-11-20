@@ -117,6 +117,18 @@ namespace Web
             // la C da formato de pesos, solo sirve con numeros, no con textos
             lblTotal.Text = seleccionado.Total.ToString("C");
 
+
+            // el motivo solo aparece si el pedido esta cancelado los que se cancelaron antes de este cambio no tienen motivo guardado
+            pnlMotivoCancelacion.Visible = seleccionado.Estado.Id == 6;
+            if (seleccionado.MotivoCancelacion != null)
+            {
+                lblMotivoCancelacion.Text = seleccionado.MotivoCancelacion;
+            }
+            else
+            {
+                lblMotivoCancelacion.Text = "Sin motivo registrado";
+            }
+
             dgvItems.DataSource = negocio.ListarItems(id);
             dgvItems.DataBind();
 

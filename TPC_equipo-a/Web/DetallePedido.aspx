@@ -56,6 +56,11 @@
                             <asp:Label ID="lblCodigoSeguimiento" CssClass="d-block" runat="server"></asp:Label>
                             <asp:HyperLink ID="hlSeguimiento" Text="Ver seguimiento" Target="_blank" runat="server" Visible="false"></asp:HyperLink>
                         </div>
+                        <%-- solo aparece si el pedido esta cancelado, ocupa todo el ancho porque el motivo puede ser largo --%>
+                        <asp:Panel ID="pnlMotivoCancelacion" runat="server" Visible="false" CssClass="col-12">
+                            <div class="dato-titulo">Motivo de cancelacion</div>
+                            <asp:Label ID="lblMotivoCancelacion" runat="server"></asp:Label>
+                        </asp:Panel>
                     </div>
                 </div>
             </div>
