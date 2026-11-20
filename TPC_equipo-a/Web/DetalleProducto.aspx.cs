@@ -37,6 +37,21 @@ namespace Web
                         lblStock.Text = seleccionado.Stock.ToString();
                         imgProducto.Src = seleccionado.ImagenUrl;
 
+                        // la miga de la categoria lleva al catalogo ya filtrado por esa categoria
+                        hlMigaCategoria.NavigateUrl = "~/Default?categoria=" + seleccionado.Categoria.Id;
+
+                        // si el producto no tiene foto cargada uso la imagen generica, igual que en el catalogo
+                        if (string.IsNullOrEmpty(seleccionado.ImagenUrl))
+                        {
+                            imgProducto.Src = ResolveUrl("~/Imagenes/sin-imagen.svg");
+                        }
+
+                        // stock en palabras con la misma regla que el catalogo, sin stock no se puede tocar la cantidad ni el boton
+                        lblTextoStock.Text = _Default.TextoStock(seleccionado.Stock);
+                        lblTextoStock.CssClass = "texto-stock d-block mb-4 " + _Default.ClaseStock(seleccionado.Stock);
+                        txtCantidad.Enabled = _Default.HayStock(seleccionado.Stock);
+                        btnAgregarCarrito.Enabled = _Default.HayStock(seleccionado.Stock);
+
                         // Atrapamos el aviso oculto adentro del if del producto seleccionado
                         if (Request.QueryString["error"] == "stock")
                         {

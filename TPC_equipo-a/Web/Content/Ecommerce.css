@@ -217,6 +217,9 @@ body {
 .btn-ecommerce-primario.aspNetDisabled {
     --bs-btn-bg: var(--color-stock-sin);
     --bs-btn-border-color: var(--color-stock-sin);
+    --bs-btn-disabled-bg: var(--color-stock-sin); /* los asp:Button deshabilitados usan estas variables y no las de arriba */
+    --bs-btn-disabled-border-color: var(--color-stock-sin);
+    --bs-btn-disabled-color: var(--color-texto-claro);
     opacity: 0.6;
     pointer-events: none; /* no se puede tocar */
 }
@@ -243,6 +246,65 @@ body {
     font-size: 1.15rem;
     font-weight: 600;
     color: var(--color-fondo-oscuro);
+}
+
+/* detalle del producto */
+/* migas de pan, catalogo y categoria */
+.migas-detalle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-texto-suave);
+}
+
+    .migas-detalle a,
+    .volver-detalle {
+        color: var(--color-boton-primario);
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+        .migas-detalle a:hover,
+        .volver-detalle:hover {
+            text-decoration: underline;
+        }
+
+/* cuadrado gris donde va la foto, la foto entra entera sin cortarse */
+.img-detalle-caja {
+    aspect-ratio: 1 / 1;
+    background-color: var(--color-fondo-imagen);
+    border: 1px solid var(--color-borde-claro);
+}
+
+.img-detalle {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.titulo-detalle {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+}
+
+.precio-detalle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+    white-space: nowrap;
+}
+
+.descripcion-detalle {
+    color: var(--color-linea);
+}
+
+/* caja de la cantidad al lado del boton */
+.cantidad-detalle {
+    width: 90px;
+    flex-shrink: 0; /* que no se achique cuando el boton ocupa el resto */
 }
 
 /* footer */

@@ -24,6 +24,12 @@ namespace Web
                 ddlCategorias.DataBind();
                 ddlCategorias.Items.Insert(0, new ListItem("Todas las categorías...", "0"));
 
+                // si viene de las migas del detalle con ?categoria=id abro el catalogo ya filtrado por esa categoria
+                string idCategoria = Request.QueryString["categoria"];
+                if (!string.IsNullOrEmpty(idCategoria) && ddlCategorias.Items.FindByValue(idCategoria) != null)
+                {
+                    ddlCategorias.SelectedValue = idCategoria;
+                }
                 // Reemplazamos la lógica directa por el llamado a la función que la contiene
                 CargarCatalogo();
             }
@@ -104,7 +110,7 @@ namespace Web
         }
 
         // texto del stock que se ve en la tarjeta 3 o menos es pocos
-        protected string TextoStock(object stock)
+        public static string TextoStock(object stock)
         {
             int cantidad = Convert.ToInt32(stock);
             if (cantidad <= 0)
@@ -123,7 +129,7 @@ namespace Web
         }
 
         // clase del color del stock, se define en ecommerce.css
-        protected string ClaseStock(object stock)
+        public static string ClaseStock(object stock)
         {
             int cantidad = Convert.ToInt32(stock);
             if (cantidad <= 0)
@@ -138,7 +144,7 @@ namespace Web
         }
 
         // si no hay stock el boton agregar queda deshabilitado
-        protected bool HayStock(object stock)
+        public static bool HayStock(object stock)
         {
             int cantidad = Convert.ToInt32(stock);
             if (cantidad > 0)
