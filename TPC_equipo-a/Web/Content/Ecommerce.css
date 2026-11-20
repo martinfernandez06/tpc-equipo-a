@@ -319,6 +319,41 @@ body {
         align-items: center;
     }
 
+
+/* formas de entrega y pago abajo del boton, separadas con una linea fina */
+.formas-detalle {
+    border-top: 1px solid var(--color-borde-claro);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.titulo-formas {
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+    margin-bottom: 0.4rem;
+}
+
+    .titulo-formas i {
+        color: var(--color-boton-primario);
+    }
+
+/* sin los puntitos de la lista, el tilde ya marca cada forma */
+.lista-formas {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+    .lista-formas li {
+        color: var(--color-linea);
+        font-size: 0.95rem;
+        padding-block: 2px;
+    }
+
+    .lista-formas i {
+        color: var(--color-stock-ok);
+    }
+
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);

@@ -61,6 +61,30 @@
                     <asp:Label ID="lblExito" runat="server" CssClass="alert alert-success d-block mt-2 mb-4" Visible="false"></asp:Label>
                 </ContentTemplate>
             </asp:UpdatePanel>
+
+            <%-- formas de entrega y de pago activas si el admin desactiva todas las de un tipo se esconde esa parte --%>
+            <asp:Panel ID="pnlFormas" runat="server" CssClass="formas-detalle">
+                <asp:Panel ID="pnlFormasEntrega" runat="server" CssClass="mb-3">
+                    <div class="titulo-formas"><i class="bi bi-truck me-2"></i>Formas de entrega</div>
+                    <ul class="lista-formas">
+                        <asp:Repeater ID="repFormasEntrega" runat="server">
+                            <ItemTemplate>
+                                <li><i class="bi bi-check2 me-2"></i><%# Eval("Descripcion") %></li>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </ul>
+                </asp:Panel>
+                <asp:Panel ID="pnlFormasPago" runat="server">
+                    <div class="titulo-formas"><i class="bi bi-credit-card me-2"></i>Medios de pago</div>
+                    <ul class="lista-formas">
+                        <asp:Repeater ID="repFormasPago" runat="server">
+                            <ItemTemplate>
+                                <li><i class="bi bi-check2 me-2"></i><%# Eval("Descripcion") %></li>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </ul>
+                </asp:Panel>
+            </asp:Panel>
         </div>
     </div>
 

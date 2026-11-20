@@ -62,6 +62,9 @@ namespace Web
                             lblError.Text = "No podés agregar más unidades. Alcanzaste el límite de stock disponible.";
                             lblError.Visible = true;
                         }
+
+                        // abajo del boton muestro como se puede recibir y pagar
+                        CargarFormas();
                     }
                     else
                     {
@@ -186,6 +189,25 @@ namespace Web
                 cantidad = cantidad - 1;
             }
             txtCantidad.Text = cantidad.ToString();
+        }
+
+        // trae las formas de entrega y de pago activas y las muestra abajo del boton si no hay ninguna de un tipo se esconde esa parte
+        private void CargarFormas()
+        {
+            FormaEntregaNegocio entregaNegocio = new FormaEntregaNegocio();
+            List<FormaEntrega> entregas = entregaNegocio.Listar().FindAll(x => x.Activa);
+            repFormasEntrega.DataSource = entregas;
+            repFormasEntrega.DataBind();
+            pnlFormasEntrega.Visible = entregas.Count > 0;
+
+            FormaPagoNegocio pagoNegocio = new FormaPagoNegocio();
+            List<FormaPago> pagos = pagoNegocio.Listar().FindAll(x => x.Activa);
+            repFormasPago.DataSource = pagos;
+            repFormasPago.DataBind();
+            pnlFormasPago.Visible = pagos.Count > 0;
+
+            // si no hay ninguna de las dos escondo la caja entera para que no quede el borde vacio
+            pnlFormas.Visible = entregas.Count > 0 || pagos.Count > 0;
         }
     }
 }
