@@ -37,6 +37,25 @@ namespace Web
                         lblStock.Text = seleccionado.Stock.ToString();
                         imgProducto.Src = seleccionado.ImagenUrl;
 
+                        // la miga de la categoria lleva al catalogo ya filtrado por esa categoria
+                        hlMigaCategoria.NavigateUrl = "~/Default?categoria=" + seleccionado.Categoria.Id;
+
+                        // si el producto no tiene foto cargada uso la imagen generica, igual que en el catalogo
+                        if (string.IsNullOrEmpty(seleccionado.ImagenUrl))
+                        {
+                            imgProducto.Src = ResolveUrl("~/Imagenes/sin-imagen.svg");
+                        }
+
+                        // stock en palabras con la misma regla que el catalogo, sin stock no se puede tocar la cantidad ni el boton
+                        lblTextoStock.Text = _Default.TextoStock(seleccionado.Stock);
+                        lblTextoStock.CssClass = "texto-stock d-block mb-4 " + _Default.ClaseStock(seleccionado.Stock);
+                        txtCantidad.Enabled = _Default.HayStock(seleccionado.Stock);
+                        btnAgregarCarrito.Enabled = _Default.HayStock(seleccionado.Stock);
+
+                        btnMenos.Enabled = _Default.HayStock(seleccionado.Stock);
+                        btnMas.Enabled = _Default.HayStock(seleccionado.Stock);
+                        txtCantidad.Attributes["max"] = seleccionado.Stock.ToString(); // las flechitas del navegador tampoco pasan del stock
+
                         // Atrapamos el aviso oculto adentro del if del producto seleccionado
                         if (Request.QueryString["error"] == "stock")
                         {
@@ -122,6 +141,51 @@ namespace Web
                 lblExito.Visible = true;
                 txtCantidad.Text = "1";
             }
+        }
+        // suma uno a la cantidad sin pasar del stock
+        protected void btnMas_Click(object sender, EventArgs e)
+        {
+            lblError.Visible = false;
+            lblExito.Visible = false;
+
+            int stock = int.Parse(lblStock.Text);
+            // si la caja tiene letras, esta vacia o tiene menos de 1, arranco de 0 asi el mas la deja en 1
+            if (!int.TryParse(txtCantidad.Text, out int cantidad) || cantidad < 1)
+            {
+                cantidad = 0;
+            }
+
+            if (cantidad < stock)
+            {
+                cantidad = cantidad + 1;
+            }
+            else
+            {
+                cantidad = stock; // si escribieron a mano mas que el stock la bajo al maximo
+            }
+            txtCantidad.Text = cantidad.ToString();
+        }
+
+        // resta uno a la cantidad sin bajar de 1
+        protected void btnMenos_Click(object sender, EventArgs e)
+        {
+            lblError.Visible = false;
+            lblExito.Visible = false;
+
+            int stock = int.Parse(lblStock.Text);
+            if (!int.TryParse(txtCantidad.Text, out int cantidad) || cantidad <= 1)
+            {
+                cantidad = 1;
+            }
+            else if (cantidad > stock)
+            {
+                cantidad = stock; // si escribieron a mano mas que el stock la bajo al maximo
+            }
+            else
+            {
+                cantidad = cantidad - 1;
+            }
+            txtCantidad.Text = cantidad.ToString();
         }
     }
 }

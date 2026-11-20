@@ -130,6 +130,7 @@
     <Content Include="FormularioCategoria.aspx" />
     <Content Include="FormularioProducto.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="Imagenes\sin-imagen.svg" />
     <Content Include="Login.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="MisCompras.aspx" />
