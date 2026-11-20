@@ -42,16 +42,25 @@
                 <asp:Label ID="lblDescripcion" runat="server" Text="Cargando descripción..."></asp:Label>
             </p>
 
-            <%-- cantidad y boton de agregar, el boton ocupa el resto del ancho --%>
-            <div class="d-flex gap-2 mb-3">
-                <asp:TextBox ID="txtCantidad" runat="server" TextMode="Number" CssClass="form-control input-tienda text-center cantidad-detalle" Text="1" min="1"></asp:TextBox>
-                <asp:Button ID="btnAgregarCarrito" runat="server" Text="Agregar al carrito" CssClass="btn btn-ecommerce-primario btn-lg flex-grow-1" OnClick="btnAgregarCarrito_Click" />
-            </div>
+            <%-- cantidad, boton y avisos adentro del updatepanel, asi el menos, el mas y agregar no recargan la pagina --%>
+            <asp:UpdatePanel ID="upCompra" runat="server">
+                <ContentTemplate>
+                    <div class="d-flex gap-2 mb-3">
+                        <%-- el menos y el mas no dejan bajar de 1 ni pasar del stock --%>
+                        <div class="input-group cantidad-detalle">
+                            <asp:LinkButton ID="btnMenos" runat="server" CssClass="btn btn-tienda-secundario" OnClick="btnMenos_Click" ToolTip="Restar uno"><i class="bi bi-dash"></i></asp:LinkButton>
+                            <asp:TextBox ID="txtCantidad" runat="server" TextMode="Number" CssClass="form-control input-tienda text-center" Text="1" min="1"></asp:TextBox>
+                            <asp:LinkButton ID="btnMas" runat="server" CssClass="btn btn-tienda-secundario" OnClick="btnMas_Click" ToolTip="Sumar uno"><i class="bi bi-plus"></i></asp:LinkButton>
+                        </div>
+                        <asp:Button ID="btnAgregarCarrito" runat="server" Text="Agregar al carrito" CssClass="btn btn-ecommerce-primario btn-lg flex-grow-1" OnClick="btnAgregarCarrito_Click" />
+                    </div>
 
-            <!-- Etiqueta oculta por si el cliente pide más cantidad de la que hay en stock -->
-            <asp:Label ID="lblError" runat="server" CssClass="alert alert-danger d-block mt-2 mb-4" Visible="false"></asp:Label>
-            <!-- Etiqueta oculta para confirmar que el producto se sumó al carrito sin cambiar de página -->
-            <asp:Label ID="lblExito" runat="server" CssClass="alert alert-success d-block mt-2 mb-4" Visible="false"></asp:Label>
+                    <!-- Etiqueta oculta por si el cliente pide más cantidad de la que hay en stock -->
+                    <asp:Label ID="lblError" runat="server" CssClass="alert alert-danger d-block mt-2 mb-4" Visible="false"></asp:Label>
+                    <!-- Etiqueta oculta para confirmar que el producto se sumó al carrito sin cambiar de página -->
+                    <asp:Label ID="lblExito" runat="server" CssClass="alert alert-success d-block mt-2 mb-4" Visible="false"></asp:Label>
+                </ContentTemplate>
+            </asp:UpdatePanel>
         </div>
     </div>
 

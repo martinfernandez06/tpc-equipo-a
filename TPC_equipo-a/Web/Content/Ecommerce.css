@@ -224,6 +224,12 @@ body {
     pointer-events: none; /* no se puede tocar */
 }
 
+/* menos y mas del detalle cuando no hay stock */
+.btn-tienda-secundario.aspNetDisabled {
+    opacity: 0.5;
+    pointer-events: none; /* no se puede tocar */
+}
+
 /* aviso cuando la busqueda no trae productos */
 .sin-resultados {
     padding: 48px 16px;
@@ -303,9 +309,15 @@ body {
 
 /* caja de la cantidad al lado del boton */
 .cantidad-detalle {
-    width: 90px;
+    width: 140px;
     flex-shrink: 0; /* que no se achique cuando el boton ocupa el resto */
 }
+
+    /* el menos y el mas centrados en su cuadrado, porque el grupo toma la altura del boton grande */
+    .cantidad-detalle .btn {
+        display: flex;
+        align-items: center;
+    }
 
 /* footer */
 .footer-ecommerce {
