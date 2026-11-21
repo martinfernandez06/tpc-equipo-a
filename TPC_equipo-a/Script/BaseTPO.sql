@@ -122,8 +122,10 @@ CREATE TABLE PEDIDOS(
     EmpresaEnvio VARCHAR(50) NULL,
     ComprobanteUrl VARCHAR(500) NULL,
     EstadoComprobante VARCHAR(20) NULL,
--- lo escribe el admin o el cliente al cancelar, el cliente lo ve en mis compras y va en el mail
+    -- lo escribe el admin o el cliente al cancelar, el cliente lo ve en mis compras y va en el mail
     MotivoCancelacion VARCHAR(400) NULL,
+    -- lo escribe el admin al rechazar el comprobante, el cliente lo ve en mis compras y se borra cuando sube otro
+    MotivoRechazoComprobante VARCHAR(400) NULL,
 
     CONSTRAINT PK_PEDIDOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_PEDIDOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -409,10 +411,14 @@ AS BEGIN
     INNER JOIN USUARIOS U ON P.IdUsuario = U.Id LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
     WHERE P.Id = @Id
 END
+GO
 
 CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT
 AS BEGIN
-    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.EstadoComprobante
+    -- trae todo lo que mis compras necesita para decidir que mostrar en cada pedido
+    -- estuvopagado se fija en el historial si alguna vez paso por pagado, asi el cancelado sabe si hay que devolver plata
+    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, P.IdFormaPago, FP.Descripcion AS FormaPago, FP.RequiereComprobante, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante, P.MotivoRechazoComprobante, P.MotivoCancelacion,
+        CAST(CASE WHEN EXISTS (SELECT 1 FROM HISTORIAL_ESTADOS H WHERE H.IdPedido = P.Id AND H.IdEstado = 2) THEN 1 ELSE 0 END AS BIT) AS EstuvoPagado
     FROM PEDIDOS P INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
     WHERE P.IdUsuario = @IdUsuario ORDER BY P.FechaCreacion DESC
 END
@@ -689,7 +695,7 @@ AS BEGIN
 END
 GO
 
--- rechaza el comprobante, el pedido sigue pendiente de pago y el motivo queda como observacion
+-- rechaza el comprobante, el pedido sigue pendiente de pago y el motivo lo ve el cliente y queda como observacion
 CREATE PROCEDURE spRechazarComprobante @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
 AS BEGIN
     DECLARE @EstadoActual INT;
@@ -713,7 +719,8 @@ AS BEGIN
     BEGIN TRY
         BEGIN TRANSACTION
 
-        UPDATE PEDIDOS SET EstadoComprobante = 'Rechazado' WHERE Id = @IdPedido
+        -- el motivo va en la columna para que lo vea el cliente y tambien queda como observacion para el historial del admin
+        UPDATE PEDIDOS SET EstadoComprobante = 'Rechazado', MotivoRechazoComprobante = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
 
         INSERT INTO OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Observacion)
         VALUES (@IdPedido, @IdUsuario, 'Comprobante rechazado. ' + LTRIM(RTRIM(@Motivo)))
@@ -724,5 +731,33 @@ AS BEGIN
         ROLLBACK TRANSACTION;
         THROW;
     END CATCH
+END
+GO
+
+-- el cliente sube el comprobante de la transferencia desde mis compras si se lo rechazaron puede subir otro
+CREATE PROCEDURE spSubirComprobante @IdPedido INT, @IdUsuario INT, @ComprobanteUrl VARCHAR(500)
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+    DECLARE @RequiereComprobante BIT;
+
+    -- busco el pedido de ese cliente asi nadie le sube un comprobante a un pedido ajeno
+    SELECT @EstadoActual = P.IdEstado, @EstadoComprobante = P.EstadoComprobante, @RequiereComprobante = FP.RequiereComprobante
+    FROM PEDIDOS P INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    WHERE P.Id = @IdPedido AND P.IdUsuario = @IdUsuario;
+
+    IF @EstadoActual IS NULL
+        THROW 50018, 'El pedido no existe o no es tuyo', 1;
+    IF @EstadoActual <> 1
+        THROW 50022, 'Este pedido ya no esta pendiente de pago, no hace falta subir el comprobante', 1;
+    IF @RequiereComprobante = 0
+        THROW 50023, 'Este pedido no se paga con transferencia, no lleva comprobante', 1;
+    -- si ya mando uno tiene que esperar a que la tienda lo revise si se lo rechazaron si puede subir otro
+    IF @EstadoComprobante = 'Pendiente'
+        THROW 50024, 'Ya mandaste un comprobante y la tienda lo esta revisando', 1;
+    IF @ComprobanteUrl IS NULL OR LTRIM(RTRIM(@ComprobanteUrl)) = ''
+        THROW 50025, 'No llego el archivo del comprobante', 1;
+    -- queda pendiente para la bandeja del admin y se borra el motivo del rechazo anterior
+    UPDATE PEDIDOS SET ComprobanteUrl = @ComprobanteUrl, EstadoComprobante = 'Pendiente', MotivoRechazoComprobante = NULL WHERE Id = @IdPedido
 END
 GO
