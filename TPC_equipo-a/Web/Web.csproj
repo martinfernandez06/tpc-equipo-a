@@ -137,8 +137,10 @@
     <Content Include="Login.aspx" />
     <Content Include="MercadoPagoSimulado.aspx" />
     <Content Include="MiPerfil.aspx" />
+    <Content Include="OlvidePassword.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="MisCompras.aspx" />
+    <Content Include="RestablecerPassword.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -343,6 +345,13 @@
     <Compile Include="MisCompras.aspx.designer.cs">
       <DependentUpon>MisCompras.aspx</DependentUpon>
     </Compile>
+    <Compile Include="OlvidePassword.aspx.cs">
+      <DependentUpon>OlvidePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OlvidePassword.aspx.designer.cs">
+      <DependentUpon>OlvidePassword.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registro.aspx.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
@@ -350,6 +359,13 @@
     </Compile>
     <Compile Include="Registro.aspx.designer.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RestablecerPassword.aspx.cs">
+      <DependentUpon>RestablecerPassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RestablecerPassword.aspx.designer.cs">
+      <DependentUpon>RestablecerPassword.aspx</DependentUpon>
     </Compile>
     <Compile Include="Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>

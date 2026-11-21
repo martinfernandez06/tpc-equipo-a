@@ -440,6 +440,77 @@ BEGIN
 END;
 GO
 
+-- Validar token de recuperación de contraseña
+CREATE PROCEDURE spValidarTokenRecuperacion
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        T.IdUsuario,
+        U.Email,
+        U.Nombre
+    FROM TOKENS_USUARIO T
+    INNER JOIN USUARIOS U ON T.IdUsuario = U.Id
+    WHERE T.TokenHash = @TokenHash
+      AND T.Tipo = 'RECUPERACION'
+      AND T.Usado = 0
+      AND T.FechaExpiracion > SYSDATETIME()
+      AND U.Activo = 1;
+END;
+GO
+
+-- Restablecer contraseña y consumir el token
+CREATE PROCEDURE spRestablecerPassword
+    @TokenHash CHAR(64),
+    @NuevaClave VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @IdUsuario INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        SELECT @IdUsuario = IdUsuario
+        FROM TOKENS_USUARIO WITH (UPDLOCK, ROWLOCK)
+        WHERE TokenHash = @TokenHash
+          AND Tipo = 'RECUPERACION'
+          AND Usado = 0
+          AND FechaExpiracion > SYSDATETIME();
+
+        IF @IdUsuario IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT CAST(0 AS BIT) AS Restablecido;
+            RETURN;
+        END;
+
+        UPDATE USUARIOS
+        SET Clave = @NuevaClave
+        WHERE Id = @IdUsuario;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE TokenHash = @TokenHash;
+
+        COMMIT TRANSACTION;
+
+        SELECT CAST(1 AS BIT) AS Restablecido;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+
+GO
+
 -- 1. Alta de dirección
 CREATE PROCEDURE spAltaDireccion
     @IdUsuario INT, @Calle VARCHAR(100), @Numero VARCHAR(20), @Provincia VARCHAR(100), @Localidad VARCHAR(100), @CodigoPostal VARCHAR(20), @Observaciones VARCHAR(255), @Principal BIT

@@ -60,8 +60,10 @@
                                         Recordarme
                                     </label>
                                 </div>
-                                <a href="#" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
-                            </div>
+
+                                <a href="OlvidePassword.aspx" class="text-decoration-none small"> ¿Olvidaste tu contraseña? </a>
+                          
+                                </div>
 
                             <!-- Acceso de administrador -->
                             <div class="form-check mb-4">
