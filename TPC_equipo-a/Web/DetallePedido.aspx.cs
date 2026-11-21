@@ -276,10 +276,13 @@ namespace Web
             PedidoNegocio negocio = new PedidoNegocio();
             Pedido seleccionado = negocio.buscarPorId(id);
 
-            // el texto cambia segun si el cliente ya pudo haber pagado, asi el admin sabe si tiene que devolver plata
+            // si hay un comprobante sin revisar no se deja cancelar, primero hay que saber si el cliente transfirio
+            // en los otros casos el texto avisa si hay que devolverle la plata
             if (seleccionado.Estado.Id == 1 && seleccionado.EstadoComprobante == "Pendiente")
             {
-                lblConfirmarCancelar.Text = "¿Seguro que querés cancelar el pedido? Las unidades vuelven al stock. El cliente ya mandó un comprobante que está esperando revisión, fijate si transfirió para devolverle la plata.";
+                lblMensaje.Text = "Este pedido tiene un comprobante esperando revisión. Primero aceptalo o rechazalo en la bandeja de comprobantes y después cancelalo.";
+                lblMensaje.CssClass = "text-danger d-block my-2";
+                return;
             }
             else if (seleccionado.Estado.Id == 1)
             {

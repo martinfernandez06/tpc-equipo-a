@@ -536,6 +536,11 @@ AS BEGIN
     IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6))
         THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
 
+
+    -- si el cliente mando un comprobante primero hay que revisarlo, asi se sabe si hay plata para devolver
+    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND EstadoComprobante = 'Pendiente')
+        THROW 50026, 'Primero revisa el comprobante en la bandeja, aceptalo o rechazalo antes de cancelar', 1;
+
     -- el motivo es obligatorio porque el cliente lo ve en mis compras y le llega por mail
     IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
         THROW 50017, 'Hay que escribir el motivo de la cancelacion', 1;
