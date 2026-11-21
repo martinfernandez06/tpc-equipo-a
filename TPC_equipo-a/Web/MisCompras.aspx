@@ -9,44 +9,47 @@
                 <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
                     <div>
                         <h1 class="titulo-detalle mb-1">Mis compras</h1>
-                        <p class="small text-secondary mb-0">Todos tus pedidos en un solo lugar. Podés filtrarlos por fecha o por estado.</p>
+                        <asp:Label ID="lblBajada" runat="server" CssClass="small text-secondary d-block" Text="Todos tus pedidos en un solo lugar. Podés filtrarlos por fecha o por estado." />
                     </div>
                     <a href="Default.aspx" class="btn btn-tienda-secundario text-nowrap d-none d-md-inline-block"><i class="bi bi-bag me-1"></i>Seguir comprando</a>
                 </div>
-                <div class="row g-2 align-items-end">
-                    <div class="col-6 col-md-3">
-                        <div class="titulo-campo">Desde</div>
-                        <asp:TextBox ID="txtDesde" runat="server" TextMode="Date" CssClass="form-control input-tienda" />
+                <%-- sin compras no hay nada que filtrar, asi que se esconde --%>
+                <asp:Panel ID="pnlFiltroFechas" runat="server">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-6 col-md-3">
+                            <div class="titulo-campo">Desde</div>
+                            <asp:TextBox ID="txtDesde" runat="server" TextMode="Date" CssClass="form-control input-tienda" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="titulo-campo">Hasta</div>
+                            <asp:TextBox ID="txtHasta" runat="server" TextMode="Date" CssClass="form-control input-tienda" />
+                        </div>
+                        <div class="col-12 col-md-auto d-flex gap-2">
+                            <asp:Button ID="btnFiltrar" OnClick="btnFiltrar_Click" runat="server" Text="Filtrar" CssClass="btn btn-ecommerce-primario flex-grow-1 mw-100" ValidationGroup="fechas" />
+                            <%-- causesvalidation false asi limpiar anda aunque las fechas esten mal --%>
+                            <asp:LinkButton ID="btnLimpiar" OnClick="btnLimpiar_Click" runat="server" CssClass="btn btn-tienda-secundario text-nowrap" CausesValidation="false" ToolTip="Limpiar filtro"><i class="bi bi-x-lg"></i><span class="d-none d-lg-inline ms-1">Limpiar</span></asp:LinkButton>
+                        </div>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <div class="titulo-campo">Hasta</div>
-                        <asp:TextBox ID="txtHasta" runat="server" TextMode="Date" CssClass="form-control input-tienda" />
+                    <div class="mt-2">
+                        <asp:CompareValidator ID="cvFechas" runat="server" ControlToValidate="txtHasta" ControlToCompare="txtDesde" Operator="GreaterThanEqual" Type="Date" ErrorMessage="La fecha hasta no puede ser anterior a la desde" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
+                        <%-- comparan contra la fecha de hoy que se carga en el page_load --%>
+                        <asp:CompareValidator ID="cvDesdeHoy" runat="server" ControlToValidate="txtDesde" Operator="LessThanEqual" Type="Date" ErrorMessage="La fecha desde no puede ser posterior a hoy" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
+                        <asp:CompareValidator ID="cvHastaHoy" runat="server" ControlToValidate="txtHasta" Operator="LessThanEqual" Type="Date" ErrorMessage="La fecha hasta no puede ser posterior a hoy" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
                     </div>
-                    <div class="col-12 col-md-auto d-flex gap-2">
-                        <asp:Button ID="btnFiltrar" OnClick="btnFiltrar_Click" runat="server" Text="Filtrar" CssClass="btn btn-ecommerce-primario flex-grow-1 mw-100" ValidationGroup="fechas" />
-                        <%-- causesvalidation false asi limpiar anda aunque las fechas esten mal --%>
-                        <asp:LinkButton ID="btnLimpiar" OnClick="btnLimpiar_Click" runat="server" CssClass="btn btn-tienda-secundario text-nowrap" CausesValidation="false" ToolTip="Limpiar filtro"><i class="bi bi-x-lg"></i><span class="d-none d-lg-inline ms-1">Limpiar</span></asp:LinkButton>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <asp:CompareValidator ID="cvFechas" runat="server" ControlToValidate="txtHasta" ControlToCompare="txtDesde" Operator="GreaterThanEqual" Type="Date" ErrorMessage="La fecha hasta no puede ser anterior a la desde" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
-                    <%-- comparan contra la fecha de hoy que se carga en el page_load --%>
-                    <asp:CompareValidator ID="cvDesdeHoy" runat="server" ControlToValidate="txtDesde" Operator="LessThanEqual" Type="Date" ErrorMessage="La fecha desde no puede ser posterior a hoy" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
-                    <asp:CompareValidator ID="cvHastaHoy" runat="server" ControlToValidate="txtHasta" Operator="LessThanEqual" Type="Date" ErrorMessage="La fecha hasta no puede ser posterior a hoy" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
-                </div>
+                </asp:Panel>
             </div>
             <%-- pestañas por estado, el numero respeta el filtro de fechas --%>
-            <div class="pestanas-compras">
+            <asp:Panel ID="pnlPestanas" runat="server" CssClass="pestanas-compras">
                 <asp:LinkButton ID="btnTodos" runat="server" CommandArgument="todos" OnClick="btnPestana_Click" ValidationGroup="fechas" />
                 <asp:LinkButton ID="btnEnCurso" runat="server" CommandArgument="encurso" OnClick="btnPestana_Click" ValidationGroup="fechas" />
                 <asp:LinkButton ID="btnEntregados" runat="server" CommandArgument="entregados" OnClick="btnPestana_Click" ValidationGroup="fechas" />
                 <asp:LinkButton ID="btnCancelados" runat="server" CommandArgument="cancelados" OnClick="btnPestana_Click" ValidationGroup="fechas" />
-            </div>
+            </asp:Panel>
 
             <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
 
             <%-- titulos de las columnas, solo en la compu --%>
-            <div class="encabezado-pedidos d-none d-lg-block">
+            <asp:Panel ID="pnlEncabezado" runat="server" CssClass="encabezado-pedidos d-none d-lg-block">
                 <div class="row g-2">
                     <div class="col-lg-2">Pedido</div>
                     <div class="col-lg-3">Productos</div>
@@ -54,7 +57,7 @@
                     <div class="col-lg-2 text-end">Total</div>
                     <div class="col-lg-2 ps-lg-4">Estado</div>
                 </div>
-            </div>
+            </asp:Panel>
 
             <%-- en el celu cada pedido es una card, en la compu una fila con columnas --%>
             <asp:Repeater ID="rptPedidos" runat="server">
@@ -127,6 +130,21 @@
                     </div>
                 </ItemTemplate>
             </asp:Repeater>
+            <%-- cuando el cliente todavia no compro nada --%>
+            <asp:Panel ID="pnlSinCompras" runat="server" Visible="false" CssClass="sin-resultados text-center mb-5">
+                <i class="bi bi-bag icono-sin-resultados"></i>
+                <p class="titulo-sin-resultados mt-3 mb-1">Todavía no hiciste ninguna compra</p>
+                <p class="small text-secondary mb-3">Cuando compres algo lo vas a ver acá con su estado</p>
+                <a href="Default.aspx" class="btn btn-ecommerce-primario">Ir al catálogo</a>
+            </asp:Panel>
+            <%-- cuando el filtro o la pestaña no traen nada, limpiar usa el mismo evento que la x del filtro --%>
+            <asp:Panel ID="pnlSinResultados" runat="server" Visible="false" CssClass="sin-resultados text-center mb-5">
+                <i class="bi bi-search icono-sin-resultados"></i>
+                <p class="titulo-sin-resultados mt-3 mb-3">
+                    <asp:Label ID="lblSinResultados" runat="server" />
+                </p>
+                <asp:LinkButton ID="btnLimpiarSinResultados" runat="server" CssClass="btn btn-tienda-secundario" CausesValidation="false" OnClick="btnLimpiar_Click"><i class="bi bi-x-lg me-1"></i>Limpiar filtro</asp:LinkButton>
+            </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
 </asp:Content>

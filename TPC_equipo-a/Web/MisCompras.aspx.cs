@@ -85,8 +85,22 @@ namespace Web
 
             rptPedidos.DataSource = mostrar;
             rptPedidos.DataBind();
-            // limpiar solo aparece si hay alguna fecha puesta
-            btnLimpiar.Visible = desde.HasValue || hasta.HasValue;
+
+            // que se ve cuando no hay pedidos para mostrar
+            bool hayFecha = desde.HasValue || hasta.HasValue;
+            bool sinCompras = lista.Count == 0 && !hayFecha;
+            btnLimpiar.Visible = hayFecha;
+            pnlSinCompras.Visible = sinCompras;
+            pnlPestanas.Visible = !sinCompras;
+            pnlFiltroFechas.Visible = !sinCompras;
+            lblBajada.Visible = !sinCompras;
+            pnlEncabezado.Visible = mostrar.Count > 0;
+            pnlSinResultados.Visible = !sinCompras && mostrar.Count == 0;
+            btnLimpiarSinResultados.Visible = hayFecha;
+            if (lista.Count == 0)
+                lblSinResultados.Text = "No hay compras entre esas fechas";
+            else
+                lblSinResultados.Text = TextoPestanaVacia(pestana);
         }
 
         // la pestaña elegida lleva la clase activa para pintarla de violeta
@@ -95,6 +109,16 @@ namespace Web
             if (nombre == elegida)
                 return "pestana activa";
             return "pestana";
+        }
+
+        // el mensaje de cada pestaña cuando no tiene pedidos
+        private string TextoPestanaVacia(string pestana)
+        {
+            if (pestana == "encurso")
+                return "No tenés compras en curso";
+            if (pestana == "entregados")
+                return "Todavía no te entregaron ninguna compra";
+            return "No tenés compras canceladas";
         }
 
         // color del badge segun el estado, pagado y en preparacion van iguales

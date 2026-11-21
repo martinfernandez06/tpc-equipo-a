@@ -24,6 +24,24 @@ namespace Web
         protected global::System.Web.UI.UpdatePanel upMisCompras;
 
         /// <summary>
+        /// Control lblBajada.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblBajada;
+
+        /// <summary>
+        /// Control pnlFiltroFechas.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlFiltroFechas;
+
+        /// <summary>
         /// Control txtDesde.
         /// </summary>
         /// <remarks>
@@ -87,6 +105,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.CompareValidator cvHastaHoy;
 
         /// <summary>
+        /// Control pnlPestanas.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlPestanas;
+
+        /// <summary>
         /// Control btnTodos.
         /// </summary>
         /// <remarks>
@@ -132,6 +159,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.Label lblMensaje;
 
         /// <summary>
+        /// Control pnlEncabezado.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEncabezado;
+
+        /// <summary>
         /// Control rptPedidos.
         /// </summary>
         /// <remarks>
@@ -139,5 +175,41 @@ namespace Web
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptPedidos;
+
+        /// <summary>
+        /// Control pnlSinCompras.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlSinCompras;
+
+        /// <summary>
+        /// Control pnlSinResultados.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlSinResultados;
+
+        /// <summary>
+        /// Control lblSinResultados.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblSinResultados;
+
+        /// <summary>
+        /// Control btnLimpiarSinResultados.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnLimpiarSinResultados;
     }
 }
