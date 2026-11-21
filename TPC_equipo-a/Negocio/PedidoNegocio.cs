@@ -151,7 +151,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-        public List<Pedido> listarPedidosPorCliente(int idUsuario)
+        public List<Pedido> listarPedidosPorCliente(int idUsuario, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             List<Pedido> lista = new List<Pedido>();
             AccesoDatos datos = new AccesoDatos();
@@ -159,6 +159,8 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spListarPedidosPorCliente");
+                datos.setearParametro("@FechaDesde", fechaDesde.HasValue ? (object)fechaDesde.Value : DBNull.Value);
+                datos.setearParametro("@FechaHasta", fechaHasta.HasValue ? (object)fechaHasta.Value : DBNull.Value);
                 datos.setearParametro("@IdUsuario", idUsuario);
                 datos.ejecutarLectura();
 
@@ -176,6 +178,17 @@ namespace Negocio
                     aux.Estado = new EstadoPedido();
                     aux.Estado.Id = (int)datos.Lector["IdEstado"];
                     aux.Estado.Descripcion = (string)datos.Lector["Estado"];
+                    // los de retiro en el local no tienen direccion, ahi queda en null y la pantalla no la muestra
+                    if (!(datos.Lector["IdDireccion"] is DBNull))
+                    {
+                        aux.Direccion = new Direccion();
+                        aux.Direccion.Id = (int)datos.Lector["IdDireccion"];
+                        aux.Direccion.Calle = (string)datos.Lector["Calle"];
+                        aux.Direccion.Numero = (string)datos.Lector["Numero"];
+                        aux.Direccion.Localidad = (string)datos.Lector["Localidad"];
+                        aux.Direccion.Provincia = (string)datos.Lector["Provincia"];
+                        aux.Direccion.CodigoPostal = (string)datos.Lector["CodigoPostal"];
+                    }
                     aux.Total = (decimal)datos.Lector["Total"];
                     aux.EstuvoPagado = (bool)datos.Lector["EstuvoPagado"];
 
