@@ -82,6 +82,9 @@ namespace Web
             {
                 pedido.Items = negocio.ListarItems(pedido.Id);
             }
+
+            rptPedidos.DataSource = mostrar;
+            rptPedidos.DataBind();
             // limpiar solo aparece si hay alguna fecha puesta
             btnLimpiar.Visible = desde.HasValue || hasta.HasValue;
         }
@@ -92,6 +95,54 @@ namespace Web
             if (nombre == elegida)
                 return "pestana activa";
             return "pestana";
+        }
+
+        // color del badge segun el estado, pagado y en preparacion van iguales
+        protected string ClaseEstado(object idEstado)
+        {
+            switch ((int)idEstado)
+            {
+                case 1:
+                    return "badge-estado badge-pendiente";
+                case 2:
+                case 3:
+                    return "badge-estado badge-pagado";
+                case 4:
+                    return "badge-estado badge-enviado";
+                case 5:
+                    return "badge-estado badge-entregado";
+                default:
+                    return "badge-estado badge-cancelado";
+            }
+        }
+
+        // hasta 3 fotitos, si hay mas el texto dice cuantos faltan
+        protected List<ItemPedido> Miniaturas(object items)
+        {
+            List<ItemPedido> lista = (List<ItemPedido>)items;
+            if (lista.Count <= 3)
+                return lista;
+            return lista.GetRange(0, 3);
+        }
+
+        // el primer producto y cuantos mas hay
+        protected string ResumenProductos(object items)
+        {
+            List<ItemPedido> lista = (List<ItemPedido>)items;
+            if (lista.Count == 0)
+                return "";
+            string texto = lista[0].Producto.Nombre;
+            if (lista.Count > 1)
+                texto += $" y {lista.Count - 1} más";
+            return texto;
+        }
+
+        // si el producto no tiene foto va la imagen generica
+        protected string ImagenProducto(object url)
+        {
+            if (url == null || string.IsNullOrWhiteSpace(url.ToString()))
+                return ResolveUrl("~/Imagenes/sin-imagen.svg");
+            return url.ToString();
         }
 
         protected void btnFiltrar_Click(object sender, EventArgs e)

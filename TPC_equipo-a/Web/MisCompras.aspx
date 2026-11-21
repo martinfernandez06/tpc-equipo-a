@@ -44,6 +44,55 @@
             </div>
 
             <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
+
+            <%-- titulos de las columnas, solo en la compu --%>
+            <div class="encabezado-pedidos d-none d-lg-block">
+                <div class="row g-2">
+                    <div class="col-lg-2">Pedido</div>
+                    <div class="col-lg-3">Productos</div>
+                    <div class="col-lg-2">Entrega y pago</div>
+                    <div class="col-lg-2 text-end">Total</div>
+                    <div class="col-lg-2 ps-lg-4">Estado</div>
+                </div>
+            </div>
+
+            <%-- en el celu cada pedido es una card, en la compu una fila con columnas --%>
+            <asp:Repeater ID="rptPedidos" runat="server">
+                <ItemTemplate>
+                    <div class='pedido-compra estado-<%# Eval("Estado.Id") %>'>
+                        <a class="fila-pedido" data-bs-toggle="collapse" href='#pedido-<%# Eval("Id") %>'>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-6 col-lg-2 order-lg-1">
+                                    <div class="numero-pedido">Pedido #<%# Eval("Id") %></div>
+                                    <div class="dato-chico"><%# Eval("FechaCreacion", "{0:dd/MM/yyyy}") %></div>
+                                </div>
+                                <div class="col-6 col-lg-2 order-lg-5 text-end text-lg-start ps-lg-4">
+                                    <span class='<%# ClaseEstado(Eval("Estado.Id")) %>'><%# Eval("Estado.Descripcion") %></span>
+                                </div>
+                                <div class="col-12 col-lg-3 order-lg-2 d-flex align-items-center gap-2">
+                                    <%-- repeater adentro del otro, hasta 3 fotitos por pedido --%>
+                                    <asp:Repeater ID="rptMiniaturas" runat="server" DataSource='<%# Miniaturas(Eval("Items")) %>'>
+                                        <ItemTemplate>
+                                            <img class="mini-producto" src='<%# ImagenProducto(Eval("Producto.ImagenUrl")) %>' alt='<%# Eval("Producto.Nombre") %>' onerror="this.onerror=null; this.src='<%# ResolveUrl("~/Imagenes/sin-imagen.svg") %>';" />
+                                        </ItemTemplate>
+                                    </asp:Repeater>
+                                    <span class="dato-chico text-truncate"><%# ResumenProductos(Eval("Items")) %></span>
+                                </div>
+                                <div class="col-7 col-lg-2 order-lg-3 dato-chico">
+                                    <%# Eval("FormaEntrega.Descripcion") %><br />
+                                    <%# Eval("FormaPago.Descripcion") %>
+                                </div>
+                                <div class="col-5 col-lg-2 order-lg-4 text-end">
+                                    <span class="total-pedido"><%# Eval("Total", "{0:C}") %></span>
+                                </div>
+                                <div class="d-none d-lg-block col-lg-1 order-lg-last text-end">
+                                    <i class="bi bi-chevron-down flecha-pedido"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </ItemTemplate>
+            </asp:Repeater>
         </ContentTemplate>
     </asp:UpdatePanel>
 </asp:Content>
