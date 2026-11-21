@@ -354,6 +354,192 @@ body {
         color: var(--color-stock-ok);
     }
 
+/* mis compras */
+/* pestañas por estado, si no entran en el celu se deslizan de costado */
+.pestanas-compras {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none; /* saca la barrita de abajo, se desliza igual con el dedo */
+    border-bottom: 1px solid var(--color-borde-claro);
+    margin: 16px 0;
+}
+
+.pestana {
+    flex-shrink: 0; /* que no se achiquen, mejor que se deslicen */
+    white-space: nowrap;
+    padding: 8px 14px;
+    color: var(--color-linea);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; /* la linea violeta queda encima de la gris */
+}
+
+    .pestana:hover {
+        color: var(--color-boton-primario);
+    }
+
+    /* la pestaña elegida en violeta con la linea abajo */
+    .pestana.activa {
+        color: var(--color-boton-primario);
+        border-bottom-color: var(--color-boton-primario);
+        font-weight: 600;
+    }
+
+/* numerito al lado del nombre */
+.cuenta-pestana {
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario-hover);
+    font-size: 0.75rem;
+    padding: 1px 7px;
+    margin-left: 4px;
+}
+
+.pestana.activa .cuenta-pestana {
+    background-color: var(--color-boton-primario);
+    color: #fff;
+}
+
+/* lista de pedidos, en el celu cada uno es una card y en la compu una fila */
+.encabezado-pedidos {
+    font-size: 0.75rem;
+    color: var(--color-violeta-titulo);
+    text-transform: uppercase;
+    padding: 0 16px 6px;
+}
+
+.pedido-compra {
+    background-color: #fff;
+    border: 1px solid var(--color-borde-claro);
+    margin-bottom: 8px;
+}
+
+/* toda la fila es el link que abre el detalle */
+.fila-pedido {
+    display: block;
+    padding: 12px 16px;
+    color: inherit;
+    text-decoration: none;
+}
+
+    .fila-pedido:hover {
+        background-color: var(--color-lila-fondo);
+        color: inherit;
+    }
+
+.numero-pedido {
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+}
+
+.dato-chico {
+    font-size: 0.85rem;
+    color: var(--color-linea);
+}
+
+/* deja que el nombre del producto se corte con puntitos si no entra */
+.fila-pedido .text-truncate {
+    min-width: 0;
+}
+
+.mini-producto {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    object-fit: contain;
+    background-color: var(--color-fondo-imagen);
+    border: 1px solid var(--color-borde-claro);
+}
+
+.total-pedido {
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+    white-space: nowrap;
+}
+
+/* el total del cancelado tachado, ese pedido ya no se cobra */
+.estado-6 .total-pedido {
+    text-decoration: line-through;
+    color: var(--color-stock-sin);
+}
+
+/* la flecha gira cuando el pedido esta abierto */
+.flecha-pedido {
+    color: var(--color-boton-primario);
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.fila-pedido[aria-expanded="true"] .flecha-pedido {
+    transform: rotate(180deg);
+}
+
+/* badge del estado, cada uno con su color */
+.badge-estado {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    white-space: nowrap;
+}
+
+.badge-pendiente {
+    background-color: var(--color-stock-pocos);
+    color: #fff;
+}
+
+.badge-pagado {
+    background-color: var(--color-boton-primario);
+    color: #fff;
+}
+
+.badge-enviado {
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario-hover);
+}
+
+.badge-entregado {
+    background-color: var(--color-stock-ok);
+    color: #fff;
+}
+
+.badge-cancelado {
+    background-color: var(--color-stock-sin);
+    color: #fff;
+}
+
+/* detalle del pedido abierto */
+.detalle-pedido {
+    border-top: 1px solid var(--color-borde-claro);
+    padding: 16px;
+}
+
+/* cada producto en un renglon, la foto, el nombre y lo que salio */
+.item-detalle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-borde-claro);
+}
+
+.nombre-item {
+    color: var(--color-fondo-oscuro);
+}
+
+.subtotal-item {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.total-detalle {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+}
+
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);

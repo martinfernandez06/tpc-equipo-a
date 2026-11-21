@@ -79,7 +79,7 @@ CREATE TABLE USUARIOS (
     Telefono VARCHAR(30) NULL,
     IdPerfil INT NOT NULL FOREIGN KEY REFERENCES PERFILES(Id),
     Activo BIT DEFAULT 1 NOT NULL,
-    FechaAlta DATETIME DEFAULT GETDATE() NOT NULL,
+    FechaAlta DATETIME DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) NOT NULL,
     UltimoAcceso DATETIME NULL
 );
 GO
@@ -112,7 +112,7 @@ GO
 CREATE TABLE PEDIDOS(
     Id INT IDENTITY(1,1),
     IdUsuario INT NOT NULL,
-    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT GETDATE(),
+    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     IdFormaEntrega INT NOT NULL,
     IdDireccion INT NULL,
     IdFormaPago INT NOT NULL,
@@ -122,6 +122,10 @@ CREATE TABLE PEDIDOS(
     EmpresaEnvio VARCHAR(50) NULL,
     ComprobanteUrl VARCHAR(500) NULL,
     EstadoComprobante VARCHAR(20) NULL,
+    -- lo escribe el admin o el cliente al cancelar, el cliente lo ve en mis compras y va en el mail
+    MotivoCancelacion VARCHAR(400) NULL,
+    -- lo escribe el admin al rechazar el comprobante, el cliente lo ve en mis compras y se borra cuando sube otro
+    MotivoRechazoComprobante VARCHAR(400) NULL,
 
     CONSTRAINT PK_PEDIDOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_PEDIDOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -154,7 +158,7 @@ CREATE TABLE HISTORIAL_ESTADOS(
     IdPedido INT NOT NULL,
     IdEstado INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     CONSTRAINT PK_HISTORIAL_ESTADOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -167,7 +171,7 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     Observacion VARCHAR(500) NOT NULL,
     CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
     CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
@@ -282,7 +286,7 @@ GO
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50), @Apellido VARCHAR(50), @Email VARCHAR(100), @Clave VARCHAR(50), @Telefono VARCHAR(30), @IdPerfil INT
 AS BEGIN
-    INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta) VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
+        INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta) VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME));
 END;
 GO
 
@@ -304,7 +308,7 @@ CREATE PROCEDURE spCambiarEstadoUsuario @Id INT, @Activo BIT AS BEGIN UPDATE USU
 GO
 
 -- 5. guarda cuando entro el usuario por ultima vez, lo llama el login
-CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = GETDATE() WHERE Id = @Id; END;
+CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) WHERE Id = @Id; END;
 GO
 
 -- 1. Alta de dirección
@@ -402,18 +406,25 @@ GO
 
 CREATE PROCEDURE spBuscarPedidoPorId @Id INT
 AS BEGIN
-    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, U.Telefono, P.IdFormaEntrega, FE.Descripcion AS FormaEntrega, P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal, P.IdFormaPago, FP.Descripcion AS FormaPago, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante, FP.RequiereComprobante
+    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, U.Telefono, P.IdFormaEntrega, FE.Descripcion AS FormaEntrega, P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal, P.IdFormaPago, FP.Descripcion AS FormaPago, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante, FP.RequiereComprobante, P.MotivoCancelacion
     FROM PEDIDOS P
     INNER JOIN USUARIOS U ON P.IdUsuario = U.Id LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
     WHERE P.Id = @Id
 END
 GO
 
-CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT
+CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT, @FechaDesde DATE = NULL, @FechaHasta DATE = NULL
 AS BEGIN
-    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.EstadoComprobante
+    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, P.IdFormaPago, FP.Descripcion AS FormaPago, FP.RequiereComprobante, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante, P.MotivoRechazoComprobante, P.MotivoCancelacion,
+        CAST(CASE WHEN EXISTS (SELECT 1 FROM HISTORIAL_ESTADOS H WHERE H.IdPedido = P.Id AND H.IdEstado = 2) THEN 1 ELSE 0 END AS BIT) AS EstuvoPagado,
+        P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal
     FROM PEDIDOS P INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
-    WHERE P.IdUsuario = @IdUsuario ORDER BY P.FechaCreacion DESC
+    LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id
+    -- las fechas son opcionales igual que en spListarPedidos, el hasta suma un dia para que entre todo ese dia
+    WHERE P.IdUsuario = @IdUsuario
+    AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
+    AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+    ORDER BY P.FechaCreacion DESC
 END
 GO
 
@@ -515,16 +526,63 @@ AS BEGIN
 END
 GO
 
--- cancela un pedido si todavia no salio y devuelve las unidades al stock
-CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT
+-- cancela un pedido si todavia no salio, devuelve las unidades al stock y guarda el motivo que ve el cliente
+CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
 AS BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido)
+        THROW 50011, 'El pedido no existe', 1;
+
     -- si ya esta enviado, entregado o cancelado no se puede cancelar
-    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6)) THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
+    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6))
+        THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
+
+
+    -- si el cliente mando un comprobante primero hay que revisarlo, asi se sabe si hay plata para devolver
+    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND EstadoComprobante = 'Pendiente')
+        THROW 50026, 'Primero revisa el comprobante en la bandeja, aceptalo o rechazalo antes de cancelar', 1;
+
+    -- el motivo es obligatorio porque el cliente lo ve en mis compras y le llega por mail
+    IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
+        THROW 50017, 'Hay que escribir el motivo de la cancelacion', 1;
+
     BEGIN TRY
         BEGIN TRANSACTION
         -- devuelvo al stock lo que compro de cada producto
         UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
-        UPDATE PEDIDOS SET IdEstado = 6 WHERE Id = @IdPedido
+        UPDATE PEDIDOS SET IdEstado = 6, MotivoCancelacion = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
+        INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, 6, @IdUsuario)
+        COMMIT TRANSACTION
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION; THROW;
+    END CATCH
+END
+GO
+
+-- el cliente cancela desde mis compras, solo si no pago nada y no mando comprobante, si no lo cancela la tienda
+CREATE PROCEDURE spCancelarPedidoCliente @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+
+    -- busco el pedido de ese cliente, asi nadie cancela uno ajeno cambiando el numero en la pagina
+    SELECT @EstadoActual = IdEstado, @EstadoComprobante = EstadoComprobante FROM PEDIDOS WHERE Id = @IdPedido AND IdUsuario = @IdUsuario;
+    IF @EstadoActual IS NULL
+        THROW 50018, 'El pedido no existe o no es tuyo', 1;
+    -- si ya pago o esta en camino hay plata o un paquete de por medio, eso lo maneja la tienda
+    IF @EstadoActual <> 1
+        THROW 50019, 'Este pedido ya no se puede cancelar desde mis compras, comunicate con la tienda', 1;
+    -- si mando el comprobante puede que ya haya transferido, la devolucion la maneja la tienda
+    IF @EstadoComprobante = 'Pendiente'
+        THROW 50020, 'Ya mandaste el comprobante, para cancelar comunicate con la tienda', 1;
+    IF @Motivo IS NULL OR LTRIM(RTRIM(@Motivo)) = ''
+        THROW 50021, 'Hay que elegir el motivo de la cancelacion', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+        UPDATE PR SET PR.Stock = PR.Stock + I.Cantidad FROM PRODUCTOS PR INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto WHERE I.IdPedido = @IdPedido
+        UPDATE PEDIDOS SET IdEstado = 6, MotivoCancelacion = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
+        -- en el historial queda el cliente como el que lo cancelo
         INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario) VALUES (@IdPedido, 6, @IdUsuario)
         COMMIT TRANSACTION
     END TRY
@@ -646,7 +704,7 @@ AS BEGIN
 END
 GO
 
--- rechaza el comprobante, el pedido sigue pendiente de pago y el motivo queda como observacion
+-- rechaza el comprobante, el pedido sigue pendiente de pago y el motivo lo ve el cliente y queda como observacion
 CREATE PROCEDURE spRechazarComprobante @IdPedido INT, @IdUsuario INT, @Motivo VARCHAR(400)
 AS BEGIN
     DECLARE @EstadoActual INT;
@@ -670,7 +728,8 @@ AS BEGIN
     BEGIN TRY
         BEGIN TRANSACTION
 
-        UPDATE PEDIDOS SET EstadoComprobante = 'Rechazado' WHERE Id = @IdPedido
+        -- el motivo va en la columna para que lo vea el cliente y tambien queda como observacion para el historial del admin
+        UPDATE PEDIDOS SET EstadoComprobante = 'Rechazado', MotivoRechazoComprobante = LTRIM(RTRIM(@Motivo)) WHERE Id = @IdPedido
 
         INSERT INTO OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Observacion)
         VALUES (@IdPedido, @IdUsuario, 'Comprobante rechazado. ' + LTRIM(RTRIM(@Motivo)))
@@ -681,5 +740,33 @@ AS BEGIN
         ROLLBACK TRANSACTION;
         THROW;
     END CATCH
+END
+GO
+
+-- el cliente sube el comprobante de la transferencia desde mis compras si se lo rechazaron puede subir otro
+CREATE PROCEDURE spSubirComprobante @IdPedido INT, @IdUsuario INT, @ComprobanteUrl VARCHAR(500)
+AS BEGIN
+    DECLARE @EstadoActual INT;
+    DECLARE @EstadoComprobante VARCHAR(20);
+    DECLARE @RequiereComprobante BIT;
+
+    -- busco el pedido de ese cliente asi nadie le sube un comprobante a un pedido ajeno
+    SELECT @EstadoActual = P.IdEstado, @EstadoComprobante = P.EstadoComprobante, @RequiereComprobante = FP.RequiereComprobante
+    FROM PEDIDOS P INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
+    WHERE P.Id = @IdPedido AND P.IdUsuario = @IdUsuario;
+
+    IF @EstadoActual IS NULL
+        THROW 50018, 'El pedido no existe o no es tuyo', 1;
+    IF @EstadoActual <> 1
+        THROW 50022, 'Este pedido ya no esta pendiente de pago, no hace falta subir el comprobante', 1;
+    IF @RequiereComprobante = 0
+        THROW 50023, 'Este pedido no se paga con transferencia, no lleva comprobante', 1;
+    -- si ya mando uno tiene que esperar a que la tienda lo revise si se lo rechazaron si puede subir otro
+    IF @EstadoComprobante = 'Pendiente'
+        THROW 50024, 'Ya mandaste un comprobante y la tienda lo esta revisando', 1;
+    IF @ComprobanteUrl IS NULL OR LTRIM(RTRIM(@ComprobanteUrl)) = ''
+        THROW 50025, 'No llego el archivo del comprobante', 1;
+    -- queda pendiente para la bandeja del admin y se borra el motivo del rechazo anterior
+    UPDATE PEDIDOS SET ComprobanteUrl = @ComprobanteUrl, EstadoComprobante = 'Pendiente', MotivoRechazoComprobante = NULL WHERE Id = @IdPedido
 END
 GO
