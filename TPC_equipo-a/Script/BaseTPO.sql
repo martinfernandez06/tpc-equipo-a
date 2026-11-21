@@ -72,16 +72,46 @@ GO
 
 CREATE TABLE USUARIOS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Nombre VARCHAR(50) NOT NULL,
-    Apellido VARCHAR(50) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
-    Clave VARCHAR(50) NOT NULL,
+    Clave VARCHAR(100) NOT NULL,
     Telefono VARCHAR(30) NULL,
     IdPerfil INT NOT NULL FOREIGN KEY REFERENCES PERFILES(Id),
     Activo BIT DEFAULT 1 NOT NULL,
+    -- NUEVO: el usuario debe confirmar su correo.
+    EmailConfirmado BIT NOT NULL CONSTRAINT DF_USUARIOS_EmailConfirmado DEFAULT (0),
     FechaAlta DATETIME DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) NOT NULL,
     UltimoAcceso DATETIME NULL
 );
+GO
+
+-- NUEVO: TOKENS DE USUARIO
+-- Se utiliza para confirmación de correo y recuperación de contraseña.
+CREATE TABLE TOKENS_USUARIO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    IdUsuario INT NOT NULL,
+    TokenHash CHAR(64) NOT NULL,
+    Tipo VARCHAR(20) NOT NULL,
+    FechaCreacion DATETIME2 NOT NULL
+        CONSTRAINT DF_TOKENS_USUARIO_FechaCreacion DEFAULT (SYSDATETIME()),
+    FechaExpiracion DATETIME2 NOT NULL,
+    Usado BIT NOT NULL
+        CONSTRAINT DF_TOKENS_USUARIO_Usado DEFAULT (0),
+
+    CONSTRAINT FK_TOKENS_USUARIO_USUARIOS
+        FOREIGN KEY (IdUsuario) REFERENCES USUARIOS(Id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_TOKENS_USUARIO_TokenHash UNIQUE (TokenHash),
+
+    CONSTRAINT CK_TOKENS_USUARIO_Tipo
+        CHECK (Tipo IN ('CONFIRMACION', 'RECUPERACION'))
+);
+GO
+
+CREATE INDEX IX_TOKENS_USUARIO_Usuario_Tipo
+ON TOKENS_USUARIO (IdUsuario, Tipo, Usado);
 GO
 
 CREATE TABLE DIRECCIONES (
@@ -176,6 +206,22 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
     CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
     CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
     CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id)
+);
+GO
+
+CREATE TABLE RECORDARME_USUARIO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    IdUsuario INT NOT NULL,
+    TokenHash CHAR(64) NOT NULL UNIQUE,
+    FechaCreacion DATETIME2 NOT NULL
+        CONSTRAINT DF_RECORDARME_FechaCreacion DEFAULT (SYSDATETIME()),
+    FechaExpiracion DATETIME2 NOT NULL,
+    Revocado BIT NOT NULL
+        CONSTRAINT DF_RECORDARME_Revocado DEFAULT (0),
+
+    CONSTRAINT FK_RECORDARME_USUARIO
+        FOREIGN KEY (IdUsuario) REFERENCES USUARIOS(Id)
+        ON DELETE CASCADE
 );
 GO
 
@@ -283,17 +329,23 @@ GO
 -- MÓDULO USUARIOS Y DIRECCIONES
 -- -----------------------------------------
 -- 1. Alta usuario (Registro)
+-- EmailConfirmado se establece a 0
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50), @Apellido VARCHAR(50), @Email VARCHAR(100), @Clave VARCHAR(50), @Telefono VARCHAR(30), @IdPerfil INT
 AS BEGIN
-        INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta) VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME));
+    SET NOCOUNT ON;
+    INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta)
+    OUTPUT INSERTED.Id
+    VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME));
 END;
 GO
 
 -- 2. Buscar / Validar usuario por Email y Clave (Login)
+-- Devuelve EmailConfirmado para que Login.aspx.cs pueda verifique
 CREATE PROCEDURE spBuscarUsuarioPorEmailYClave @Email VARCHAR(100), @Clave VARCHAR(50)
 AS BEGIN
-    SELECT U.Id, U.Nombre, U.Apellido, U.Email, U.Clave, U.Telefono, U.IdPerfil, P.Descripcion AS PerfilDescripcion, U.Activo, U.FechaAlta, U.UltimoAcceso
+    SET NOCOUNT ON;
+    SELECT U.Id, U.Nombre, U.Apellido, U.Email, U.Clave, U.Telefono, U.IdPerfil, P.Descripcion AS PerfilDescripcion, U.Activo, U.EmailConfirmado, U.FechaAlta, U.UltimoAcceso
     FROM USUARIOS U INNER JOIN PERFILES P ON U.IdPerfil = P.Id WHERE U.Email = @Email AND U.Clave = @Clave AND U.Activo = 1;
 END;
 GO
@@ -309,6 +361,170 @@ GO
 
 -- 5. guarda cuando entro el usuario por ultima vez, lo llama el login
 CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) WHERE Id = @Id; END;
+GO
+
+-- guardar token de confirmacion/recuperacion
+-- anula tokens anteriores para ese usuario.
+CREATE PROCEDURE spGuardarTokenUsuario
+    @IdUsuario INT,
+    @TokenHash CHAR(64),
+    @Tipo VARCHAR(20),
+    @FechaExpiracion DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @Tipo NOT IN ('CONFIRMACION', 'RECUPERACION')
+        THROW 50010, 'Tipo de token no válido.', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE IdUsuario = @IdUsuario
+          AND Tipo = @Tipo
+          AND Usado = 0;
+
+        INSERT INTO TOKENS_USUARIO
+            (IdUsuario, TokenHash, Tipo, FechaExpiracion)
+        VALUES
+            (@IdUsuario, @TokenHash, @Tipo, @FechaExpiracion);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
+-- confirmar correo con token
+-- Confirmado = 1 si el token es valido
+CREATE PROCEDURE spConfirmarEmail
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @IdUsuario INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        SELECT @IdUsuario = IdUsuario
+        FROM TOKENS_USUARIO WITH (UPDLOCK, ROWLOCK)
+        WHERE TokenHash = @TokenHash
+          AND Tipo = 'CONFIRMACION'
+          AND Usado = 0
+          AND FechaExpiracion > SYSDATETIME();
+
+        IF @IdUsuario IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                CAST(0 AS BIT) AS Confirmado,
+                CAST(NULL AS INT) AS IdUsuario;
+
+            RETURN;
+        END;
+
+        UPDATE USUARIOS
+        SET EmailConfirmado = 1
+        WHERE Id = @IdUsuario;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE TokenHash = @TokenHash;
+
+        COMMIT TRANSACTION;
+
+        SELECT
+            CAST(1 AS BIT) AS Confirmado,
+            @IdUsuario AS IdUsuario;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
+-- Validar token de recuperación de contraseña
+CREATE PROCEDURE spValidarTokenRecuperacion
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        T.IdUsuario,
+        U.Email,
+        U.Nombre
+    FROM TOKENS_USUARIO T
+    INNER JOIN USUARIOS U ON T.IdUsuario = U.Id
+    WHERE T.TokenHash = @TokenHash
+      AND T.Tipo = 'RECUPERACION'
+      AND T.Usado = 0
+      AND T.FechaExpiracion > SYSDATETIME()
+      AND U.Activo = 1;
+END;
+GO
+
+-- Restablecer contraseña y consumir el token
+CREATE PROCEDURE spRestablecerPassword
+    @TokenHash CHAR(64),
+    @NuevaClave VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @IdUsuario INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        SELECT @IdUsuario = IdUsuario
+        FROM TOKENS_USUARIO WITH (UPDLOCK, ROWLOCK)
+        WHERE TokenHash = @TokenHash
+          AND Tipo = 'RECUPERACION'
+          AND Usado = 0
+          AND FechaExpiracion > SYSDATETIME();
+
+        IF @IdUsuario IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT CAST(0 AS BIT) AS Restablecido;
+            RETURN;
+        END;
+
+        UPDATE USUARIOS
+        SET Clave = @NuevaClave
+        WHERE Id = @IdUsuario;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE TokenHash = @TokenHash;
+
+        COMMIT TRANSACTION;
+
+        SELECT CAST(1 AS BIT) AS Restablecido;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+
 GO
 
 -- 1. Alta de dirección
@@ -342,6 +558,68 @@ GO
 -- 5. Desactivar o activar dirección (Baja lógica)
 CREATE PROCEDURE spCambiarEstadoDireccion @Id INT, @Activa BIT AS BEGIN UPDATE DIRECCIONES SET Activa = @Activa, Principal = CASE WHEN @Activa = 0 THEN 0 ELSE Principal END WHERE Id = @Id; END;
 GO
+
+
+-- Guardar un nuevo token persistente
+CREATE PROCEDURE spGuardarTokenRecordarme
+    @IdUsuario INT,
+    @TokenHash CHAR(64),
+    @FechaExpiracion DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO RECORDARME_USUARIO
+        (IdUsuario, TokenHash, FechaExpiracion)
+    VALUES
+        (@IdUsuario, @TokenHash, @FechaExpiracion);
+END;
+GO
+
+-- Buscar usuario mediante un token persistente
+CREATE PROCEDURE spBuscarUsuarioPorTokenRecordarme
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        U.Id,
+        U.Nombre,
+        U.Apellido,
+        U.Email,
+        U.Telefono,
+        U.IdPerfil,
+        P.Descripcion AS PerfilDescripcion,
+        U.Activo,
+        U.EmailConfirmado,
+        U.FechaAlta,
+        U.UltimoAcceso
+    FROM RECORDARME_USUARIO R
+    INNER JOIN USUARIOS U ON R.IdUsuario = U.Id
+    INNER JOIN PERFILES P ON U.IdPerfil = P.Id
+    WHERE R.TokenHash = @TokenHash
+      AND R.Revocado = 0
+      AND R.FechaExpiracion > SYSDATETIME()
+      AND U.Activo = 1
+      AND U.EmailConfirmado = 1;
+END;
+GO
+
+-- Revocar un token persistente
+CREATE PROCEDURE spRevocarTokenRecordarme
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE RECORDARME_USUARIO
+    SET Revocado = 1
+    WHERE TokenHash = @TokenHash
+      AND Revocado = 0;
+END;
+GO
+
 
 
 -- -----------------------------------------
@@ -770,3 +1048,5 @@ AS BEGIN
     UPDATE PEDIDOS SET ComprobanteUrl = @ComprobanteUrl, EstadoComprobante = 'Pendiente', MotivoRechazoComprobante = NULL WHERE Id = @IdPedido
 END
 GO
+
+

@@ -1,4 +1,5 @@
-﻿<%@ Page Title="Checkout" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Web.Checkout" %>
+
+<%@ Page Title="Checkout" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Web.Checkout" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -20,24 +21,19 @@
         <asp:UpdatePanel ID="updCheckout" runat="server">
             <ContentTemplate>
 
-                <!-- Cartel general de errores de validación o stock -->
                 <asp:Label ID="lblError" runat="server" CssClass="alert alert-danger d-block mb-4" Visible="false"></asp:Label>
 
-                <!-- Panel cuando el carrito está vacío -->
                 <asp:Panel ID="pnlCarritoVacio" runat="server" Visible="false" CssClass="alert alert-info">
                     <h5 class="alert-heading">Tu carrito está vacío</h5>
                     <p class="mb-3">Necesitás agregar al menos un producto antes de iniciar la compra.</p>
                     <a href="Default.aspx" class="btn btn-primary">Volver al catálogo</a>
                 </asp:Panel>
 
-                <!-- Panel principal del Checkout -->
                 <asp:Panel ID="pnlCheckout" runat="server">
                     <div class="row g-4">
 
-                        <!-- Columna izquierda: Datos del cliente, entrega, dirección y pago -->
                         <div class="col-lg-7">
 
-                            <!-- Datos del cliente -->
                             <div class="card shadow-sm mb-4">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0"><i class="bi bi-person me-2"></i>1. Datos del cliente</h5>
@@ -50,7 +46,6 @@
                                 </div>
                             </div>
 
-                            <!-- Forma de entrega y dirección -->
                             <div class="card shadow-sm mb-4">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0"><i class="bi bi-truck me-2"></i>2. Forma de entrega</h5>
@@ -63,7 +58,6 @@
                                         OnSelectedIndexChanged="rblFormaEntrega_SelectedIndexChanged">
                                     </asp:RadioButtonList>
 
-                                    <!-- Bloque de direcciones (solo visible si la forma de entrega requiere dirección) -->
                                     <asp:Panel ID="pnlDirecciones" runat="server" Visible="false" CssClass="mt-3 pt-3 border-top">
                                         <h6 class="fw-bold mb-2">Dirección de envío</h6>
 
@@ -85,7 +79,6 @@
                                             CssClass="btn btn-outline-secondary btn-sm"
                                             OnClick="btnMostrarNuevaDireccion_Click" />
 
-                                        <!-- Formulario desplegable para cargar una nueva dirección -->
                                         <asp:Panel ID="pnlNuevaDireccion" runat="server" Visible="false" CssClass="mt-3 p-3 bg-light rounded border">
                                             <h6 class="fw-bold mb-3">Nueva dirección</h6>
 
@@ -133,7 +126,6 @@
                                 </div>
                             </div>
 
-                            <!-- Forma de pago -->
                             <div class="card shadow-sm mb-4">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>3. Forma de pago</h5>
@@ -153,7 +145,6 @@
                             </a>
                         </div>
 
-                        <!-- Columna derecha: Resumen de la compra -->
                         <div class="col-lg-5">
                             <div class="card shadow-sm">
                                 <div class="card-header bg-primary text-white">
@@ -161,7 +152,6 @@
                                 </div>
                                 <div class="card-body">
 
-                                    <!-- Tabla de productos -->
                                     <div class="table-responsive mb-3">
                                         <table class="table table-sm align-middle mb-0">
                                             <thead class="table-light">
@@ -187,7 +177,6 @@
                                         </table>
                                     </div>
 
-                                    <!-- Datos seleccionados -->
                                     <ul class="list-group list-group-flush mb-3 border-top pt-2">
                                         <li class="list-group-item d-flex justify-content-between px-0 border-0 py-1">
                                             <span class="text-muted">Entrega:</span>
@@ -220,7 +209,6 @@
                     </div>
                 </asp:Panel>
 
-                <!-- Panel de confirmación para formas de pago que no van a Mercado Pago (Efectivo / Transferencia) -->
                 <asp:Panel ID="pnlConfirmacion" runat="server" Visible="false">
                     <div class="card shadow-sm border-success">
                         <div class="card-body text-center py-5">

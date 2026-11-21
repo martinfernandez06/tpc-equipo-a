@@ -1,18 +1,35 @@
-﻿using Negocio;
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
+using Dominio;
+using Negocio;
 
 namespace Web
 {
-    public partial class SiteAdmin : System.Web.UI.MasterPage
+    public partial class SiteAdmin : MasterPage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // marca en el menu la pagina en la que estas, busca una palabra asi tambien marca los formularios y el detalle
+            Usuario usuario = Session["usuario"] as Usuario;
+
+            // Verificar que el usuario esté autenticado
+            // y que tenga perfil de Administrador.
+            if (usuario == null ||
+                usuario.Perfil == null ||
+                usuario.Perfil.Id != 1)
+            {
+                Response.Redirect("~/Default.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return;
+            }
+
+            // Mostrar el nombre del administrador.
+            if (!IsPostBack)
+            {
+                lblNombreUsuario.Text = usuario.Nombre;
+            }
+
+            // Marcar en el menú la página actual.
             string pagina = Page.AppRelativeVirtualPath;
 
             if (pagina.Contains("Producto"))
@@ -44,11 +61,24 @@ namespace Web
                 lnkComprobantes.Attributes["class"] += " activo";
             }
         }
-        // cuenta los comprobantes pendientes para el numerito del menu, va en prerender porque corre despues de los clics y asi ya cuenta el que aceptaron o rechazaron
+
+        // Actualizar el contador de comprobantes pendientes
+        // después de procesar las acciones de la página.
         protected void Page_PreRender(object sender, EventArgs e)
         {
+            Usuario usuario = Session["usuario"] as Usuario;
+
+            // Evitar ejecutar la consulta si no es administrador.
+            if (usuario == null ||
+                usuario.Perfil == null ||
+                usuario.Perfil.Id != 1)
+            {
+                return;
+            }
+
             PedidoNegocio negocio = new PedidoNegocio();
             int cantidad = negocio.ContarComprobantesPendientes();
+
             if (cantidad > 0)
             {
                 lblPendientes.Text = cantidad.ToString();
@@ -56,7 +86,7 @@ namespace Web
             }
             else
             {
-                lblPendientes.Visible = false ;
+                lblPendientes.Visible = false;
             }
         }
     }

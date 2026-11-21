@@ -115,5 +115,21 @@ namespace Web
             // Dejo listo para la proxima tarjeta...
             Response.Redirect("Checkout.aspx", false);
         }
+
+        protected void btnIniciarCompra_Click(object sender, EventArgs e){
+
+            // Verifico si el usuario inicio sesión
+            if (Session["usuario"] == null)
+            {
+
+             // No está logueado
+            Response.Redirect("Login.aspx?redirect=checkout", false);
+    }
+    else
+    {
+        // Ya está logueado
+        Response.Redirect("Checkout.aspx", false);
+    }
+}
     }
 }

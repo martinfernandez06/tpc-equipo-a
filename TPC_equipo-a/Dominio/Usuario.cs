@@ -18,6 +18,7 @@ namespace Dominio
         public bool Activo { get; set; }
         public DateTime FechaAlta { get; set; }
         public DateTime? UltimoAcceso { get; set; }
+        public bool EmailConfirmado { get; set; }
         
         // Relación 1 a N con direcciones
         public List<Direccion> Direcciones { get; set; }

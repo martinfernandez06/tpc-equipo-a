@@ -1,4 +1,5 @@
-﻿using Dominio;
+
+using Dominio;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,16 @@ namespace Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Si no está logueado lo mandamos al login
+            // Verifica si el usuario inició sesión.
             if (Session["usuario"] == null)
             {
+                // Guarda el mensaje para mostrarlo en el Login.
+                Session["mensajeCheckout"] = true;
+
+                // Guarda que el usuario quería iniciar una compra.
+                Session["volverAlCheckout"] = true;
+
+                // Redirige al Login.
                 Response.Redirect("Login.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
                 return;
@@ -25,7 +33,7 @@ namespace Web
             {
                 Dominio.Carrito carrito = Session["Carrito"] as Dominio.Carrito;
 
-                // Si no hay productos en el carrito, bloqueamos el checkout
+                // Si no hay productos en el carrito, bloqueamos el checkout.
                 if (carrito == null || carrito.Items.Count == 0)
                 {
                     pnlCheckout.Visible = false;
@@ -74,7 +82,7 @@ namespace Web
             rblFormaEntrega.DataValueField = "Id";
             rblFormaEntrega.DataBind();
 
-            // Preseleccionamos Envío a domicilio (si existe) para mostrar la dirección principal precargada; si no, la primera opción
+            // Preseleccionamos Envío a domicilio (si existe) para mostrar la dirección principal precargada; si no, la primera opción.
             FormaEntrega envio = activas.Find(x => x.RequiereDireccion);
             if (envio != null)
             {
@@ -101,7 +109,7 @@ namespace Web
                     ddlDirecciones.Items.Add(new ListItem(texto, dir.Id.ToString()));
                 }
 
-                // Si recién cargó una nueva, seleccionamos esa; si no, precargamos la principal
+                // Si recién cargó una nueva, seleccionamos esa; si no, precargamos la principal.
                 if (idSeleccionar.HasValue && ddlDirecciones.Items.FindByValue(idSeleccionar.Value.ToString()) != null)
                 {
                     ddlDirecciones.SelectedValue = idSeleccionar.Value.ToString();
@@ -121,7 +129,7 @@ namespace Web
             }
             else
             {
-                // Si el cliente no tiene direcciones, abrimos el formulario para que pueda cargar una
+                // Si el cliente no tiene direcciones, abrimos el formulario para que pueda cargar una.
                 divSelectorDireccion.Visible = false;
                 lblSinDirecciones.Visible = true;
                 pnlNuevaDireccion.Visible = true;
@@ -148,7 +156,7 @@ namespace Web
 
         private void ActualizarPanelEntregaYResumen()
         {
-            // Forma de entrega y visibilidad del bloque de direcciones
+            // Forma de entrega y visibilidad del bloque de direcciones.
             FormaEntrega entregaSeleccionada = ObtenerFormaEntregaSeleccionada();
             if (entregaSeleccionada != null)
             {
@@ -175,7 +183,7 @@ namespace Web
                 liResumenDireccion.Visible = false;
             }
 
-            // Forma de pago seleccionada
+            // Forma de pago seleccionada.
             if (rblFormaPago.SelectedItem != null)
             {
                 lblResumenPago.Text = rblFormaPago.SelectedItem.Text;
@@ -247,7 +255,7 @@ namespace Web
                 return;
             }
 
-            // Validamos campos obligatorios de la nueva dirección
+            // Validamos campos obligatorios de la nueva dirección.
             if (string.IsNullOrWhiteSpace(txtCalle.Text) ||
                 string.IsNullOrWhiteSpace(txtNumero.Text) ||
                 string.IsNullOrWhiteSpace(txtLocalidad.Text) ||
@@ -264,7 +272,7 @@ namespace Web
                 Usuario usuario = (Usuario)Session["usuario"];
                 DireccionNegocio dirNegocio = new DireccionNegocio();
 
-                // Si es su primera dirección, la marcamos como principal automáticamente
+                // Si es su primera dirección, la marcamos como principal automáticamente.
                 bool tieneDirecciones = dirNegocio.ListarPorUsuario(usuario.Id).Count > 0;
 
                 Direccion nueva = new Direccion();
@@ -279,7 +287,7 @@ namespace Web
 
                 dirNegocio.Agregar(nueva);
 
-                // Buscamos el ID de la dirección recién creada (la de mayor Id del usuario) para dejarla seleccionada
+                // Buscamos el ID de la dirección recién creada (la de mayor Id del usuario) para dejarla seleccionada.
                 List<Direccion> actualizadas = dirNegocio.ListarPorUsuario(usuario.Id);
                 int idNueva = actualizadas.Count > 0 ? actualizadas.Max(d => d.Id) : 0;
 
@@ -319,7 +327,7 @@ namespace Web
 
             Dominio.Carrito carrito = Session["Carrito"] as Dominio.Carrito;
 
-            // Validación: no permitir pedidos sin ítems
+            // Validación: no permitir pedidos sin ítems.
             if (carrito == null || carrito.Items.Count == 0)
             {
                 pnlCheckout.Visible = false;
@@ -327,7 +335,7 @@ namespace Web
                 return;
             }
 
-            // Validación: forma de entrega
+            // Validación: forma de entrega.
             FormaEntrega formaEntrega = ObtenerFormaEntregaSeleccionada();
             if (formaEntrega == null)
             {
@@ -338,7 +346,7 @@ namespace Web
 
             Usuario usuario = (Usuario)Session["usuario"];
 
-            // Validación: dirección obligatoria si la entrega es con envío
+            // Validación: dirección obligatoria si la entrega es con envío.
             Direccion direccionSeleccionada = null;
             if (formaEntrega.RequiereDireccion)
             {
@@ -360,7 +368,7 @@ namespace Web
                 }
             }
 
-            // Validación: forma de pago obligatoria
+            // Validación: forma de pago obligatoria.
             if (!int.TryParse(rblFormaPago.SelectedValue, out int idFormaPago))
             {
                 lblError.Text = "Seleccioná una forma de pago antes de confirmar la compra.";
@@ -379,7 +387,7 @@ namespace Web
 
             try
             {
-                // Revalidamos precios y stock reales en la base de datos antes de crear el pedido
+                // Revalidamos precios y stock reales en la base de datos antes de crear el pedido.
                 ProductoNegocio prodNegocio = new ProductoNegocio();
                 List<Producto> productosDb = prodNegocio.Listar();
 
@@ -404,7 +412,7 @@ namespace Web
                         return;
                     }
 
-                    // Sincronizamos el precio vigente desde la BD para evitar cobrar un precio viejo de Session
+                    // Sincronizamos el precio vigente desde la BD para evitar cobrar un precio viejo de Session.
                     itemCarrito.Producto.PrecioVenta = productoDb.PrecioVenta;
                     itemCarrito.Producto.Stock = productoDb.Stock;
 
@@ -417,11 +425,11 @@ namespace Web
                     totalReal += itemPedido.Cantidad * itemPedido.PrecioUnitario;
                 }
 
-                // Creamos el pedido en estado "Pendiente de pago" (IdEstado = 1 por defecto en spAltaPedido)
+                // Creamos el pedido en estado "Pendiente de pago".
                 Pedido nuevoPedido = new Pedido();
                 nuevoPedido.Cliente = usuario;
                 nuevoPedido.FormaEntrega = formaEntrega;
-                nuevoPedido.Direccion = direccionSeleccionada; // null si es retiro en el local
+                nuevoPedido.Direccion = direccionSeleccionada;
                 nuevoPedido.FormaPago = formaPago;
                 nuevoPedido.Total = totalReal;
                 nuevoPedido.Items = itemsPedido;
@@ -429,10 +437,10 @@ namespace Web
                 PedidoNegocio pedidoNegocio = new PedidoNegocio();
                 int idPedido = pedidoNegocio.AgregarPedido(nuevoPedido);
 
-                // Vaciamos el carrito una vez creado el pedido
+                // Vaciamos el carrito una vez creado el pedido.
                 Session["Carrito"] = null;
 
-                // Si eligió Mercado Pago vamos a la pantalla de pago simulado; si no, mostramos confirmación
+                // Si eligió Mercado Pago vamos a la pantalla de pago simulado; si no, mostramos confirmación.
                 if (formaPago.Descripcion.IndexOf("Mercado Pago", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     Response.Redirect("MercadoPagoSimulado.aspx?id=" + idPedido, false);
