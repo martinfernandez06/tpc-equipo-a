@@ -136,6 +136,7 @@
     <Content Include="Imagenes\sin-imagen.svg" />
     <Content Include="Login.aspx" />
     <Content Include="MercadoPagoSimulado.aspx" />
+    <Content Include="MiPerfil.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="MisCompras.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -327,6 +328,13 @@
     </Compile>
     <Compile Include="MercadoPagoSimulado.aspx.designer.cs">
       <DependentUpon>MercadoPagoSimulado.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MiPerfil.aspx.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MiPerfil.aspx.designer.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
     </Compile>
     <Compile Include="MisCompras.aspx.cs">
       <DependentUpon>MisCompras.aspx</DependentUpon>

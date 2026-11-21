@@ -75,18 +75,29 @@
 
                     </ul>
 
-                    <%-- Derecha: opciones del usuario --%>
+                    <%-- Derecha opciones del usuario --%>
                     <ul class="navbar-nav mb-2 mb-lg-0">
 
-                        <% if (Session["usuario"] != null) { %>
+                       <% if (Session["usuario"] != null) { %>
 
-                            <li class="nav-item">
-                                <span class="nav-link">
-                                    Hola, <%: ((Dominio.Usuario)Session["usuario"]).Nombre %>
-                                </span>
-                            </li>
+                        <li class="nav-item">
 
-                        <% } %>
+                            <span class="nav-link">
+
+                                Hola, <%: ((Dominio.Usuario)Session["usuario"]).Nombre %>
+
+                            </span>
+
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/MiPerfil">
+                                <i class="bi bi-person-circle me-1"></i>
+                                Mi perfil
+                            </a>
+                        </li>
+
+                    <% } %>
 
                         <%-- Carrito con contador dinámico --%>
                         <li class="nav-item">
