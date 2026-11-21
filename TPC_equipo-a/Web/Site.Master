@@ -7,7 +7,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> Magva</title>
+    <title></title>
 
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
@@ -15,21 +15,22 @@
 
     <webopt:BundleReference runat="server" Path="~/Content/css" />
 
-    <%--Tipografia del sitio--%>
+    <%-- Tipografia del sitio --%>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Mooli&display=swap" rel="stylesheet" />
 
-    <%--Estilos propios de Ecommerce--%>
+    <%-- Estilos propios de Ecommerce --%>
     <link href="~/Content/Ecommerce.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 </head>
 <body>
     <form runat="server" class="form">
+
         <asp:ScriptManager runat="server">
             <Scripts>
-                <%--Framework Scripts--%>
+                <%-- Framework Scripts --%>
                 <asp:ScriptReference Name="MsAjaxBundle" />
                 <asp:ScriptReference Name="jquery" />
                 <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
@@ -40,7 +41,7 @@
                 <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
                 <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
                 <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
-                <asp:ScriptReference Name="WebFormsBundle" />
+                
             </Scripts>
         </asp:ScriptManager>
 
@@ -74,7 +75,7 @@
 
                     </ul>
 
-                    <%-- Derecha: lo del usuario --%>
+                    <%-- Derecha: opciones del usuario --%>
                     <ul class="navbar-nav mb-2 mb-lg-0">
 
                         <% if (Session["usuario"] != null) { %>
@@ -85,13 +86,29 @@
                                 </span>
                             </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
-                            </li>
+                        <% } %>
 
-                            <li class="nav-item">
-                                <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
-                            </li>
+                        <%-- Carrito con contador dinámico --%>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" runat="server" href="~/Carrito" style="padding-left: 32px;">
+
+                                <i class="bi bi-cart3 position-absolute" style="left: 4px; top: 50%; transform: translateY(-50%); font-size: 1.15rem;"></i>
+
+                                <asp:UpdatePanel ID="updBadgeCarrito" runat="server" UpdateMode="Always" RenderMode="Inline">
+                                    <ContentTemplate>
+                                        <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger position-absolute" Style="top: 2px; left: 10px; font-size: 0.65rem;" Visible="false"></asp:Label>
+                                    </ContentTemplate>
+                                </asp:UpdatePanel>
+
+                                Carrito
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
+                        </li>
+
+                        <% if (Session["usuario"] != null) { %>
 
                             <li class="nav-item">
                                 <a class="btn btn-ecommerce-primario" runat="server" href="~/CerrarSesion">
@@ -100,14 +117,6 @@
                             </li>
 
                         <% } else { %>
-
-                            <li class="nav-item">
-                                <a class="nav-link" runat="server" href="~/Carrito">Carrito</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
-                            </li>
 
                             <li class="nav-item">
                                 <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>

@@ -15,6 +15,24 @@ namespace Web
     {
 
         /// <summary>
+        /// updBadgeCarrito control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel updBadgeCarrito;
+
+        /// <summary>
+        /// lblCantidadCarrito control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCantidadCarrito;
+
+        /// <summary>
         /// MainContent control.
         /// </summary>
         /// <remarks>

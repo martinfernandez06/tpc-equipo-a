@@ -7,6 +7,15 @@
     --color-boton-primario: #512BD4;
     --color-boton-primario-hover: #3F1FB0;
     --color-boton-secundario-oscuro: #8B6CFF;
+    --color-lila-fondo: #F5F3FF;
+    --color-lila-chip: #EDE9FE;
+    --color-lila-chip-hover: #DDD6FE;
+    --color-violeta-titulo: #6D5BBA;
+    --color-borde-claro: #E4E4E7;
+    --color-fondo-imagen: #F4F4F5;
+    --color-stock-ok: #15803D;
+    --color-stock-pocos: #C2410C;
+    --color-stock-sin: #71717A;
     --fuente-texto: "Mooli", system-ui, sans-serif;
 }
 
@@ -56,6 +65,7 @@ body {
     --bs-btn-border-radius: 0;
 }
 
+/* secundario para fondo oscuro, como ingresar en la navbar */
 .btn-ecommerce-secundario {
     --bs-btn-color: var(--color-boton-secundario-oscuro);
     --bs-btn-bg: transparent;
@@ -69,10 +79,81 @@ body {
     --bs-btn-border-radius: 0;
 }
 
-/* cards del catalogo */
+/* secundario para fondo claro, como limpiar en el filtro */
+.btn-tienda-secundario {
+    --bs-btn-color: var(--color-boton-primario);
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: var(--color-boton-primario);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--color-boton-primario);
+    --bs-btn-hover-border-color: var(--color-boton-primario);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--color-boton-primario-hover);
+    --bs-btn-active-border-color: var(--color-boton-primario-hover);
+    --bs-btn-border-radius: 0;
+}
+
+/* filtro del catalogo */
+/* la sombra pinta el lila hasta los bordes de la pantalla sin romper el container de la master */
+.filtro-catalogo {
+    background-color: var(--color-lila-fondo);
+    box-shadow: 0 0 0 100vmax var(--color-lila-fondo);
+    clip-path: inset(0 -100vmax);
+    margin-top: -15px; /* site.css le pone 15px arriba al contenido, aca lo saco para que quede pegado a la navbar */
+    padding: 16px 0;
+}
+
+.titulo-campo {
+    font-size: 0.75rem;
+    color: var(--color-violeta-titulo);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.input-tienda {
+    border-radius: 0;
+    max-width: none; /* site.css le pone un ancho maximo a las cajas, aca lo saco */
+}
+
+    .input-tienda:focus {
+        border-color: var(--color-boton-primario);
+        box-shadow: 0 0 0 0.2rem rgba(81, 43, 212, 0.25);
+    }
+
+/* cajita de la lupa al lado del buscador */
+.filtro-catalogo .input-group-text {
+    background-color: #fff;
+    border-radius: 0;
+}
+
+/* chip con el filtro activo, la x lo saca */
+.chip-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario-hover);
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    text-decoration: none;
+}
+
+    .chip-filtro:hover {
+        background-color: var(--color-lila-chip-hover);
+        color: var(--color-boton-primario-hover);
+    }
+
+/* tarjetas del catalogo */
+.card-tienda {
+    background-color: #fff;
+    border: 1px solid var(--color-borde-claro);
+}
+
 .img-card-producto {
-    aspect-ratio: 1 / 1; /* cuadro cuadrado para todas las fotos */
-    object-fit: contain; /* la foto entra entera sin cortarse */
+    aspect-ratio: 1 / 1;
+    object-fit: contain; /* la foto entra entera en el cuadrado sin cortarse */
+    width: 100%;
+    background-color: var(--color-fondo-imagen); /* gris clarito de fondo mientras la foto no llena el cuadrado */
 }
 
 /* titulo cortado en 2 renglones asi los precios quedan a la misma altura */
@@ -85,6 +166,193 @@ body {
     overflow: hidden;
     min-height: 2.6em;
 }
+
+/* codigo del producto arriba del nombre */
+.codigo-producto {
+    background-color: var(--color-linea);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+}
+
+.precio-card {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+    white-space: nowrap; /* el signo y el numero siempre en el mismo renglon */
+}
+
+/* en celulares muy chicos achico el precio para que no se parta en dos renglones */
+@media (max-width: 400px) {
+    .precio-card {
+        font-size: 1rem;
+    }
+}
+
+/* texto del stock abajo del precio, el color cambia segun cuanto quede */
+.texto-stock {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+    .texto-stock.stock-ok {
+        color: var(--color-stock-ok);
+    }
+
+    .texto-stock.stock-pocos {
+        color: var(--color-stock-pocos);
+    }
+
+    .texto-stock.stock-sin {
+        color: var(--color-stock-sin);
+    }
+
+/* tarjeta sin stock, la foto queda apagada */
+.card-tienda.stock-sin .img-card-producto {
+    opacity: 0.45;
+}
+
+/* boton agregar cuando no hay stock, asp le pone la clase aspNetDisabled al deshabilitarlo */
+.btn-ecommerce-primario.aspNetDisabled {
+    --bs-btn-bg: var(--color-stock-sin);
+    --bs-btn-border-color: var(--color-stock-sin);
+    --bs-btn-disabled-bg: var(--color-stock-sin); /* los asp:Button deshabilitados usan estas variables y no las de arriba */
+    --bs-btn-disabled-border-color: var(--color-stock-sin);
+    --bs-btn-disabled-color: var(--color-texto-claro);
+    opacity: 0.6;
+    pointer-events: none; /* no se puede tocar */
+}
+
+/* menos y mas del detalle cuando no hay stock */
+.btn-tienda-secundario.aspNetDisabled {
+    opacity: 0.5;
+    pointer-events: none; /* no se puede tocar */
+}
+
+/* aviso cuando la busqueda no trae productos */
+.sin-resultados {
+    padding: 48px 16px;
+}
+
+/* lupa grande adentro de un circulo lila */
+.icono-sin-resultados {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario);
+    font-size: 1.8rem;
+}
+
+.titulo-sin-resultados {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+}
+
+/* detalle del producto */
+/* migas de pan, catalogo y categoria */
+.migas-detalle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-texto-suave);
+}
+
+    .migas-detalle a,
+    .volver-detalle {
+        color: var(--color-boton-primario);
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+        .migas-detalle a:hover,
+        .volver-detalle:hover {
+            text-decoration: underline;
+        }
+
+/* cuadrado gris donde va la foto, la foto entra entera sin cortarse */
+.img-detalle-caja {
+    aspect-ratio: 1 / 1;
+    background-color: var(--color-fondo-imagen);
+    border: 1px solid var(--color-borde-claro);
+}
+
+.img-detalle {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.titulo-detalle {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+}
+
+.precio-detalle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+    white-space: nowrap;
+}
+
+.descripcion-detalle {
+    color: var(--color-linea);
+}
+
+/* caja de la cantidad al lado del boton */
+.cantidad-detalle {
+    width: 140px;
+    flex-shrink: 0; /* que no se achique cuando el boton ocupa el resto */
+}
+
+    /* el menos y el mas centrados en su cuadrado, porque el grupo toma la altura del boton grande */
+    .cantidad-detalle .btn {
+        display: flex;
+        align-items: center;
+    }
+
+
+/* formas de entrega y pago abajo del boton, separadas con una linea fina */
+.formas-detalle {
+    border-top: 1px solid var(--color-borde-claro);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.titulo-formas {
+    font-weight: 600;
+    color: var(--color-fondo-oscuro);
+    margin-bottom: 0.4rem;
+}
+
+    .titulo-formas i {
+        color: var(--color-boton-primario);
+    }
+
+/* sin los puntitos de la lista, el tilde ya marca cada forma */
+.lista-formas {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+    .lista-formas li {
+        color: var(--color-linea);
+        font-size: 0.95rem;
+        padding-block: 2px;
+    }
+
+    .lista-formas i {
+        color: var(--color-stock-ok);
+    }
 
 /* footer */
 .footer-ecommerce {

@@ -31,19 +31,40 @@ namespace Negocio
                 {
                     idPedido = (int)datos.Lector[0];
                 }
-                // despues guardo el detalle, un renglon por cada producto del carrito en ITEMS_PEDIDO, el sp tambien descuenta el stock
-                foreach (ItemPedido item in nuevo.Items)
+
+                // me guardo el nombre del producto que se esta guardando, si falla se lo muestro al cliente
+                string productoActual = "";
+
+                try
                 {
-                    // uno nuevo por cada item porque datos sigue ocupado con el pedido
-                    AccesoDatos datosItem = new AccesoDatos();
-                    datosItem.setearProcedimiento("spAltaItemPedido");
-                    datosItem.setearParametro("@IdPedido", idPedido);
-                    datosItem.setearParametro("@IdProducto", item.Producto.Id);
-                    datosItem.setearParametro("@Cantidad", item.Cantidad);
-                    datosItem.setearParametro("@PrecioUnitario", item.PrecioUnitario);
-                    datosItem.ejecutarAccion();
-                    datosItem.cerrarLectura();
+                    // despues guardo el detalle, un renglon por cada producto del carrito en ITEMS_PEDIDO, el sp tambien descuenta el stock
+                    foreach (ItemPedido item in nuevo.Items)
+                    {
+                        productoActual = item.Producto.Nombre;
+                        // uno nuevo por cada item porque datos sigue ocupado con el pedido
+                        AccesoDatos datosItem = new AccesoDatos();
+                        datosItem.setearProcedimiento("spAltaItemPedido");
+                        datosItem.setearParametro("@IdPedido", idPedido);
+                        datosItem.setearParametro("@IdProducto", item.Producto.Id);
+                        datosItem.setearParametro("@Cantidad", item.Cantidad);
+                        datosItem.setearParametro("@PrecioUnitario", item.PrecioUnitario);
+                        datosItem.ejecutarAccion();
+                        datosItem.cerrarLectura();
+                    }
                 }
+                catch (Exception ex)
+                {
+                    // si un producto fallo deshago lo que se alcanzo a guardar, asi no queda un pedido a medias con stock tomado
+                    AnularPedidoIncompleto(idPedido);
+
+                    // si fue por stock le digo cual producto es, asi sabe cual sacar del carrito
+                    if (ex.Message.Contains("No hay stock suficiente"))
+                    {
+                        throw new Exception("No hay stock suficiente de \"" + productoActual + "\", otro cliente lo compró recién. Sacalo del carrito o bajá la cantidad para seguir.");
+                    }
+                    throw;
+                }
+
                 // devuelvo el numero para mostrarlo en la confirmacion de compra
                 return idPedido;
             }
@@ -57,6 +78,23 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
+        // borra el pedido que quedo a medias y devuelve el stock, lo usa AgregarPedido cuando falla un producto
+        private void AnularPedidoIncompleto(int idPedido)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("spAnularPedidoIncompleto");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.ejecutarAccion();
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
         public List<Pedido> listarPedido(int? idEstado, DateTime? fechaDesde, DateTime? fechaHasta, string cliente)
         {
             List<Pedido> lista = new List<Pedido>();
@@ -143,6 +181,10 @@ namespace Negocio
                     {
                         aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
                     }
+                    if (!(datos.Lector["EmpresaEnvio"] is DBNull))
+                    {
+                        aux.EmpresaEnvio = (string)datos.Lector["EmpresaEnvio"];
+                    }
                     if (!(datos.Lector["EstadoComprobante"] is DBNull))
                     {
                         aux.EstadoComprobante = (string)datos.Lector["EstadoComprobante"];
@@ -203,6 +245,7 @@ namespace Negocio
                     aux.FormaPago = new FormaPago();
                     aux.FormaPago.Id = (int)datos.Lector["IdFormaPago"];
                     aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    aux.FormaPago.RequiereComprobante = (bool)datos.Lector["RequiereComprobante"];
                     aux.Estado = new EstadoPedido();
                     aux.Estado.Id = (int)datos.Lector["IdEstado"];
                     aux.Estado.Descripcion = (string)datos.Lector["Estado"];
@@ -210,6 +253,10 @@ namespace Negocio
                     if (!(datos.Lector["CodigoSeguimiento"] is DBNull))
                     {
                         aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
+                    }
+                    if (!(datos.Lector["EmpresaEnvio"] is DBNull))
+                    {
+                        aux.EmpresaEnvio = (string)datos.Lector["EmpresaEnvio"];
                     }
                     if (!(datos.Lector["EstadoComprobante"] is DBNull))
                     {
@@ -240,7 +287,7 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spListarItemsPorPedido");
-                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@IdPedido", idPedido);
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -277,7 +324,7 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spListarHistorialPorPedido");
-                datos.setearParametro("@IdPedido",idPedido);
+                datos.setearParametro("@IdPedido", idPedido);
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -344,16 +391,41 @@ namespace Negocio
             }
         }
 
-        public void CambiarEstado(int idPedido, int idEstado, int idUsuario)
+        public void CambiarEstado(int idPedido, int idEstado, int idUsuario, string empresaEnvio, string codigoSeguimiento)
         {
             AccesoDatos datos = new AccesoDatos();
 
             try
             {
                 datos.setearProcedimiento("spCambiarEstadoPedido");
-                datos.setearParametro("@IdPedido",idPedido);
-                datos.setearParametro("@IdEstado",idEstado);
-                datos.setearParametro("@IdUsuario",idUsuario);
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdEstado", idEstado);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                //si viene vacío o con espacios manda el NULL de la bd, y si tiene algo manda el texto
+                datos.setearParametro("@EmpresaEnvio", string.IsNullOrWhiteSpace(empresaEnvio) ? DBNull.Value : (object)empresaEnvio);
+                datos.setearParametro("@CodigoSeguimiento", string.IsNullOrWhiteSpace(codigoSeguimiento) ? DBNull.Value : (object)codigoSeguimiento);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        public void ActualizarSeguimiento(int idPedido, string empresaEnvio, string codigoSeguimiento)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spActualizarSeguimiento");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@EmpresaEnvio", string.IsNullOrWhiteSpace(empresaEnvio) ? DBNull.Value : (object)empresaEnvio);
+                datos.setearParametro("@CodigoSeguimiento", string.IsNullOrWhiteSpace(codigoSeguimiento) ? DBNull.Value : (object)codigoSeguimiento);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -373,8 +445,8 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spCancelarPedido");
-                datos.setearParametro("@IdPedido",idPedido);
-                datos.setearParametro("@IdUsuario",idUsuario);
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -394,9 +466,9 @@ namespace Negocio
             try
             {
                 datos.setearProcedimiento("spAgregarObservacionPedido");
-                datos.setearParametro("@IdPedido",idPedido);
-                datos.setearParametro("@IdUsuario",idUsuario);
-                datos.setearParametro("@Observacion",observacion);
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.setearParametro("@Observacion", observacion);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -409,6 +481,121 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+        // pedidos con el comprobante esperando revision para la bandeja, el mas viejo primero
+        public List<Pedido> ListarComprobantesPendientes()
+        {
+            AccesoDatos datos = new AccesoDatos();
+            List<Pedido> lista = new List<Pedido>();
 
+            try
+            {
+                datos.setearProcedimiento("spListarComprobantesPendientes");
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Pedido aux = new Pedido();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.FechaCreacion = (DateTime)datos.Lector["FechaCreacion"];
+                    aux.Total = (decimal)datos.Lector["Total"];
+                    if (!(datos.Lector["ComprobanteUrl"] is DBNull))
+                    {
+                        aux.ComprobanteUrl = (string)datos.Lector["ComprobanteUrl"];
+                    }
+                    // creo los objetos de adentro porque el constructor de Pedido no los inicializa, si no quedan en null y rompe al cargarles datos
+                    aux.Cliente = new Usuario();
+                    aux.Cliente.Nombre = (string)datos.Lector["NombreCliente"];
+                    aux.Cliente.Apellido = (string)datos.Lector["ApellidoCliente"];
+                    aux.Cliente.Email = (string)datos.Lector["Email"];
+                    aux.FormaPago = new FormaPago();
+                    aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        // cuantos comprobantes hay esperando revision, para el numerito del menu
+        public int ContarComprobantesPendientes()
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spContarComprobantesPendientes");
+                datos.ejecutarLectura();
+
+                int cantidad = 0;
+                if (datos.Lector.Read())
+                {
+                    cantidad = (int)datos.Lector["Cantidad"];
+                }
+                return cantidad;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        // acepta el comprobante y el pedido pasa solo a pagado, si ya lo revisaron o lo cancelaron el sp tira error
+        public void AceptarComprobante(int idPedido, int idUsuario)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spAceptarComprobante");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.ejecutarAccion();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        // rechaza el comprobante, el pedido sigue pendiente de pago y el motivo queda como observacion
+        public void RechazarComprobante(int idPedido, int idUsuario, string motivo)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spRechazarComprobante");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                // si viene vacio o con espacios manda el null de la bd, y si tiene algo manda el texto sin espacios a los costados
+                datos.setearParametro("@Motivo", string.IsNullOrWhiteSpace(motivo) ? DBNull.Value : (object)motivo.Trim());
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
     }
 }

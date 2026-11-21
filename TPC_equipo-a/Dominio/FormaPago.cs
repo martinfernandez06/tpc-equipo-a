@@ -11,5 +11,6 @@ namespace Dominio
         public int Id { get; set; }
         public string Descripcion { get; set; } // Efectivo, Transferencia, Tarjeta, Mercado Pago
         public bool Activa { get; set; }  // El admin puede desactivar una forma de pago que no usa sin borrarla por ejemplo por si tiene pedidos viejos con esa forma de pago
+        public bool RequiereComprobante { get; set; } // true si el cliente tiene que subir el comprobante, como en transferencia
     }
 }

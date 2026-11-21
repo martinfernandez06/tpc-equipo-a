@@ -61,7 +61,7 @@
       <HintPath>..\packages\Microsoft.AspNet.ScriptManager.MSAjax.5.0.0\lib\net45\Microsoft.ScriptManager.MSAjax.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ScriptManager.WebForms, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.ScriptManager.WebForms.5.0.0\lib\net45\Microsoft.ScriptManager.WebForms.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.ScriptManager.WebForms.5.0.0\lib\net45\Microsoft.AspNet.ScriptManager.WebForms.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
@@ -93,8 +93,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AdminComprobantes.aspx" />
     <Content Include="AdminFormasEntrega.aspx" />
     <Content Include="AdminFormasPago.aspx" />
+    <Content Include="AdminReportes.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminPedidos.aspx" />
@@ -131,7 +133,9 @@
     <Content Include="FormularioCategoria.aspx" />
     <Content Include="FormularioProducto.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="Imagenes\sin-imagen.svg" />
     <Content Include="Login.aspx" />
+    <Content Include="MercadoPagoSimulado.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="MisCompras.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -186,6 +190,13 @@
     <Compile Include="AdminCategorias.aspx.designer.cs">
       <DependentUpon>AdminCategorias.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AdminComprobantes.aspx.cs">
+      <DependentUpon>AdminComprobantes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminComprobantes.aspx.designer.cs">
+      <DependentUpon>AdminComprobantes.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AdminFormasEntrega.aspx.cs">
       <DependentUpon>AdminFormasEntrega.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -213,6 +224,13 @@
     </Compile>
     <Compile Include="AdminProductos.aspx.designer.cs">
       <DependentUpon>AdminProductos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminReportes.aspx.cs">
+      <DependentUpon>AdminReportes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminReportes.aspx.designer.cs">
+      <DependentUpon>AdminReportes.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -303,6 +321,13 @@
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MercadoPagoSimulado.aspx.cs">
+      <DependentUpon>MercadoPagoSimulado.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MercadoPagoSimulado.aspx.designer.cs">
+      <DependentUpon>MercadoPagoSimulado.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MisCompras.aspx.cs">
       <DependentUpon>MisCompras.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -380,7 +405,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft.VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

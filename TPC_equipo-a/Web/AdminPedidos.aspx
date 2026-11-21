@@ -7,8 +7,9 @@
                 <h1 class="h3 m-0 me-auto">Pedidos</h1>
             </div>
             <%-- barra de filtros, cada columna es un filtro y los botones van al final --%>
-            <div class="card card-admin mb-3">
+            <div class="card card-admin mb-3 filtro-reporte">
                 <div class="card-body">
+                    <div class="encabezado-filtro mb-2"><i class="bi bi-funnel me-1"></i>Filtrar pedidos</div>
                     <div class="row g-2 align-items-end">
                         <div class="col-md-3">
                             <div class="dato-titulo">Estado</div>

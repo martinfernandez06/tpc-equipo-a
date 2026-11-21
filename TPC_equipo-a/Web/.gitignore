@@ -429,3 +429,5 @@ conexiones.config
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+# comprobantes que suben los clientes, son datos y no van al repo
+Comprobantes/

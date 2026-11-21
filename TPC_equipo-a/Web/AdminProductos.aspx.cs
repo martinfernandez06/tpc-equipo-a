@@ -10,11 +10,12 @@ namespace Web
     public partial class AdminProductos : System.Web.UI.Page
     {
 
-    protected global::System.Web.UI.WebControls.TextBox txtFiltroNombre;
+        protected global::System.Web.UI.WebControls.TextBox txtFiltroNombre;
+        protected global::System.Web.UI.WebControls.TextBox txtFiltroCodigo;
         protected global::System.Web.UI.WebControls.DropDownList ddlFiltroCategoria;
         protected global::System.Web.UI.WebControls.DropDownList ddlFiltroEstado;
         protected global::System.Web.UI.WebControls.Button btnFiltrar;
-       
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -32,16 +33,16 @@ namespace Web
             }
         }
 
-        protected void btnAgregar_Click(object sender, EventArgs e) 
+        protected void btnAgregar_Click(object sender, EventArgs e)
         {
             // Redirige al formulario de alta de productos
 
             Response.Redirect("FormularioProducto.aspx", false);
         }
-        
-        protected void btnEliminar_Click(object sender, EventArgs e) 
+
+        protected void btnEliminar_Click(object sender, EventArgs e)
         {
-            try 
+            try
             {
                 // Recupero ID de producto desde CommandArgument de LinkButton
                 LinkButton btn = (LinkButton)sender;
@@ -51,7 +52,7 @@ namespace Web
                 negocio.eliminarLogico(id);
 
                 // Recargo la grilla aplicando los filtros actuales para no perder la vista
-                CargarGrilla(); 
+                CargarGrilla();
             }
             catch (Exception ex)
             {
@@ -59,48 +60,57 @@ namespace Web
             }
         }
 
-       private void CargarGrilla() {
-        
-       try{
-
-        ProductoNegocio negocio = new ProductoNegocio();
-        List<Producto> lista = negocio.Listar();
-
-        // Filtro por Nombre (Solo filtra si se escribio algo)
-        string filtroNombre = txtFiltroNombre.Text.Trim();
-        if (!string.IsNullOrEmpty(filtroNombre))
+        private void CargarGrilla()
         {
-            lista = lista.FindAll(x => x.Nombre.ToUpper().Contains(filtroNombre.ToUpper()));
-        }
 
-        // Filtro por Categoría (Solo filtra si se selecciono una categoria distinta de "Todas")
-        // validar que el DropDownList tenga items cargados antes de parsear
-        if (ddlFiltroCategoria.Items.Count > 0)
-        {
-            int idCategoria = int.Parse(ddlFiltroCategoria.SelectedValue);
-            if (idCategoria != 0)
+            try
             {
-                lista = lista.FindAll(x => x.Categoria.Id == idCategoria);
+
+                ProductoNegocio negocio = new ProductoNegocio();
+                List<Producto> lista = negocio.Listar();
+
+                // Filtro por Código de Producto
+                string filtroCodigo = txtFiltroCodigo != null ? txtFiltroCodigo.Text.Trim() : "";
+                if (!string.IsNullOrEmpty(filtroCodigo))
+                {
+                    lista = lista.FindAll(x => x.Codigo != null && x.Codigo.ToUpper().Contains(filtroCodigo.ToUpper()));
+                }
+
+                // Filtro por Nombre (Solo filtra si se escribio algo)
+                string filtroNombre = txtFiltroNombre.Text.Trim();
+                if (!string.IsNullOrEmpty(filtroNombre))
+                {
+                    lista = lista.FindAll(x => x.Nombre.ToUpper().Contains(filtroNombre.ToUpper()));
+                }
+
+                // Filtro por Categoría (Solo filtra si se selecciono una categoria distinta de "Todas")
+                // validar que el DropDownList tenga items cargados antes de parsear
+                if (ddlFiltroCategoria.Items.Count > 0)
+                {
+                    int idCategoria = int.Parse(ddlFiltroCategoria.SelectedValue);
+                    if (idCategoria != 0)
+                    {
+                        lista = lista.FindAll(x => x.Categoria.Id == idCategoria);
+                    }
+                }
+
+                // Filtro por Estado (Solo filtra si no esta en "Todos")
+                int estado = int.Parse(ddlFiltroEstado.SelectedValue);
+                if (estado != -1)
+                {
+                    bool estadoBool = (estado == 1);
+                    lista = lista.FindAll(x => x.Activo == estadoBool);
+                }
+
+                // Enlace con el Repeater
+                repProductos.DataSource = lista;
+                repProductos.DataBind();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error al listar los productos: " + ex.Message);
             }
         }
-
-        // Filtro por Estado (Solo filtra si no esta en "Todos")
-        int estado = int.Parse(ddlFiltroEstado.SelectedValue);
-        if (estado != -1)
-        {
-            bool estadoBool = (estado == 1);
-            lista = lista.FindAll(x => x.Activo == estadoBool);
-        }
-
-        // Enlace con el Repeater
-        repProductos.DataSource = lista;
-        repProductos.DataBind();
-    }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine("Error al listar los productos: " + ex.Message);
-    }
-}
         protected void btnFiltrar_Click(object sender, EventArgs e)
         {
             CargarGrilla();
@@ -109,6 +119,7 @@ namespace Web
         protected void btnLimpiar_Click(object sender, EventArgs e)
         {
             txtFiltroNombre.Text = "";
+            if (txtFiltroCodigo != null) txtFiltroCodigo.Text = "";
             ddlFiltroCategoria.SelectedIndex = 0;
             ddlFiltroEstado.SelectedIndex = 0;
             CargarGrilla();
