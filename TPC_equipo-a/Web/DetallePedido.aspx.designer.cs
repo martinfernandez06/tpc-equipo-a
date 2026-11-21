@@ -141,6 +141,24 @@ namespace Web
         protected global::System.Web.UI.WebControls.HyperLink hlSeguimiento;
 
         /// <summary>
+        /// Control pnlMotivoCancelacion.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlMotivoCancelacion;
+
+        /// <summary>
+        /// Control lblMotivoCancelacion.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMotivoCancelacion;
+
+        /// <summary>
         /// Control pnlAcciones.
         /// </summary>
         /// <remarks>
@@ -346,6 +364,33 @@ namespace Web
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblConfirmarCancelar;
+
+        /// <summary>
+        /// Control txtMotivoCancelacion.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtMotivoCancelacion;
+
+        /// <summary>
+        /// Control rfvMotivoCancelacion.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMotivoCancelacion;
+
+        /// <summary>
+        /// Control revMotivoCancelacion.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMotivoCancelacion;
 
         /// <summary>
         /// Control btnSiCancelar.
