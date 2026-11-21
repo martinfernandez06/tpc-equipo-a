@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using Dominio;
 
@@ -6,40 +7,43 @@ namespace Negocio
 {
     public class UsuarioNegocio
     {
-       public int Registrar(Usuario nuevo)
-{
-    AccesoDatos datos = new AccesoDatos();
-
-    try
-    {
-        datos.setearProcedimiento("spAltaUsuario");
-        datos.setearParametro("@Nombre", nuevo.Nombre);
-        datos.setearParametro("@Apellido", nuevo.Apellido);
-        datos.setearParametro("@Email", nuevo.Email);
-        datos.setearParametro("@Clave", nuevo.Clave);
-        datos.setearParametro("@Telefono", string.IsNullOrEmpty(nuevo.Telefono) ? (object)DBNull.Value : nuevo.Telefono);
-        datos.setearParametro("@IdPerfil", nuevo.Perfil.Id);
-
-        datos.ejecutarLectura();
-        if (datos.Lector.Read())
+        public int Registrar(Usuario nuevo)
         {
-            return Convert.ToInt32(datos.Lector["Id"]);
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spAltaUsuario");
+                datos.setearParametro("@Nombre", nuevo.Nombre);
+                datos.setearParametro("@Apellido", nuevo.Apellido);
+                datos.setearParametro("@Email", nuevo.Email);
+                datos.setearParametro("@Clave", nuevo.Clave);
+                datos.setearParametro("@Telefono", string.IsNullOrEmpty(nuevo.Telefono) ? (object)DBNull.Value : nuevo.Telefono);
+                datos.setearParametro("@IdPerfil", nuevo.Perfil.Id);
+
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    return Convert.ToInt32(datos.Lector["Id"]);
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
         }
-        return 0;
-    }
-    catch (Exception ex)
-    {
-        throw ex;
-    }
-    finally
-    {
-        datos.cerrarLectura();
-    }
-}
 
         public Usuario Login(string email, string clave)
         {
             AccesoDatos datos = new AccesoDatos();
+
             try
             {
                 datos.setearProcedimiento("spBuscarUsuarioPorEmailYClave");
@@ -50,25 +54,32 @@ namespace Negocio
                 if (datos.Lector.Read())
                 {
                     Usuario user = new Usuario();
+
                     user.Id = (int)datos.Lector["Id"];
                     user.Nombre = (string)datos.Lector["Nombre"];
                     user.Apellido = (string)datos.Lector["Apellido"];
                     user.Email = (string)datos.Lector["Email"];
                     user.Clave = (string)datos.Lector["Clave"];
-                    user.Telefono = !(datos.Lector["Telefono"] is DBNull) ? (string)datos.Lector["Telefono"] : "";
-                    
+                    user.Telefono = !(datos.Lector["Telefono"] is DBNull)
+                        ? (string)datos.Lector["Telefono"]
+                        : "";
+
                     user.Perfil = new Perfil();
                     user.Perfil.Id = (int)datos.Lector["IdPerfil"];
                     user.Perfil.Descripcion = (string)datos.Lector["PerfilDescripcion"];
 
                     user.Activo = (bool)datos.Lector["Activo"];
+                    user.EmailConfirmado = (bool)datos.Lector["EmailConfirmado"];
                     user.FechaAlta = (DateTime)datos.Lector["FechaAlta"];
-                    user.UltimoAcceso = !(datos.Lector["UltimoAcceso"] is DBNull) ? (DateTime?)datos.Lector["UltimoAcceso"] : null;
+
+                    user.UltimoAcceso = !(datos.Lector["UltimoAcceso"] is DBNull)
+                        ? (DateTime?)datos.Lector["UltimoAcceso"]
+                        : null;
 
                     return user;
                 }
 
-                return null; // Si no encuentra coincidencia
+                return null;
             }
             catch (Exception ex)
             {
@@ -83,6 +94,7 @@ namespace Negocio
         public void Modificar(Usuario user)
         {
             AccesoDatos datos = new AccesoDatos();
+
             try
             {
                 datos.setearProcedimiento("spModificarUsuario");
@@ -108,11 +120,13 @@ namespace Negocio
         public void CambiarEstado(int idUsuario, bool activo)
         {
             AccesoDatos datos = new AccesoDatos();
+
             try
             {
                 datos.setearProcedimiento("spCambiarEstadoUsuario");
                 datos.setearParametro("@Id", idUsuario);
                 datos.setearParametro("@Activo", activo);
+
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -125,14 +139,15 @@ namespace Negocio
             }
         }
 
-
-        public void ActualizarUltimoAcceso(int idUsuario){
-
+        public void ActualizarUltimoAcceso(int idUsuario)
+        {
             AccesoDatos datos = new AccesoDatos();
+
             try
             {
                 datos.setearProcedimiento("spActualizarUltimoAcceso");
                 datos.setearParametro("@Id", idUsuario);
+
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -143,10 +158,56 @@ namespace Negocio
             {
                 datos.cerrarLectura();
             }
+        }
 
+        public void GuardarTokenConfirmacion(int idUsuario, string tokenHash, DateTime fechaExpiracion)
+        {
+            AccesoDatos datos = new AccesoDatos();
 
-            } 
-            
-            
+            try
+            {
+                datos.setearProcedimiento("spGuardarTokenUsuario");
+
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.setearParametro("@TokenHash", tokenHash);
+                datos.setearParametro("@Tipo", "CONFIRMACION");
+                datos.setearParametro("@FechaExpiracion", fechaExpiracion);
+
+                datos.ejecutarAccion();
             }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+
+        
+            public bool ConfirmarEmail(string tokenHash)
+            {
+                AccesoDatos datos = new AccesoDatos();
+
+                try
+                {
+                    datos.setearProcedimiento("spConfirmarEmail");
+                    datos.setearParametro("@TokenHash", tokenHash);
+
+                    datos.ejecutarLectura();
+
+                    if (datos.Lector.Read())
+                    {
+                        return Convert.ToBoolean(datos.Lector["Confirmado"]);
+                    }
+
+                    return false;
+                }
+                finally
+                {
+                    datos.cerrarLectura();
+                }
+            }
+
+
+
+
+    }
 }

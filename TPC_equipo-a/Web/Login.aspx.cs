@@ -8,6 +8,8 @@ namespace Web
     public partial class Login : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
+
+
         {
             if (!IsPostBack)
             {
@@ -50,6 +52,13 @@ namespace Web
                     Session.Remove("mensajeCheckout");
                 }
             }
+
+            // Muestra aviso si el registro se realizó y debe confirmar el correo
+                if (Request.QueryString["registrado"] == "pendiente")
+                {
+                    pnlExito.Visible = true;
+                    lblExito.Text = "Te enviamos un correo electrónico para confirmar tu dirección antes de iniciar sesión.";
+                }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -73,6 +82,14 @@ namespace Web
                     lblError.Visible = true;
                     return;
                 }
+
+                // Verificar que el correo electrónico esté confirmado.
+                if (!user.EmailConfirmado)
+                {
+                    lblError.Text = "Debés confirmar tu correo electrónico antes de iniciar sesión. Revisá tu bandeja de entrada.";
+                    lblError.Visible = true;
+                    return;
+}
 
                 // Verificar que el usuario tenga un perfil asignado.
                 if (user.Perfil == null)

@@ -23,11 +23,11 @@ GO
 USE ECommerceDB;
 GO
 
-
 -- =========================================
 -- 2. ESTRUCTURA DE TABLAS (DDL)
 -- =========================================
 
+-- CATEGORIAS
 CREATE TABLE CATEGORIAS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Nombre VARCHAR(50) UNIQUE NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE CATEGORIAS (
 );
 GO
 
--- Tabla Productos --
+-- PRODUCTOS
 CREATE TABLE PRODUCTOS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Codigo VARCHAR(50) NULL UNIQUE,
@@ -50,7 +50,7 @@ CREATE TABLE PRODUCTOS (
 );
 GO
 
--- TABLAS DE FORMAS DE PAGO Y ENTREGA (Pablo 06/11/2026)
+-- FORMAS DE PAGO
 CREATE TABLE FORMAS_PAGO (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Descripcion VARCHAR(100) UNIQUE NOT NULL,
@@ -58,6 +58,7 @@ CREATE TABLE FORMAS_PAGO (
 );
 GO
 
+-- FORMAS DE ENTREGA
 CREATE TABLE FORMAS_ENTREGA (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Descripcion VARCHAR(100) UNIQUE NOT NULL,
@@ -66,28 +67,69 @@ CREATE TABLE FORMAS_ENTREGA (
 );
 GO
 
--- Guillermo
--- tablas y sp de usuarios, perfiles y direcciones
+-- PERFILES
 CREATE TABLE PERFILES (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Descripcion VARCHAR(50) UNIQUE NOT NULL
 );
 GO
 
+-- USUARIOS
 CREATE TABLE USUARIOS (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Nombre VARCHAR(50) NOT NULL,
-    Apellido VARCHAR(50) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
-    Clave VARCHAR(50) NOT NULL,
+    Clave VARCHAR(100) NOT NULL,
     Telefono VARCHAR(30) NULL,
-    IdPerfil INT NOT NULL FOREIGN KEY REFERENCES PERFILES(Id),
-    Activo BIT DEFAULT 1 NOT NULL,
-    FechaAlta DATETIME DEFAULT GETDATE() NOT NULL,
-    UltimoAcceso DATETIME NULL
+    IdPerfil INT NOT NULL,
+
+    Activo BIT NOT NULL
+        CONSTRAINT DF_USUARIOS_Activo DEFAULT (1),
+
+    -- NUEVO: el usuario debe confirmar su correo.
+    EmailConfirmado BIT NOT NULL
+        CONSTRAINT DF_USUARIOS_EmailConfirmado DEFAULT (0),
+
+    FechaAlta DATETIME NOT NULL
+        CONSTRAINT DF_USUARIOS_FechaAlta DEFAULT (GETDATE()),
+
+    UltimoAcceso DATETIME NULL,
+
+    CONSTRAINT FK_USUARIOS_PERFILES
+        FOREIGN KEY (IdPerfil) REFERENCES PERFILES(Id)
 );
 GO
 
+-- NUEVO: TOKENS DE USUARIO
+-- Se utiliza para confirmación de correo y recuperación de contraseña.
+CREATE TABLE TOKENS_USUARIO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    IdUsuario INT NOT NULL,
+    TokenHash CHAR(64) NOT NULL,
+    Tipo VARCHAR(20) NOT NULL,
+    FechaCreacion DATETIME2 NOT NULL
+        CONSTRAINT DF_TOKENS_USUARIO_FechaCreacion DEFAULT (SYSDATETIME()),
+    FechaExpiracion DATETIME2 NOT NULL,
+    Usado BIT NOT NULL
+        CONSTRAINT DF_TOKENS_USUARIO_Usado DEFAULT (0),
+
+    CONSTRAINT FK_TOKENS_USUARIO_USUARIOS
+        FOREIGN KEY (IdUsuario) REFERENCES USUARIOS(Id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_TOKENS_USUARIO_TokenHash UNIQUE (TokenHash),
+
+    CONSTRAINT CK_TOKENS_USUARIO_Tipo
+        CHECK (Tipo IN ('CONFIRMACION', 'RECUPERACION'))
+);
+GO
+
+CREATE INDEX IX_TOKENS_USUARIO_Usuario_Tipo
+ON TOKENS_USUARIO (IdUsuario, Tipo, Usado);
+GO
+
+-- DIRECCIONES
 CREATE TABLE DIRECCIONES (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     IdUsuario INT NOT NULL FOREIGN KEY REFERENCES USUARIOS(Id) ON DELETE CASCADE,
@@ -102,8 +144,7 @@ CREATE TABLE DIRECCIONES (
 );
 GO
 
--- ETAPA 3 -- MARTIN - 12/11/26
--- tabla ESTADOS_PEDIDO
+-- ESTADOS_PEDIDO
 CREATE TABLE ESTADOS_PEDIDO(
     Id INT IDENTITY(1,1),
     Descripcion VARCHAR(50) NOT NULL,
@@ -112,15 +153,17 @@ CREATE TABLE ESTADOS_PEDIDO(
 );
 GO
 
--- tabla PEDIDOS
+-- PEDIDOS
 CREATE TABLE PEDIDOS(
     Id INT IDENTITY(1,1),
     IdUsuario INT NOT NULL,
-    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT GETDATE(),
+    FechaCreacion DATETIME NOT NULL
+        CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT GETDATE(),
     IdFormaEntrega INT NOT NULL,
     IdDireccion INT NULL,
     IdFormaPago INT NOT NULL,
-    IdEstado INT NOT NULL CONSTRAINT DF_PEDIDOS_IDESTADO DEFAULT 1,
+    IdEstado INT NOT NULL
+        CONSTRAINT DF_PEDIDOS_IDESTADO DEFAULT 1,
     Total MONEY NOT NULL,
     CodigoSeguimiento VARCHAR(50) NULL,
     ComprobanteUrl VARCHAR(500) NULL,
@@ -130,14 +173,14 @@ CREATE TABLE PEDIDOS(
     CONSTRAINT FK_PEDIDOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
     CONSTRAINT FK_PEDIDOS_IDDIRECCION FOREIGN KEY(IdDireccion) REFERENCES DIRECCIONES(Id),
     CONSTRAINT FK_PEDIDOS_IDFORMAENTREGA FOREIGN KEY(IdFormaEntrega) REFERENCES FORMAS_ENTREGA(Id),
-    CONSTRAINT FK_PEDIDOS_IDFORMAPAGO FOREIGN KEY(IdFormaPago) REFERENCES FORMAS_PAGO(Id),
+    CONSTRAINT FK_PEDIDOS_IDFORMA PAGO FOREIGN KEY(IdFormaPago) REFERENCES FORMAS_PAGO(Id),
     CONSTRAINT FK_PEDIDOS_IDESTADO FOREIGN KEY(IdEstado) REFERENCES ESTADOS_PEDIDO(Id),
     CONSTRAINT CHK_PEDIDOS_ESTADOCOMPROBANTE CHECK(EstadoComprobante IN('Pendiente','Aceptado','Rechazado')),
     CONSTRAINT CHK_PEDIDOS_TOTAL CHECK(Total > 0)
 );
 GO
 
--- tabla ITEMS_PEDIDO
+-- ITEMS_PEDIDO
 CREATE TABLE ITEMS_PEDIDO(
     IdPedido INT NOT NULL,
     IdProducto INT NOT NULL,
@@ -151,13 +194,14 @@ CREATE TABLE ITEMS_PEDIDO(
 );
 GO
 
--- tabla HISTORIAL_ESTADOS
+-- HISTORIAL_ESTADOS
 CREATE TABLE HISTORIAL_ESTADOS(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
     IdEstado INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL
+        CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT GETDATE(),
     CONSTRAINT PK_HISTORIAL_ESTADOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -165,12 +209,13 @@ CREATE TABLE HISTORIAL_ESTADOS(
 );
 GO
 
--- tabla OBSERVACIONES_PEDIDO
+-- OBSERVACIONES_PEDIDO
 CREATE TABLE OBSERVACIONES_PEDIDO(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL
+        CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
     Observacion VARCHAR(500) NOT NULL,
     CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
     CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
@@ -178,115 +223,193 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
 );
 GO
 
-
 -- =========================================
 -- 3. DATOS PARAMÉTRICOS (CONFIGURACIÓN)
 -- =========================================
 
-INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Electrónica', 'Dispositivos y accesorios tecnológicos', 1);
-INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Ropa y Calzado', 'Indumentaria para todas las estaciones', 1);
-INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Hogar y Muebles', 'Artículos para el confort del hogar', 1);
-INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa) VALUES ('Deportes', 'Equipamiento y ropa deportiva', 1);
+INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa)
+VALUES ('Electrónica', 'Dispositivos y accesorios tecnológicos', 1);
+
+INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa)
+VALUES ('Ropa y Calzado', 'Indumentaria para todas las estaciones', 1);
+
+INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa)
+VALUES ('Hogar y Muebles', 'Artículos para el confort del hogar', 1);
+
+INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa)
+VALUES ('Deportes', 'Equipamiento y ropa deportiva', 1);
 GO
 
-INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Efectivo');
-INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Transferencia');
-INSERT INTO FORMAS_PAGO (Descripcion) VALUES ('Mercado Pago');
+INSERT INTO FORMAS_PAGO (Descripcion)
+VALUES ('Efectivo'), ('Transferencia'), ('Mercado Pago');
 GO
 
-INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Retiro en el local', 0);
-INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion) VALUES ('Envío a domicilio', 1);
+INSERT INTO FORMAS_ENTREGA (Descripcion, RequiereDireccion)
+VALUES ('Retiro en el local', 0), ('Envío a domicilio', 1);
 GO
 
-INSERT INTO PERFILES (Descripcion) VALUES ('Administrador');
-INSERT INTO PERFILES (Descripcion) VALUES ('Cliente');
-INSERT INTO PERFILES (Descripcion) VALUES ('Vendedor');
+INSERT INTO PERFILES (Descripcion)
+VALUES ('Administrador'), ('Cliente'), ('Vendedor');
 GO
 
--- estados fijos, el orden importa porque los sp usan estos id
-INSERT INTO ESTADOS_PEDIDO(Descripcion) VALUES ('Pendiente de pago'),('Pagado'),('En preparación'),('Enviado'),('Entregado'),('Cancelado');
+-- Estados fijos: el orden importa porque los SP usan estos ID.
+INSERT INTO ESTADOS_PEDIDO(Descripcion)
+VALUES
+('Pendiente de pago'),
+('Pagado'),
+('En preparación'),
+('Enviado'),
+('Entregado'),
+('Cancelado');
 GO
-
 
 -- =========================================
 -- 4. PROCEDIMIENTOS ALMACENADOS
 -- =========================================
 
 -- -----------------------------------------
--- MÓDULO CATEGORIAS
+-- MÓDULO CATEGORÍAS
 -- -----------------------------------------
--- Martin -> 31/10/26 1530
-CREATE PROCEDURE spAltaCategoria @Nombre VARCHAR(100), @Descripcion VARCHAR(255) AS BEGIN INSERT INTO CATEGORIAS (Nombre,Descripcion,Activa) VALUES (@Nombre,@Descripcion,1) END
+
+CREATE PROCEDURE spAltaCategoria
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255)
+AS
+BEGIN
+    INSERT INTO CATEGORIAS (Nombre, Descripcion, Activa)
+    VALUES (@Nombre, @Descripcion, 1);
+END;
 GO
 
--- Martin -> 31/10/26 1700
-CREATE PROCEDURE spBuscarCategoriaPorId @id INT AS BEGIN SELECT Id, Nombre, Descripcion, Activa FROM CATEGORIAS WHERE Id = @id END
+CREATE PROCEDURE spBuscarCategoriaPorId
+    @id INT
+AS
+BEGIN
+    SELECT Id, Nombre, Descripcion, Activa
+    FROM CATEGORIAS
+    WHERE Id = @id;
+END;
 GO
 
--- Martin -> 31/10/26 1755
-CREATE PROCEDURE spModificarCategoria @Id INT, @Nombre VARCHAR(100), @Descripcion VARCHAR(255) AS BEGIN UPDATE CATEGORIAS SET Nombre = @Nombre, Descripcion = @Descripcion WHERE Id = @Id END
+CREATE PROCEDURE spModificarCategoria
+    @Id INT,
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255)
+AS
+BEGIN
+    UPDATE CATEGORIAS
+    SET Nombre = @Nombre, Descripcion = @Descripcion
+    WHERE Id = @Id;
+END;
 GO
 
--- Martin --> 1/11/26 2200
-CREATE PROCEDURE spCambiarEstadoCategoria @Id INT, @Activa BIT AS BEGIN UPDATE CATEGORIAS SET Activa = @Activa WHERE Id = @Id END
+CREATE PROCEDURE spCambiarEstadoCategoria
+    @Id INT,
+    @Activa BIT
+AS
+BEGIN
+    UPDATE CATEGORIAS
+    SET Activa = @Activa
+    WHERE Id = @Id;
+END;
 GO
-
 
 -- -----------------------------------------
 -- MÓDULO PRODUCTOS
 -- -----------------------------------------
 
--- 1. Listar todos los productos con su categoría
+-- 1. Listar todos los productos con su categoría.
 CREATE PROCEDURE spListarProductos
 AS
 BEGIN
-    SELECT P.Id, P.Codigo, P.Nombre, P.Descripcion, P.PrecioVenta, P.Stock, P.IdCategoria, C.Nombre AS CategoriaNombre, P.ImagenUrl, P.Activo
+    SELECT
+        P.Id, P.Codigo, P.Nombre, P.Descripcion,
+        P.PrecioVenta, P.Stock, P.IdCategoria,
+        C.Nombre AS CategoriaNombre, P.ImagenUrl, P.Activo
     FROM PRODUCTOS P
     INNER JOIN CATEGORIAS C ON P.IdCategoria = C.Id;
 END;
 GO
 
--- 2. Alta de un nuevo producto (Autogeneración de código con SCOPE_IDENTITY)
+-- 2. Alta de un nuevo producto.
 CREATE PROCEDURE spAltaProducto
-    @Nombre VARCHAR(100), @Descripcion VARCHAR(255), @PrecioVenta MONEY, @Stock INT, @IdCategoria INT, @ImagenUrl VARCHAR(500), @Activo BIT, @CodigoPropio VARCHAR(50) = NULL
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255),
+    @PrecioVenta MONEY,
+    @Stock INT,
+    @IdCategoria INT,
+    @ImagenUrl VARCHAR(500),
+    @Activo BIT,
+    @CodigoPropio VARCHAR(50) = NULL
 AS
 BEGIN
     DECLARE @NuevoId INT;
     DECLARE @CodigoFinal VARCHAR(50);
     DECLARE @PrefijoCategoria VARCHAR(3);
 
-    INSERT INTO PRODUCTOS (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo, Codigo)
-    VALUES (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo, @CodigoPropio);
+    INSERT INTO PRODUCTOS
+        (Nombre, Descripcion, PrecioVenta, Stock, IdCategoria, ImagenUrl, Activo, Codigo)
+    VALUES
+        (@Nombre, @Descripcion, @PrecioVenta, @Stock, @IdCategoria, @ImagenUrl, @Activo, @CodigoPropio);
 
     SET @NuevoId = SCOPE_IDENTITY();
 
     IF @CodigoPropio IS NULL OR LTRIM(RTRIM(@CodigoPropio)) = ''
     BEGIN
-        SELECT @PrefijoCategoria = UPPER(LEFT(Nombre, 3)) FROM CATEGORIAS WHERE Id = @IdCategoria;
-        SET @CodigoFinal = @PrefijoCategoria + '-' + RIGHT('0000' + CAST(@NuevoId AS VARCHAR(10)), 4);
-        UPDATE PRODUCTOS SET Codigo = @CodigoFinal WHERE Id = @NuevoId;
+        SELECT @PrefijoCategoria = UPPER(LEFT(Nombre, 3))
+        FROM CATEGORIAS
+        WHERE Id = @IdCategoria;
+
+        SET @CodigoFinal = @PrefijoCategoria + '-' +
+            RIGHT('0000' + CAST(@NuevoId AS VARCHAR(10)), 4);
+
+        UPDATE PRODUCTOS
+        SET Codigo = @CodigoFinal
+        WHERE Id = @NuevoId;
     END
 END;
 GO
 
--- 3. Modificar un producto existente
+-- 3. Modificar un producto existente.
 CREATE PROCEDURE spModificarProducto
-    @Id INT, @Nombre VARCHAR(100), @Descripcion VARCHAR(255), @PrecioVenta MONEY, @Stock INT, @IdCategoria INT, @ImagenUrl VARCHAR(500)
-AS BEGIN
-    UPDATE PRODUCTOS SET Nombre = @Nombre, Descripcion = @Descripcion, PrecioVenta = @PrecioVenta, Stock = @Stock, IdCategoria = @IdCategoria, ImagenUrl = @ImagenUrl WHERE Id = @Id;
+    @Id INT,
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255),
+    @PrecioVenta MONEY,
+    @Stock INT,
+    @IdCategoria INT,
+    @ImagenUrl VARCHAR(500)
+AS
+BEGIN
+    UPDATE PRODUCTOS
+    SET
+        Nombre = @Nombre,
+        Descripcion = @Descripcion,
+        PrecioVenta = @PrecioVenta,
+        Stock = @Stock,
+        IdCategoria = @IdCategoria,
+        ImagenUrl = @ImagenUrl
+    WHERE Id = @Id;
 END;
 GO
 
--- 4. Baja lógica (cambiar estado activo/inactivo)
-CREATE PROCEDURE spBajaLogicaProducto @Id INT AS BEGIN UPDATE PRODUCTOS SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE Id = @Id; END;
+-- 4. Baja lógica de producto.
+CREATE PROCEDURE spBajaLogicaProducto
+    @Id INT
+AS
+BEGIN
+    UPDATE PRODUCTOS
+    SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END
+    WHERE Id = @Id;
+END;
 GO
-
 
 -- -----------------------------------------
 -- MÓDULO USUARIOS Y DIRECCIONES
 -- -----------------------------------------
 
--- 1. Alta usuario (Registro)
+-- 1. Alta usuario (Registro).
+-- EmailConfirmado se establece a 0
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50),
     @Apellido VARCHAR(50),
@@ -296,26 +419,47 @@ CREATE PROCEDURE spAltaUsuario
     @IdPerfil INT
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     INSERT INTO USUARIOS
-        (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta)
+        (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo)
     OUTPUT INSERTED.Id
     VALUES
-        (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
+        (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1);
 END;
 GO
 
--- 2. Buscar / Validar usuario por Email y Clave (Login)
-CREATE PROCEDURE spBuscarUsuarioPorEmailYClave @Email VARCHAR(100), @Clave VARCHAR(50)
+-- 2. Buscar / validar usuario por Email y Clave (Login)
+-- Devuelve EmailConfirmado para que Login.aspx.cs pueda verifique
+CREATE OR ALTER PROCEDURE spBuscarUsuarioPorEmailYClave
+    @Email VARCHAR(100),
+    @Clave VARCHAR(50)
 AS
 BEGIN
-    SELECT U.Id, U.Nombre, U.Apellido, U.Email, U.Clave, U.Telefono, U.IdPerfil, P.Descripcion AS PerfilDescripcion, U.Activo, U.FechaAlta, U.UltimoAcceso
+    SET NOCOUNT ON;
+
+    SELECT
+        U.Id,
+        U.Nombre,
+        U.Apellido,
+        U.Email,
+        U.Clave,
+        U.Telefono,
+        U.IdPerfil,
+        P.Descripcion AS PerfilDescripcion,
+        U.Activo,
+        U.EmailConfirmado,
+        U.FechaAlta,
+        U.UltimoAcceso
     FROM USUARIOS U
     INNER JOIN PERFILES P ON U.IdPerfil = P.Id
-    WHERE U.Email = @Email AND U.Clave = @Clave AND U.Activo = 1;
+    WHERE U.Email = @Email
+      AND U.Clave = @Clave
+      AND U.Activo = 1;
 END;
 GO
 
--- 3. Modificar datos de un usuario existente
+-- 3. Modificar datos de un usuario existente.
 CREATE PROCEDURE spModificarUsuario
     @Id INT,
     @Nombre VARCHAR(50),
@@ -326,20 +470,29 @@ CREATE PROCEDURE spModificarUsuario
 AS
 BEGIN
     UPDATE USUARIOS
-    SET Nombre = @Nombre, Apellido = @Apellido, Email = @Email, Telefono = @Telefono, IdPerfil = @IdPerfil
+    SET
+        Nombre = @Nombre,
+        Apellido = @Apellido,
+        Email = @Email,
+        Telefono = @Telefono,
+        IdPerfil = @IdPerfil
     WHERE Id = @Id;
 END;
 GO
 
--- 4. Activar o Desactivar usuario (Baja lógica)
-CREATE PROCEDURE spCambiarEstadoUsuario @Id INT, @Activo BIT
+-- 4. Activar o desactivar usuario (baja lógica).
+CREATE PROCEDURE spCambiarEstadoUsuario
+    @Id INT,
+    @Activo BIT
 AS
 BEGIN
-    UPDATE USUARIOS SET Activo = @Activo WHERE Id = @Id;
+    UPDATE USUARIOS
+    SET Activo = @Activo
+    WHERE Id = @Id;
 END;
 GO
 
--- 5. Actualizar último acceso del usuario
+-- 5. Actualizar último acceso del usuario.
 CREATE PROCEDURE spActualizarUltimoAcceso
     @Id INT
 AS
@@ -350,73 +503,211 @@ BEGIN
 END;
 GO
 
--- 1. Alta de dirección
+-- guardar token de confirmacion/recuperacion
+-- anula tokens anteriores para ese usuario.
+CREATE PROCEDURE spGuardarTokenUsuario
+    @IdUsuario INT,
+    @TokenHash CHAR(64),
+    @Tipo VARCHAR(20),
+    @FechaExpiracion DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @Tipo NOT IN ('CONFIRMACION', 'RECUPERACION')
+        THROW 50010, 'Tipo de token no válido.', 1;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE IdUsuario = @IdUsuario
+          AND Tipo = @Tipo
+          AND Usado = 0;
+
+        INSERT INTO TOKENS_USUARIO
+            (IdUsuario, TokenHash, Tipo, FechaExpiracion)
+        VALUES
+            (@IdUsuario, @TokenHash, @Tipo, @FechaExpiracion);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
+-- confirmar correo con token
+-- Confirmado = 1 si el token es valido
+CREATE PROCEDURE spConfirmarEmail
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @IdUsuario INT;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        SELECT @IdUsuario = IdUsuario
+        FROM TOKENS_USUARIO WITH (UPDLOCK, ROWLOCK)
+        WHERE TokenHash = @TokenHash
+          AND Tipo = 'CONFIRMACION'
+          AND Usado = 0
+          AND FechaExpiracion > SYSDATETIME();
+
+        IF @IdUsuario IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+
+            SELECT
+                CAST(0 AS BIT) AS Confirmado,
+                CAST(NULL AS INT) AS IdUsuario;
+
+            RETURN;
+        END;
+
+        UPDATE USUARIOS
+        SET EmailConfirmado = 1
+        WHERE Id = @IdUsuario;
+
+        UPDATE TOKENS_USUARIO
+        SET Usado = 1
+        WHERE TokenHash = @TokenHash;
+
+        COMMIT TRANSACTION;
+
+        SELECT
+            CAST(1 AS BIT) AS Confirmado,
+            @IdUsuario AS IdUsuario;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
+-- 8. Alta de dirección.
 CREATE PROCEDURE spAltaDireccion
-    @IdUsuario INT, @Calle VARCHAR(100), @Numero VARCHAR(20), @Provincia VARCHAR(100), @Localidad VARCHAR(100), @CodigoPostal VARCHAR(20), @Observaciones VARCHAR(255), @Principal BIT
+    @IdUsuario INT,
+    @Calle VARCHAR(100),
+    @Numero VARCHAR(20),
+    @Provincia VARCHAR(100),
+    @Localidad VARCHAR(100),
+    @CodigoPostal VARCHAR(20),
+    @Observaciones VARCHAR(255),
+    @Principal BIT
 AS
 BEGIN
     IF @Principal = 1
     BEGIN
-        UPDATE DIRECCIONES SET Principal = 0 WHERE IdUsuario = @IdUsuario;
-    END
+        UPDATE DIRECCIONES
+        SET Principal = 0
+        WHERE IdUsuario = @IdUsuario;
+    END;
 
-    INSERT INTO DIRECCIONES (IdUsuario, Calle, Numero, Provincia, Localidad, CodigoPostal, Observaciones, Activa, Principal)
-    VALUES (@IdUsuario, @Calle, @Numero, @Provincia, @Localidad, @CodigoPostal, @Observaciones, 1, @Principal);
+    INSERT INTO DIRECCIONES
+        (IdUsuario, Calle, Numero, Provincia, Localidad, CodigoPostal,
+         Observaciones, Activa, Principal)
+    VALUES
+        (@IdUsuario, @Calle, @Numero, @Provincia, @Localidad, @CodigoPostal,
+         @Observaciones, 1, @Principal);
 END;
 GO
 
--- 2. Modificar dirección existente
+-- 9. Modificar dirección existente.
 CREATE PROCEDURE spModificarDireccion
-    @Id INT, @Calle VARCHAR(100), @Numero VARCHAR(20), @Provincia VARCHAR(100), @Localidad VARCHAR(100), @CodigoPostal VARCHAR(20), @Observaciones VARCHAR(255)
+    @Id INT,
+    @Calle VARCHAR(100),
+    @Numero VARCHAR(20),
+    @Provincia VARCHAR(100),
+    @Localidad VARCHAR(100),
+    @CodigoPostal VARCHAR(20),
+    @Observaciones VARCHAR(255)
 AS
 BEGIN
     UPDATE DIRECCIONES
-    SET Calle = @Calle, Numero = @Numero, Provincia = @Provincia, Localidad = @Localidad, CodigoPostal = @CodigoPostal, Observaciones = @Observaciones
+    SET
+        Calle = @Calle,
+        Numero = @Numero,
+        Provincia = @Provincia,
+        Localidad = @Localidad,
+        CodigoPostal = @CodigoPostal,
+        Observaciones = @Observaciones
     WHERE Id = @Id;
 END;
 GO
 
--- 3. Listar direcciones
-CREATE PROCEDURE spListarDireccionesPorUsuario @IdUsuario INT
+-- 10. Listar direcciones.
+CREATE PROCEDURE spListarDireccionesPorUsuario
+    @IdUsuario INT
 AS
 BEGIN
-    SELECT Id, IdUsuario, Calle, Numero, Provincia, Localidad, CodigoPostal, Observaciones, Activa, Principal
+    SELECT
+        Id, IdUsuario, Calle, Numero, Provincia, Localidad,
+        CodigoPostal, Observaciones, Activa, Principal
     FROM DIRECCIONES
-    WHERE IdUsuario = @IdUsuario AND Activa = 1;
+    WHERE IdUsuario = @IdUsuario
+      AND Activa = 1;
 END;
 GO
 
--- 4. Marcar dirección principal
-CREATE PROCEDURE spMarcarDireccionPrincipal @Id INT, @IdUsuario INT
-AS
-BEGIN
-    UPDATE DIRECCIONES SET Principal = 0 WHERE IdUsuario = @IdUsuario;
-    UPDATE DIRECCIONES SET Principal = 1 WHERE Id = @Id AND IdUsuario = @IdUsuario;
-END;
-GO
-
--- 5. Desactivar o activar dirección (Baja lógica)
-CREATE PROCEDURE spCambiarEstadoDireccion @Id INT, @Activa BIT
+-- 11. Marcar dirección principal.
+CREATE PROCEDURE spMarcarDireccionPrincipal
+    @Id INT,
+    @IdUsuario INT
 AS
 BEGIN
     UPDATE DIRECCIONES
-    SET Activa = @Activa, Principal = CASE WHEN @Activa = 0 THEN 0 ELSE Principal END
+    SET Principal = 0
+    WHERE IdUsuario = @IdUsuario;
+
+    UPDATE DIRECCIONES
+    SET Principal = 1
+    WHERE Id = @Id
+      AND IdUsuario = @IdUsuario;
+END;
+GO
+
+-- 12. Desactivar o activar dirección (baja lógica).
+CREATE PROCEDURE spCambiarEstadoDireccion
+    @Id INT,
+    @Activa BIT
+AS
+BEGIN
+    UPDATE DIRECCIONES
+    SET
+        Activa = @Activa,
+        Principal = CASE WHEN @Activa = 0 THEN 0 ELSE Principal END
     WHERE Id = @Id;
 END;
 GO
 
-
 -- -----------------------------------------
--- MÓDULO PEDIDOS (Etapa 3)
+-- MÓDULO PEDIDOS (ETAPA 3)
 -- -----------------------------------------
 
--- Martin - 12/11/26
 CREATE PROCEDURE spAltaPedido
-    @IdUsuario INT, @IdFormaEntrega INT, @IdDireccion INT, @IdFormaPago INT, @Total MONEY
+    @IdUsuario INT,
+    @IdFormaEntrega INT,
+    @IdDireccion INT,
+    @IdFormaPago INT,
+    @Total MONEY
 AS
 BEGIN
-    INSERT INTO PEDIDOS (IdUsuario, IdFormaEntrega, IdDireccion, IdFormaPago, Total)
-    VALUES (@IdUsuario, @IdFormaEntrega, @IdDireccion, @IdFormaPago, @Total);
+    INSERT INTO PEDIDOS
+        (IdUsuario, IdFormaEntrega, IdDireccion, IdFormaPago, Total)
+    VALUES
+        (@IdUsuario, @IdFormaEntrega, @IdDireccion, @IdFormaPago, @Total);
 
     DECLARE @IdPedido INT = SCOPE_IDENTITY();
 
@@ -428,12 +719,16 @@ END;
 GO
 
 CREATE PROCEDURE spAltaItemPedido
-    @IdPedido INT, @IdProducto INT, @Cantidad INT, @PrecioUnitario MONEY
+    @IdPedido INT,
+    @IdProducto INT,
+    @Cantidad INT,
+    @PrecioUnitario MONEY
 AS
 BEGIN
     UPDATE PRODUCTOS
     SET Stock = Stock - @Cantidad
-    WHERE Id = @IdProducto AND Stock >= @Cantidad;
+    WHERE Id = @IdProducto
+      AND Stock >= @Cantidad;
 
     IF @@ROWCOUNT = 0
         THROW 50001, 'No hay stock suficiente para este producto', 1;
@@ -443,12 +738,20 @@ BEGIN
 END;
 GO
 
--- Martin - 13/11/26
 CREATE PROCEDURE spListarPedidos
-    @IdEstado INT = NULL, @FechaDesde DATE = NULL, @FechaHasta DATE = NULL, @Cliente VARCHAR(100) = NULL
+    @IdEstado INT = NULL,
+    @FechaDesde DATE = NULL,
+    @FechaHasta DATE = NULL,
+    @Cliente VARCHAR(100) = NULL
 AS
 BEGIN
-    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.CodigoSeguimiento, P.EstadoComprobante
+    SELECT
+        P.Id, P.FechaCreacion, P.IdUsuario,
+        U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente,
+        FE.Descripcion AS FormaEntrega,
+        FP.Descripcion AS FormaPago,
+        E.Descripcion AS Estado,
+        P.Total, P.CodigoSeguimiento, P.EstadoComprobante
     FROM PEDIDOS P
     INNER JOIN USUARIOS U ON P.IdUsuario = U.Id
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
@@ -457,15 +760,29 @@ BEGIN
     WHERE (@IdEstado IS NULL OR P.IdEstado = @IdEstado)
       AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
       AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
-      AND (@Cliente IS NULL OR U.Nombre + ' ' + U.Apellido LIKE '%' + @Cliente + '%' OR U.Email LIKE '%' + @Cliente + '%')
+      AND (
+            @Cliente IS NULL
+            OR U.Nombre + ' ' + U.Apellido LIKE '%' + @Cliente + '%'
+            OR U.Email LIKE '%' + @Cliente + '%'
+          )
     ORDER BY P.FechaCreacion DESC;
 END;
 GO
 
-CREATE PROCEDURE spBuscarPedidoPorId @Id INT
+CREATE PROCEDURE spBuscarPedidoPorId
+    @Id INT
 AS
 BEGIN
-    SELECT P.Id, P.FechaCreacion, P.IdUsuario, U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente, U.Email, U.Telefono, P.IdFormaEntrega, FE.Descripcion AS FormaEntrega, P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal, P.IdFormaPago, FP.Descripcion AS FormaPago, P.IdEstado, E.Descripcion AS Estado, P.Total, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante
+    SELECT
+        P.Id, P.FechaCreacion, P.IdUsuario,
+        U.Nombre AS NombreCliente, U.Apellido AS ApellidoCliente,
+        U.Email, U.Telefono,
+        P.IdFormaEntrega, FE.Descripcion AS FormaEntrega,
+        P.IdDireccion, D.Calle, D.Numero, D.Localidad,
+        D.Provincia, D.CodigoPostal,
+        P.IdFormaPago, FP.Descripcion AS FormaPago,
+        P.IdEstado, E.Descripcion AS Estado,
+        P.Total, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante
     FROM PEDIDOS P
     INNER JOIN USUARIOS U ON P.IdUsuario = U.Id
     LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id
@@ -476,10 +793,16 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT
+CREATE PROCEDURE spListarPedidosPorCliente
+    @IdUsuario INT
 AS
 BEGIN
-    SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, FP.Descripcion AS FormaPago, E.Descripcion AS Estado, P.Total, P.CodigoSeguimiento, P.EstadoComprobante
+    SELECT
+        P.Id, P.FechaCreacion,
+        FE.Descripcion AS FormaEntrega,
+        FP.Descripcion AS FormaPago,
+        E.Descripcion AS Estado,
+        P.Total, P.CodigoSeguimiento, P.EstadoComprobante
     FROM PEDIDOS P
     INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id
     INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id
@@ -489,22 +812,31 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE spListarItemsPorPedido @IdPedido INT
+CREATE PROCEDURE spListarItemsPorPedido
+    @IdPedido INT
 AS
 BEGIN
-    SELECT I.IdProducto, PR.Nombre, PR.ImagenUrl, I.Cantidad, I.PrecioUnitario, I.Cantidad * I.PrecioUnitario AS Subtotal
+    SELECT
+        I.IdProducto, PR.Nombre, PR.ImagenUrl,
+        I.Cantidad, I.PrecioUnitario,
+        I.Cantidad * I.PrecioUnitario AS Subtotal
     FROM ITEMS_PEDIDO I
     INNER JOIN PRODUCTOS PR ON I.IdProducto = PR.Id
     WHERE I.IdPedido = @IdPedido;
 END;
 GO
 
-CREATE PROCEDURE spCambiarEstadoPedido @IdPedido INT, @IdEstado INT, @IdUsuario INT
+CREATE PROCEDURE spCambiarEstadoPedido
+    @IdPedido INT,
+    @IdEstado INT,
+    @IdUsuario INT
 AS
 BEGIN
     DECLARE @EstadoActual INT;
 
-    SELECT @EstadoActual = IdEstado FROM PEDIDOS WHERE Id = @IdPedido;
+    SELECT @EstadoActual = IdEstado
+    FROM PEDIDOS
+    WHERE Id = @IdPedido;
 
     IF @EstadoActual IN (5, 6)
         THROW 50003, 'El pedido ya esta cerrado y no se puede cambiar de estado', 1;
@@ -518,7 +850,9 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        UPDATE PEDIDOS SET IdEstado = @IdEstado WHERE Id = @IdPedido;
+        UPDATE PEDIDOS
+        SET IdEstado = @IdEstado
+        WHERE Id = @IdPedido;
 
         INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
         VALUES (@IdPedido, @IdEstado, @IdUsuario);
@@ -526,16 +860,25 @@ BEGIN
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
         THROW;
     END CATCH
 END;
 GO
 
-CREATE PROCEDURE spCancelarPedido @IdPedido INT, @IdUsuario INT
+CREATE PROCEDURE spCancelarPedido
+    @IdPedido INT,
+    @IdUsuario INT
 AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM PEDIDOS WHERE Id = @IdPedido AND IdEstado IN (4, 5, 6))
+    IF EXISTS (
+        SELECT 1
+        FROM PEDIDOS
+        WHERE Id = @IdPedido
+          AND IdEstado IN (4, 5, 6)
+    )
         THROW 50002, 'El pedido no se puede cancelar en el estado que esta', 1;
 
     BEGIN TRY
@@ -547,7 +890,9 @@ BEGIN
         INNER JOIN ITEMS_PEDIDO I ON PR.Id = I.IdProducto
         WHERE I.IdPedido = @IdPedido;
 
-        UPDATE PEDIDOS SET IdEstado = 6 WHERE Id = @IdPedido;
+        UPDATE PEDIDOS
+        SET IdEstado = 6
+        WHERE Id = @IdPedido;
 
         INSERT INTO HISTORIAL_ESTADOS (IdPedido, IdEstado, IdUsuario)
         VALUES (@IdPedido, 6, @IdUsuario);
@@ -555,14 +900,18 @@ BEGIN
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
         THROW;
     END CATCH
 END;
 GO
 
 CREATE PROCEDURE spAgregarObservacionPedido
-    @IdPedido INT, @IdUsuario INT, @Observacion VARCHAR(500)
+    @IdPedido INT,
+    @IdUsuario INT,
+    @Observacion VARCHAR(500)
 AS
 BEGIN
     INSERT INTO OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Observacion)
@@ -570,10 +919,15 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE spListarObservacionesPorPedido @IdPedido INT
+CREATE PROCEDURE spListarObservacionesPorPedido
+    @IdPedido INT
 AS
 BEGIN
-    SELECT O.Id, O.IdUsuario, U.Nombre AS NombreUsuario, U.Apellido AS ApellidoUsuario, O.Fecha, O.Observacion
+    SELECT
+        O.Id, O.IdUsuario,
+        U.Nombre AS NombreUsuario,
+        U.Apellido AS ApellidoUsuario,
+        O.Fecha, O.Observacion
     FROM OBSERVACIONES_PEDIDO O
     INNER JOIN USUARIOS U ON O.IdUsuario = U.Id
     WHERE O.IdPedido = @IdPedido
@@ -581,10 +935,16 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE spListarHistorialPorPedido @IdPedido INT
+CREATE PROCEDURE spListarHistorialPorPedido
+    @IdPedido INT
 AS
 BEGIN
-    SELECT H.Id, H.IdEstado, E.Descripcion AS Estado, H.IdUsuario, U.Nombre AS NombreUsuario, U.Apellido AS ApellidoUsuario, H.Fecha
+    SELECT
+        H.Id, H.IdEstado, E.Descripcion AS Estado,
+        H.IdUsuario,
+        U.Nombre AS NombreUsuario,
+        U.Apellido AS ApellidoUsuario,
+        H.Fecha
     FROM HISTORIAL_ESTADOS H
     INNER JOIN ESTADOS_PEDIDO E ON H.IdEstado = E.Id
     INNER JOIN USUARIOS U ON H.IdUsuario = U.Id
@@ -593,22 +953,23 @@ BEGIN
 END;
 GO
 
+-- =========================================
+-- 5. CONSULTAS DE CONTROL
+-- =========================================
+
 USE ECommerceDB;
 GO
 
-SELECT 
+SELECT
     U.Id,
     U.Nombre,
     U.Apellido,
     U.Email,
     U.IdPerfil,
-    P.Descripcion AS Perfil
+    P.Descripcion AS Perfil,
+    U.Activo,
+    U.EmailConfirmado
 FROM USUARIOS U
 INNER JOIN PERFILES P ON U.IdPerfil = P.Id;
-
-USE ECommerceDB;
 GO
 
-UPDATE USUARIOS
-SET IdPerfil = 1
-WHERE Email = 'phelanguille@gmail.com';

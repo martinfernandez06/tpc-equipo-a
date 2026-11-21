@@ -102,6 +102,7 @@
     <Content Include=".gitignore" />
     <Content Include="CerrarSesion.aspx" />
     <Content Include="Checkout.aspx" />
+    <Content Include="ConfirmarEmail.aspx" />
     <Content Include="Content\Admin.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -235,6 +236,13 @@
     </Compile>
     <Compile Include="Checkout.aspx.designer.cs">
       <DependentUpon>Checkout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ConfirmarEmail.aspx.cs">
+      <DependentUpon>ConfirmarEmail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ConfirmarEmail.aspx.designer.cs">
+      <DependentUpon>ConfirmarEmail.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>

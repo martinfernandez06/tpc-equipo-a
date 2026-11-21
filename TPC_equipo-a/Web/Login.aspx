@@ -11,9 +11,10 @@
                     </div>
                     <div class="card-body p-4">
 
-                        <!-- Alerta de éxito por registro -->
+                        <!-- Alerta de éxito de registro y confirmación de correo -->
                         <asp:Panel ID="pnlExito" runat="server" CssClass="alert alert-success alert-dismissible fade show mb-3" Visible="false" role="alert">
-                            <i class="bi bi-check-circle-fill me-2"></i> ¡Registro exitoso! Ya podés iniciar sesión con tus datos.
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <asp:Label ID="lblExito" runat="server" />
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </asp:Panel>
 
