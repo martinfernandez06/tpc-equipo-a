@@ -79,7 +79,7 @@ CREATE TABLE USUARIOS (
     Telefono VARCHAR(30) NULL,
     IdPerfil INT NOT NULL FOREIGN KEY REFERENCES PERFILES(Id),
     Activo BIT DEFAULT 1 NOT NULL,
-    FechaAlta DATETIME DEFAULT GETDATE() NOT NULL,
+    FechaAlta DATETIME DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) NOT NULL,
     UltimoAcceso DATETIME NULL
 );
 GO
@@ -112,7 +112,7 @@ GO
 CREATE TABLE PEDIDOS(
     Id INT IDENTITY(1,1),
     IdUsuario INT NOT NULL,
-    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT GETDATE(),
+    FechaCreacion DATETIME NOT NULL CONSTRAINT DF_PEDIDOS_FECHACREACION DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     IdFormaEntrega INT NOT NULL,
     IdDireccion INT NULL,
     IdFormaPago INT NOT NULL,
@@ -158,7 +158,7 @@ CREATE TABLE HISTORIAL_ESTADOS(
     IdPedido INT NOT NULL,
     IdEstado INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL CONSTRAINT DF_HISTORIAL_ESTADOS_FECHA DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     CONSTRAINT PK_HISTORIAL_ESTADOS_ID PRIMARY KEY(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
     CONSTRAINT FK_HISTORIAL_ESTADOS_IDUSUARIO FOREIGN KEY(IdUsuario) REFERENCES USUARIOS(Id),
@@ -171,7 +171,7 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
     Id INT IDENTITY(1,1),
     IdPedido INT NOT NULL,
     IdUsuario INT NOT NULL,
-    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT GETDATE(),
+    Fecha DATETIME NOT NULL CONSTRAINT DF_OBSERVACIONES_PEDIDO_FECHA DEFAULT CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME),
     Observacion VARCHAR(500) NOT NULL,
     CONSTRAINT PK_OBSERVACIONES_PEDIDO_ID PRIMARY KEY(Id),
     CONSTRAINT FK_OBSERVACIONES_PEDIDO_IDPEDIDO FOREIGN KEY(IdPedido) REFERENCES PEDIDOS(Id),
@@ -286,7 +286,7 @@ GO
 CREATE PROCEDURE spAltaUsuario
     @Nombre VARCHAR(50), @Apellido VARCHAR(50), @Email VARCHAR(100), @Clave VARCHAR(50), @Telefono VARCHAR(30), @IdPerfil INT
 AS BEGIN
-    INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta) VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, GETDATE());
+        INSERT INTO USUARIOS (Nombre, Apellido, Email, Clave, Telefono, IdPerfil, Activo, FechaAlta) VALUES (@Nombre, @Apellido, @Email, @Clave, @Telefono, @IdPerfil, 1, CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME));
 END;
 GO
 
@@ -308,7 +308,7 @@ CREATE PROCEDURE spCambiarEstadoUsuario @Id INT, @Activo BIT AS BEGIN UPDATE USU
 GO
 
 -- 5. guarda cuando entro el usuario por ultima vez, lo llama el login
-CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = GETDATE() WHERE Id = @Id; END;
+CREATE PROCEDURE spActualizarUltimoAcceso @Id INT AS BEGIN UPDATE USUARIOS SET UltimoAcceso = CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Argentina Standard Time' AS DATETIME) WHERE Id = @Id; END;
 GO
 
 -- 1. Alta de dirección
@@ -413,14 +413,18 @@ AS BEGIN
 END
 GO
 
-CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT
+CREATE PROCEDURE spListarPedidosPorCliente @IdUsuario INT, @FechaDesde DATE = NULL, @FechaHasta DATE = NULL
 AS BEGIN
-    -- trae todo lo que mis compras necesita para decidir que mostrar en cada pedido
-    -- estuvopagado se fija en el historial si alguna vez paso por pagado, asi el cancelado sabe si hay que devolver plata
     SELECT P.Id, P.FechaCreacion, FE.Descripcion AS FormaEntrega, P.IdFormaPago, FP.Descripcion AS FormaPago, FP.RequiereComprobante, P.IdEstado, E.Descripcion AS Estado, P.Total, P.EmpresaEnvio, P.CodigoSeguimiento, P.ComprobanteUrl, P.EstadoComprobante, P.MotivoRechazoComprobante, P.MotivoCancelacion,
-        CAST(CASE WHEN EXISTS (SELECT 1 FROM HISTORIAL_ESTADOS H WHERE H.IdPedido = P.Id AND H.IdEstado = 2) THEN 1 ELSE 0 END AS BIT) AS EstuvoPagado
+        CAST(CASE WHEN EXISTS (SELECT 1 FROM HISTORIAL_ESTADOS H WHERE H.IdPedido = P.Id AND H.IdEstado = 2) THEN 1 ELSE 0 END AS BIT) AS EstuvoPagado,
+        P.IdDireccion, D.Calle, D.Numero, D.Localidad, D.Provincia, D.CodigoPostal
     FROM PEDIDOS P INNER JOIN FORMAS_ENTREGA FE ON P.IdFormaEntrega = FE.Id INNER JOIN FORMAS_PAGO FP ON P.IdFormaPago = FP.Id INNER JOIN ESTADOS_PEDIDO E ON P.IdEstado = E.Id
-    WHERE P.IdUsuario = @IdUsuario ORDER BY P.FechaCreacion DESC
+    LEFT JOIN DIRECCIONES D ON P.IdDireccion = D.Id
+    -- las fechas son opcionales igual que en spListarPedidos, el hasta suma un dia para que entre todo ese dia
+    WHERE P.IdUsuario = @IdUsuario
+    AND (@FechaDesde IS NULL OR P.FechaCreacion >= @FechaDesde)
+    AND (@FechaHasta IS NULL OR P.FechaCreacion < DATEADD(DAY, 1, @FechaHasta))
+    ORDER BY P.FechaCreacion DESC
 END
 GO
 
