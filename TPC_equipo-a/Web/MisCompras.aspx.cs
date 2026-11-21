@@ -145,6 +145,21 @@ namespace Web
             return url.ToString();
         }
 
+        // cantidad por precio de cada producto, con el precio que pago en ese momento
+        protected string Subtotal(object cantidad, object precio)
+        {
+            return ((int)cantidad * (decimal)precio).ToString("C");
+        }
+
+        // los de retiro no tienen direccion, ahi va el texto del local
+        protected string TextoDireccion(object direccion)
+        {
+            if (direccion == null)
+                return "Lo retirás en el local";
+            Direccion d = (Direccion)direccion;
+            return $"{d.Calle} {d.Numero}, {d.Localidad}, {d.Provincia} (CP {d.CodigoPostal})";
+        }
+
         protected void btnFiltrar_Click(object sender, EventArgs e)
         {
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador

@@ -84,12 +84,46 @@
                                 </div>
                                 <div class="col-5 col-lg-2 order-lg-4 text-end">
                                     <span class="total-pedido"><%# Eval("Total", "{0:C}") %></span>
+                                    <i class="bi bi-chevron-down flecha-pedido ms-2 d-lg-none"></i>
                                 </div>
                                 <div class="d-none d-lg-block col-lg-1 order-lg-last text-end">
                                     <i class="bi bi-chevron-down flecha-pedido"></i>
                                 </div>
                             </div>
                         </a>
+                        <%-- detalle que se abre al tocar la fila, el id es el mismo que el href del link --%>
+                        <div class="collapse" id='pedido-<%# Eval("Id") %>'>
+                            <div class="detalle-pedido">
+                                <div class="row g-4">
+                                    <div class="col-12 col-lg-5">
+                                        <div class="titulo-campo">Productos</div>
+                                        <asp:Repeater ID="rptItems" runat="server" DataSource='<%# Eval("Items") %>'>
+                                            <ItemTemplate>
+                                                <div class="item-detalle">
+                                                    <img class="mini-producto" src='<%# ImagenProducto(Eval("Producto.ImagenUrl")) %>' alt='<%# Eval("Producto.Nombre") %>' onerror="this.onerror=null; this.src='<%# ResolveUrl("~/Imagenes/sin-imagen.svg") %>';" />
+                                                    <div class="flex-grow-1">
+                                                        <div class="nombre-item"><%# Eval("Producto.Nombre") %></div>
+                                                        <div class="dato-chico"><%# Eval("Cantidad") %> x <%# Eval("PrecioUnitario", "{0:C}") %></div>
+                                                    </div>
+                                                    <div class="subtotal-item"><%# Subtotal(Eval("Cantidad"), Eval("PrecioUnitario")) %></div>
+                                                </div>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                        <div class="total-detalle">
+                                            <span>Total</span>
+                                            <span class="total-pedido"><%# Eval("Total", "{0:C}") %></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <div class="titulo-campo">Entrega</div>
+                                        <div><%# Eval("FormaEntrega.Descripcion") %></div>
+                                        <div class="dato-chico"><%# TextoDireccion(Eval("Direccion")) %></div>
+                                        <div class="titulo-campo mt-3">Pago</div>
+                                        <div><%# Eval("FormaPago.Descripcion") %></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </ItemTemplate>
             </asp:Repeater>

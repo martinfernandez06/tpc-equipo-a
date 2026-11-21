@@ -508,6 +508,38 @@ body {
     color: #fff;
 }
 
+/* detalle del pedido abierto */
+.detalle-pedido {
+    border-top: 1px solid var(--color-borde-claro);
+    padding: 16px;
+}
+
+/* cada producto en un renglon, la foto, el nombre y lo que salio */
+.item-detalle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-borde-claro);
+}
+
+.nombre-item {
+    color: var(--color-fondo-oscuro);
+}
+
+.subtotal-item {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.total-detalle {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    font-weight: 700;
+    color: var(--color-fondo-oscuro);
+}
+
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);
