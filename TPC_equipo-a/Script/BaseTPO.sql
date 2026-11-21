@@ -209,6 +209,22 @@ CREATE TABLE OBSERVACIONES_PEDIDO(
 );
 GO
 
+CREATE TABLE RECORDARME_USUARIO (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    IdUsuario INT NOT NULL,
+    TokenHash CHAR(64) NOT NULL UNIQUE,
+    FechaCreacion DATETIME2 NOT NULL
+        CONSTRAINT DF_RECORDARME_FechaCreacion DEFAULT (SYSDATETIME()),
+    FechaExpiracion DATETIME2 NOT NULL,
+    Revocado BIT NOT NULL
+        CONSTRAINT DF_RECORDARME_Revocado DEFAULT (0),
+
+    CONSTRAINT FK_RECORDARME_USUARIO
+        FOREIGN KEY (IdUsuario) REFERENCES USUARIOS(Id)
+        ON DELETE CASCADE
+);
+GO
+
 
 -- =========================================
 -- 3. DATOS PARAMÉTRICOS (CONFIGURACIÓN)
@@ -542,6 +558,68 @@ GO
 -- 5. Desactivar o activar dirección (Baja lógica)
 CREATE PROCEDURE spCambiarEstadoDireccion @Id INT, @Activa BIT AS BEGIN UPDATE DIRECCIONES SET Activa = @Activa, Principal = CASE WHEN @Activa = 0 THEN 0 ELSE Principal END WHERE Id = @Id; END;
 GO
+
+
+-- Guardar un nuevo token persistente
+CREATE PROCEDURE spGuardarTokenRecordarme
+    @IdUsuario INT,
+    @TokenHash CHAR(64),
+    @FechaExpiracion DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO RECORDARME_USUARIO
+        (IdUsuario, TokenHash, FechaExpiracion)
+    VALUES
+        (@IdUsuario, @TokenHash, @FechaExpiracion);
+END;
+GO
+
+-- Buscar usuario mediante un token persistente
+CREATE PROCEDURE spBuscarUsuarioPorTokenRecordarme
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        U.Id,
+        U.Nombre,
+        U.Apellido,
+        U.Email,
+        U.Telefono,
+        U.IdPerfil,
+        P.Descripcion AS PerfilDescripcion,
+        U.Activo,
+        U.EmailConfirmado,
+        U.FechaAlta,
+        U.UltimoAcceso
+    FROM RECORDARME_USUARIO R
+    INNER JOIN USUARIOS U ON R.IdUsuario = U.Id
+    INNER JOIN PERFILES P ON U.IdPerfil = P.Id
+    WHERE R.TokenHash = @TokenHash
+      AND R.Revocado = 0
+      AND R.FechaExpiracion > SYSDATETIME()
+      AND U.Activo = 1
+      AND U.EmailConfirmado = 1;
+END;
+GO
+
+-- Revocar un token persistente
+CREATE PROCEDURE spRevocarTokenRecordarme
+    @TokenHash CHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE RECORDARME_USUARIO
+    SET Revocado = 1
+    WHERE TokenHash = @TokenHash
+      AND Revocado = 0;
+END;
+GO
+
 
 
 -- -----------------------------------------
@@ -970,3 +1048,5 @@ AS BEGIN
     UPDATE PEDIDOS SET ComprobanteUrl = @ComprobanteUrl, EstadoComprobante = 'Pendiente', MotivoRechazoComprobante = NULL WHERE Id = @IdPedido
 END
 GO
+
+
