@@ -19,7 +19,6 @@ namespace Negocio
                 datos.setearProcedimiento("spAltaPedido");
                 datos.setearParametro("@IdUsuario", nuevo.Cliente.Id);
                 datos.setearParametro("@IdFormaEntrega", nuevo.FormaEntrega.Id);
-                // si es retiro en el local no hay direccion y mando null a la bd, el object es para que el ternario acepte int y dbnull
                 datos.setearParametro("@IdDireccion", nuevo.Direccion != null ? (object)nuevo.Direccion.Id : DBNull.Value);
                 datos.setearParametro("@IdFormaPago", nuevo.FormaPago.Id);
                 datos.setearParametro("@Total", nuevo.Total);
@@ -168,15 +167,18 @@ namespace Negocio
                     Pedido aux = new Pedido();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.FechaCreacion = (DateTime)datos.Lector["FechaCreacion"];
-                    // creo los objetos de adentro porque el constructor de Pedido no los inicializa, si no quedan en null y rompe al cargarles datos
                     aux.FormaPago = new FormaPago();
+                    aux.FormaPago.Id = (int)datos.Lector["IdFormaPago"];
                     aux.FormaPago.Descripcion = (string)datos.Lector["FormaPago"];
+                    aux.FormaPago.RequiereComprobante = (bool)datos.Lector["RequiereComprobante"];
                     aux.FormaEntrega = new FormaEntrega();
                     aux.FormaEntrega.Descripcion = (string)datos.Lector["FormaEntrega"];
                     aux.Estado = new EstadoPedido();
+                    aux.Estado.Id = (int)datos.Lector["IdEstado"];
                     aux.Estado.Descripcion = (string)datos.Lector["Estado"];
                     aux.Total = (decimal)datos.Lector["Total"];
-                    // estas columnas pueden venir NULL de la bd, solo las cargo si no son DBNull porque castear un DBNull a string rompe
+                    aux.EstuvoPagado = (bool)datos.Lector["EstuvoPagado"];
+
                     if (!(datos.Lector["CodigoSeguimiento"] is DBNull))
                     {
                         aux.CodigoSeguimiento = (string)datos.Lector["CodigoSeguimiento"];
@@ -185,9 +187,21 @@ namespace Negocio
                     {
                         aux.EmpresaEnvio = (string)datos.Lector["EmpresaEnvio"];
                     }
+                    if (!(datos.Lector["ComprobanteUrl"] is DBNull))
+                    {
+                        aux.ComprobanteUrl = (string)datos.Lector["ComprobanteUrl"];
+                    }
                     if (!(datos.Lector["EstadoComprobante"] is DBNull))
                     {
                         aux.EstadoComprobante = (string)datos.Lector["EstadoComprobante"];
+                    }
+                    if (!(datos.Lector["MotivoRechazoComprobante"] is DBNull))
+                    {
+                        aux.MotivoRechazoComprobante = (string)datos.Lector["MotivoRechazoComprobante"];
+                    }
+                    if (!(datos.Lector["MotivoCancelacion"] is DBNull))
+                    {
+                        aux.MotivoCancelacion = (string)datos.Lector["MotivoCancelacion"];
                     }
                     lista.Add(aux);
                 }
@@ -465,6 +479,30 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
+        // cancela desde mis compras solo si el pedido es del cliente, sigue sin pagar y no mando comprobante, si no el sp tira error
+        public void CancelarPedidoCliente(int idPedido, int idUsuario, string motivo)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spCancelarPedidoCliente");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.setearParametro("@Motivo", string.IsNullOrWhiteSpace(motivo) ? DBNull.Value : (object)motivo.Trim());
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
         public void AgregarObservacion(int idPedido, int idUsuario, string observacion)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -579,7 +617,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
-        // rechaza el comprobante, el pedido sigue pendiente de pago y el motivo queda como observacion
+        // rechaza el comprobante, el pedido sigue pendiente de pago y el motivo lo ve el cliente y queda como observacion
         public void RechazarComprobante(int idPedido, int idUsuario, string motivo)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -591,6 +629,29 @@ namespace Negocio
                 datos.setearParametro("@IdUsuario", idUsuario);
                 // si viene vacio o con espacios manda el null de la bd, y si tiene algo manda el texto sin espacios a los costados
                 datos.setearParametro("@Motivo", string.IsNullOrWhiteSpace(motivo) ? DBNull.Value : (object)motivo.Trim());
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarLectura();
+            }
+        }
+        // el cliente sube el comprobante de la transferencia si el pedido no es suyo o ya tiene uno en revision el sp tira error
+        public void SubirComprobante(int idPedido, int idUsuario, string comprobanteUrl)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("spSubirComprobante");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.setearParametro("@ComprobanteUrl", string.IsNullOrWhiteSpace(comprobanteUrl) ? DBNull.Value : (object)comprobanteUrl);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
