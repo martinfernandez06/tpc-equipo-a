@@ -35,6 +35,13 @@
                     <asp:CompareValidator ID="cvHastaHoy" runat="server" ControlToValidate="txtHasta" Operator="LessThanEqual" Type="Date" ErrorMessage="La fecha hasta no puede ser posterior a hoy" ValidationGroup="fechas" Display="Dynamic" CssClass="text-danger small" />
                 </div>
             </div>
+            <%-- pestañas por estado, el numero respeta el filtro de fechas --%>
+            <div class="pestanas-compras">
+                <asp:LinkButton ID="btnTodos" runat="server" CommandArgument="todos" OnClick="btnPestana_Click" ValidationGroup="fechas" />
+                <asp:LinkButton ID="btnEnCurso" runat="server" CommandArgument="encurso" OnClick="btnPestana_Click" ValidationGroup="fechas" />
+                <asp:LinkButton ID="btnEntregados" runat="server" CommandArgument="entregados" OnClick="btnPestana_Click" ValidationGroup="fechas" />
+                <asp:LinkButton ID="btnCancelados" runat="server" CommandArgument="cancelados" OnClick="btnPestana_Click" ValidationGroup="fechas" />
+            </div>
 
             <asp:Label ID="lblMensaje" runat="server" Visible="false"></asp:Label>
         </ContentTemplate>

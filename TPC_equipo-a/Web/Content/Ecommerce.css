@@ -354,6 +354,52 @@ body {
         color: var(--color-stock-ok);
     }
 
+/* mis compras */
+/* pestañas por estado, si no entran en el celu se deslizan de costado */
+.pestanas-compras {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none; /* saca la barrita de abajo, se desliza igual con el dedo */
+    border-bottom: 1px solid var(--color-borde-claro);
+    margin: 16px 0;
+}
+
+.pestana {
+    flex-shrink: 0; /* que no se achiquen, mejor que se deslicen */
+    white-space: nowrap;
+    padding: 8px 14px;
+    color: var(--color-linea);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; /* la linea violeta queda encima de la gris */
+}
+
+    .pestana:hover {
+        color: var(--color-boton-primario);
+    }
+
+    /* la pestaña elegida en violeta con la linea abajo */
+    .pestana.activa {
+        color: var(--color-boton-primario);
+        border-bottom-color: var(--color-boton-primario);
+        font-weight: 600;
+    }
+
+/* numerito al lado del nombre */
+.cuenta-pestana {
+    background-color: var(--color-lila-chip);
+    color: var(--color-boton-primario-hover);
+    font-size: 0.75rem;
+    padding: 1px 7px;
+    margin-left: 4px;
+}
+
+.pestana.activa .cuenta-pestana {
+    background-color: var(--color-boton-primario);
+    color: #fff;
+}
+
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);
