@@ -19,56 +19,103 @@ namespace Web
             }
         }
 
-        // Método auxiliar para no repetir código. Dibuja el carrito y calcula totales.
-        private void CargarCarrito()
+        // Sincroniza stock/estado con la BD, dibuja el carrito y devuelve true si está apto para iniciar compra
+        private bool CargarCarrito()
         {
-            // Traemos el carrito de la Session
             Dominio.Carrito carrito = Session["Carrito"] != null ? (Dominio.Carrito)Session["Carrito"] : new Dominio.Carrito();
 
-            // Si hay productos, mostramos la tabla. Si no, mostramos el cartel de vacío.
             if (carrito.Items.Count > 0)
             {
-                // Actualizamos el stock de cada ítem con la base de datos para deshabilitar el botón + correctamente
                 ProductoNegocio negocio = new ProductoNegocio();
                 List<Producto> listaDb = negocio.Listar();
+
+                bool haySinStockOInactivo = false;
+                bool hayCantidadExcedida = false;
+
                 foreach (ItemCarrito item in carrito.Items)
                 {
                     Producto productoDb = listaDb.Find(x => x.Id == item.Producto.Id);
                     if (productoDb != null)
                     {
                         item.Producto.Stock = productoDb.Stock;
+                        item.Producto.Activo = productoDb.Activo;
+                        item.Producto.PrecioVenta = productoDb.PrecioVenta;
+
+                        if (!productoDb.Activo || productoDb.Stock <= 0)
+                        {
+                            haySinStockOInactivo = true;
+                        }
+                        else if (item.Cantidad > productoDb.Stock)
+                        {
+                            hayCantidadExcedida = true;
+                        }
+                    }
+                    else
+                    {
+                        item.Producto.Stock = 0;
+                        item.Producto.Activo = false;
+                        haySinStockOInactivo = true;
                     }
                 }
+
+                Session["Carrito"] = carrito;
 
                 rptCarrito.DataSource = carrito.Items;
                 rptCarrito.DataBind();
 
-                // Actualizamos los importes en la tarjetita de resumen
                 lblSubtotalResumen.Text = carrito.Total.ToString("C");
                 lblTotalResumen.Text = carrito.Total.ToString("C");
 
                 divTablaCarrito.Visible = true;
                 lblVacio.Visible = false;
-                btnCheckout.Enabled = true;
+
+                if (haySinStockOInactivo && hayCantidadExcedida)
+                {
+                    lblAvisoStock.Text = "Tenés productos sin stock y otros que superan la disponibilidad. Quitalos o bajá la cantidad para poder iniciar la compra.";
+                    lblAvisoStock.Visible = true;
+                    btnCheckout.Enabled = false;
+                    return false;
+                }
+                else if (haySinStockOInactivo)
+                {
+                    lblAvisoStock.Text = "Tenés productos sin stock o no disponibles. Quitalos del carrito para poder iniciar la compra.";
+                    lblAvisoStock.Visible = true;
+                    btnCheckout.Enabled = false;
+                    return false;
+                }
+                else if (hayCantidadExcedida)
+                {
+                    lblAvisoStock.Text = "La cantidad elegida de algún producto supera el stock disponible. Bajá la cantidad o quitalo del carrito para continuar.";
+                    lblAvisoStock.Visible = true;
+                    btnCheckout.Enabled = false;
+                    return false;
+                }
+                else
+                {
+                    lblAvisoStock.Visible = false;
+                    btnCheckout.Enabled = true;
+                    return true;
+                }
             }
             else
             {
                 divTablaCarrito.Visible = false;
                 lblVacio.Visible = true;
+                lblAvisoStock.Visible = false;
                 lblSubtotalResumen.Text = "$0,00";
                 lblTotalResumen.Text = "$0,00";
                 btnCheckout.Enabled = false;
+                return false;
             }
         }
 
-        // Este evento atrapa los clics en los botones de +, - y Eliminar de cualquier fila
+        // Atrapa los clics en los botones de +, - y Eliminar de cualquier fila
         protected void rptCarrito_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             lblError.Visible = false;
 
             Dominio.Carrito carrito = Session["Carrito"] != null ? (Dominio.Carrito)Session["Carrito"] : new Dominio.Carrito();
 
-            // Leemos el ID del producto que viene oculto en el CommandArgument del botón HTML
             int idProducto = int.Parse(e.CommandArgument.ToString());
             ItemCarrito item = carrito.Items.Find(i => i.Producto.Id == idProducto);
 
@@ -76,24 +123,22 @@ namespace Web
             {
                 if (e.CommandName == "Sumar")
                 {
-                    // Vamos a la base a chequear el stock real antes de dejarlo sumar
                     ProductoNegocio negocio = new ProductoNegocio();
                     Producto productoDb = negocio.Listar().Find(x => x.Id == idProducto);
 
-                    if (productoDb != null && item.Cantidad < productoDb.Stock)
+                    if (productoDb != null && productoDb.Activo && item.Cantidad < productoDb.Stock)
                     {
                         item.Cantidad++;
                         item.Producto.Stock = productoDb.Stock;
                     }
                     else
                     {
-                        lblError.Text = "No podés sumar más unidades de '" + item.Producto.Nombre + "' porque llegaste al límite del stock disponible.";
+                        lblError.Text = "No podés sumar más unidades de \"" + item.Producto.Nombre + "\" porque llegaste al límite disponible.";
                         lblError.Visible = true;
                     }
                 }
                 else if (e.CommandName == "Restar")
                 {
-                    // Solo restamos si hay más de 1 unidad; el borrado queda exclusivo para el botón eliminar
                     if (item.Cantidad > 1)
                     {
                         item.Cantidad--;
@@ -104,32 +149,27 @@ namespace Web
                     carrito.Items.Remove(item);
                 }
 
-                // Guardamos los cambios en Session y volvemos a dibujar la pantalla
                 Session["Carrito"] = carrito;
                 CargarCarrito();
             }
         }
 
-        protected void btnCheckout_Click(object sender, EventArgs e)
+        protected void btnIniciarCompra_Click(object sender, EventArgs e)
         {
-            // Dejo listo para la proxima tarjeta...
-            Response.Redirect("Checkout.aspx", false);
-        }
+            // Revalidamos stock antes de dejar pasar al checkout
+            if (!CargarCarrito())
+                return;
 
-        protected void btnIniciarCompra_Click(object sender, EventArgs e){
-
-            // Verifico si el usuario inicio sesión
             if (Session["usuario"] == null)
             {
-
-             // No está logueado
-            Response.Redirect("Login.aspx?redirect=checkout", false);
-    }
-    else
-    {
-        // Ya está logueado
-        Response.Redirect("Checkout.aspx", false);
-    }
-}
+                Response.Redirect("Login.aspx?redirect=checkout", false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
+            else
+            {
+                Response.Redirect("Checkout.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+            }
+        }
     }
 }
