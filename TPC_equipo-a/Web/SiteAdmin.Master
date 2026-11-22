@@ -1,93 +1,141 @@
-﻿
-using System;
-using System.Web.UI;
-using Dominio;
-using Negocio;
+﻿```aspx
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SiteAdmin.master.cs" Inherits="Web.SiteAdmin" %>
 
-namespace Web
-{
-    public partial class SiteAdmin : MasterPage
-    {
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            Usuario usuario = Session["usuario"] as Usuario;
+<!DOCTYPE html>
 
-            // Verificar que el usuario esté autenticado
-            // y que tenga perfil de Administrador.
-            if (usuario == null ||
-                usuario.Perfil == null ||
-                usuario.Perfil.Id != 1)
-            {
-                Response.Redirect("~/Default.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
-                return;
-            }
+<html lang="es">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Panel Admin</title>
 
-            // Mostrar el nombre del administrador.
-            if (!IsPostBack)
-            {
-                lblNombreUsuario.Text = usuario.Nombre;
-            }
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <link href="~/Content/Ecommerce.css" rel="stylesheet" />
+    <link href="~/Content/Admin.css" rel="stylesheet" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
-            // Marcar en el menú la página actual.
-            string pagina = Page.AppRelativeVirtualPath;
+    <%-- Iconos de Bootstrap --%>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
 
-            if (pagina.Contains("Producto"))
-            {
-                lnkProductos.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Categoria"))
-            {
-                lnkCategorias.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Pago"))
-            {
-                lnkFormasPago.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Entrega"))
-            {
-                lnkFormasEntrega.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Pedido"))
-            {
-                lnkPedidos.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Reporte"))
-            {
-                lnkReportes.Attributes["class"] += " activo";
-            }
-            else if (pagina.Contains("Comprobante"))
-            {
-                lnkComprobantes.Attributes["class"] += " activo";
-            }
-        }
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
 
-        // Actualizar el contador de comprobantes pendientes
-        // después de procesar las acciones de la página.
-        protected void Page_PreRender(object sender, EventArgs e)
-        {
-            Usuario usuario = Session["usuario"] as Usuario;
+<body>
+    <form id="form1" runat="server" class="d-flex flex-column vh-100">
 
-            // Evitar ejecutar la consulta si no es administrador.
-            if (usuario == null ||
-                usuario.Perfil == null ||
-                usuario.Perfil.Id != 1)
-            {
-                return;
-            }
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+            </Scripts>
+        </asp:ScriptManager>
 
-            PedidoNegocio negocio = new PedidoNegocio();
-            int cantidad = negocio.ContarComprobantesPendientes();
+        <%-- Barra superior --%>
+        <header class="barra-admin d-flex justify-content-between align-items-center px-3 py-2">
 
-            if (cantidad > 0)
-            {
-                lblPendientes.Text = cantidad.ToString();
-                lblPendientes.Visible = true;
-            }
-            else
-            {
-                lblPendientes.Visible = false;
-            }
-        }
-    }
-}
+            <span class="d-flex align-items-center">
+                <span class="logo-admin">
+                    <i class="bi bi-shop"></i>
+                </span>
+
+                <span>
+                    <span class="d-block fw-bold lh-1">MAGVA</span>
+                    <span class="sub-logo-admin">Panel admin</span>
+                </span>
+            </span>
+
+            <span class="small d-flex align-items-center gap-3">
+                <a class="link-barra" runat="server" href="~/Default.aspx">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Ver tienda
+                </a>
+
+                <span>
+                    <i class="bi bi-person-circle me-1"></i>
+                    <asp:Label ID="lblNombreUsuario" runat="server"></asp:Label>
+                </span>
+            </span>
+
+        </header>
+
+        <%-- Menú lateral y contenido --%>
+        <div class="d-flex flex-grow-1 overflow-hidden">
+
+            <aside class="menu-admin p-3">
+                <ul class="nav flex-column">
+
+                    <li class="nav-item">
+                        <a id="lnkProductos" class="nav-link" runat="server" href="~/AdminProductos">
+                            <i class="bi bi-box-seam"></i>Productos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkCategorias" class="nav-link" runat="server" href="~/AdminCategorias">
+                            <i class="bi bi-tags"></i>Categorías
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkFormasPago" class="nav-link" runat="server" href="~/AdminFormasPago">
+                            <i class="bi bi-credit-card"></i>Formas de pago
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkFormasEntrega" class="nav-link" runat="server" href="~/AdminFormasEntrega">
+                            <i class="bi bi-truck"></i>Formas de entrega
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkPedidos" class="nav-link" runat="server" href="~/AdminPedidos">
+                            <i class="bi bi-bag"></i>Pedidos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkComprobantes" class="nav-link" runat="server" href="~/AdminComprobantes">
+                            <i class="bi bi-inbox"></i>Comprobantes
+
+                            <asp:UpdatePanel ID="upPendientes" runat="server" UpdateMode="Always" RenderMode="Inline">
+                                <ContentTemplate>
+                                    <asp:Label ID="lblPendientes" runat="server" CssClass="cuenta-menu" Visible="false"></asp:Label>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a id="lnkReportes" class="nav-link" runat="server" href="~/AdminReportes">
+                            <i class="bi bi-bar-chart-line"></i>Reportes
+                        </a>
+                    </li>
+
+                </ul>
+            </aside>
+
+            <main class="flex-grow-1 p-4 overflow-auto">
+                <asp:ContentPlaceHolder ID="MainContent" runat="server">
+                </asp:ContentPlaceHolder>
+            </main>
+
+        </div>
+    </form>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/Scripts/bootstrap.bundle.js") %>
+    </asp:PlaceHolder>
+
+</body>
+</html>
+```
