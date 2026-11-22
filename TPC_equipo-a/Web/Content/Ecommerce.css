@@ -318,6 +318,17 @@ body {
         display: flex;
         align-items: center;
     }
+    /* oculta las flechitas nativas del input number porque ya tenemos botones - y + */
+    .cantidad-detalle input[type="number"]::-webkit-inner-spin-button,
+    .cantidad-detalle input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .cantidad-detalle input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
 
 
 /* formas de entrega y pago abajo del boton, separadas con una linea fina */
