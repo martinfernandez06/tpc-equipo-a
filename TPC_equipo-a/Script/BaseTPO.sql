@@ -314,14 +314,49 @@ GO
 
 -- 3. Modificar un producto existente
 CREATE PROCEDURE spModificarProducto
-    @Id INT, @Nombre VARCHAR(100), @Descripcion VARCHAR(255), @PrecioVenta MONEY, @Stock INT, @IdCategoria INT, @ImagenUrl VARCHAR(500)
-AS BEGIN
-    UPDATE PRODUCTOS SET Nombre = @Nombre, Descripcion = @Descripcion, PrecioVenta = @PrecioVenta, Stock = @Stock, IdCategoria = @IdCategoria, ImagenUrl = @ImagenUrl WHERE Id = @Id;
-END;
-GO
+    @Id INT,
+    @Nombre VARCHAR(100),
+    @Descripcion VARCHAR(255),
+    @PrecioVenta MONEY,
+    @Stock INT,
+    @IdCategoria INT,
+    @ImagenUrl VARCHAR(500),
+    @CodigoPropio VARCHAR(50) = NULL
+AS
+BEGIN
+    DECLARE @CodigoFinal VARCHAR(50);
+    DECLARE @PrefijoCategoria VARCHAR(3);
 
--- 4. Baja lógica (cambiar estado activo/inactivo)
-CREATE PROCEDURE spBajaLogicaProducto @Id INT AS BEGIN UPDATE PRODUCTOS SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE Id = @Id; END;
+    SET @CodigoPropio = NULLIF(LTRIM(RTRIM(@CodigoPropio)), '');
+
+    IF @CodigoPropio IS NOT NULL
+    BEGIN
+        -- Valida que el código no pertenezca a OTRO producto
+        IF EXISTS (SELECT 1 FROM PRODUCTOS WHERE Codigo = @CodigoPropio AND Id <> @Id)
+            THROW 50012, 'El código de producto ingresado ya existe.', 1;
+
+        SET @CodigoFinal = @CodigoPropio;
+    END
+    ELSE
+    BEGIN
+        -- Si lo dejó vacío, auto-genera con el prefijo de la categoría y el Id actual
+        SELECT @PrefijoCategoria = UPPER(LEFT(Nombre, 3)) FROM CATEGORIAS WHERE Id = @IdCategoria;
+        SET @CodigoFinal = @PrefijoCategoria + '-' + RIGHT('0000' + CAST(@Id AS VARCHAR(10)), 4);
+
+        IF EXISTS (SELECT 1 FROM PRODUCTOS WHERE Codigo = @CodigoFinal AND Id <> @Id)
+            THROW 50012, 'El código autogenerado ya existe en otro producto.', 1;
+    END
+
+    UPDATE PRODUCTOS
+    SET Codigo = @CodigoFinal,
+        Nombre = @Nombre,
+        Descripcion = @Descripcion,
+        PrecioVenta = @PrecioVenta,
+        Stock = @Stock,
+        IdCategoria = @IdCategoria,
+        ImagenUrl = @ImagenUrl
+    WHERE Id = @Id;
+END;
 GO
 
 
@@ -1048,5 +1083,3 @@ AS BEGIN
     UPDATE PEDIDOS SET ComprobanteUrl = @ComprobanteUrl, EstadoComprobante = 'Pendiente', MotivoRechazoComprobante = NULL WHERE Id = @IdPedido
 END
 GO
-
-
