@@ -15,6 +15,15 @@ namespace Web
     {
 
         /// <summary>
+        /// upFormasPago control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upFormasPago;
+
+        /// <summary>
         /// ddlFiltro control.
         /// </summary>
         /// <remarks>
@@ -22,15 +31,6 @@ namespace Web
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlFiltro;
-
-        /// <summary>
-        /// btnNuevaForma control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnNuevaForma;
 
         /// <summary>
         /// dgvFormasPago control.
