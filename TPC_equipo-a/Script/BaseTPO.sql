@@ -359,6 +359,10 @@ BEGIN
 END;
 GO
 
+-- 4. Baja lógica (cambiar estado activo/inactivo)
+CREATE PROCEDURE spBajaLogicaProducto @Id INT AS BEGIN UPDATE PRODUCTOS SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE Id = @Id; END;
+GO
+
 
 -- -----------------------------------------
 -- MÓDULO USUARIOS Y DIRECCIONES
