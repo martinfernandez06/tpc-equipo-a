@@ -660,4 +660,136 @@ body {
 
         .footer-ecommerce a:hover {
             color: var(--color-texto-claro);
+<<<<<<< HEAD
         }
+=======
+        }
+
+/* mercado pago simulado */
+.mp-contenedor {
+    max-width: 680px;
+}
+
+.encabezado-mp {
+    background-color: #009EE3;
+    color: #fff;
+    padding: 14px 20px;
+}
+
+.badge-mp-prueba {
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    white-space: nowrap;
+}
+
+.aviso-mp {
+    background-color: #EBF7FD;
+    border: 1px solid #BFE6FA;
+    border-left: 3px solid #009EE3;
+    color: var(--color-fondo-oscuro);
+    font-size: 0.85rem;
+    padding: 10px 14px;
+}
+
+    .aviso-mp i {
+        color: #007EB5;
+    }
+
+.tabla-mp thead th {
+    background-color: var(--color-lila-fondo);
+    color: var(--color-violeta-titulo);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-borde-claro);
+}
+
+.tabla-mp td {
+    border-color: var(--color-borde-claro);
+}
+
+.mp-nowrap {
+    white-space: nowrap;
+}
+
+.total-mp {
+    background-color: var(--color-lila-fondo);
+    border: 1px solid var(--color-borde-claro);
+    padding: 14px 16px;
+}
+
+/* boton principal de pago con identidad de mercado pago */
+.btn-mp-primario {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #009EE3;
+    --bs-btn-border-color: #009EE3;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #007EB5;
+    --bs-btn-hover-border-color: #007EB5;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #006A99;
+    --bs-btn-active-border-color: #006A99;
+    --bs-btn-border-radius: 0;
+}
+
+/* boton neutro para cancelar sin mezclar violeta con el celeste de mp */
+.btn-mp-secundario {
+    --bs-btn-color: var(--color-linea);
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: var(--color-borde-claro);
+    --bs-btn-hover-color: var(--color-fondo-oscuro);
+    --bs-btn-hover-bg: var(--color-fondo-imagen);
+    --bs-btn-hover-border-color: var(--color-linea);
+    --bs-btn-active-color: var(--color-fondo-oscuro);
+    --bs-btn-active-bg: var(--color-fondo-imagen);
+    --bs-btn-active-border-color: var(--color-linea);
+    --bs-btn-border-radius: 0;
+}
+
+/* libera el max-width: 280px de site.css en los asp:Button de esta pantalla */
+.mp-acciones .btn {
+    max-width: none;
+}
+
+/* paneles de resultado: pagado, cancelado y error */
+.estado-mp-ok {
+    border-top: 3px solid var(--color-stock-ok);
+}
+
+.estado-mp-pendiente {
+    border-top: 3px solid var(--color-stock-pocos);
+}
+
+.estado-mp-error {
+    border-top: 3px solid #DC2626;
+}
+
+.icono-estado-mp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    font-size: 2rem;
+}
+
+.icono-mp-ok {
+    background-color: #DCFCE7;
+    color: var(--color-stock-ok);
+}
+
+.icono-mp-pendiente {
+    background-color: #FFEDD5;
+    color: var(--color-stock-pocos);
+}
+
+.icono-mp-error {
+    background-color: #FEE2E2;
+    color: #DC2626;
+}
+>>>>>>> pablo/estilos-mercadopago
