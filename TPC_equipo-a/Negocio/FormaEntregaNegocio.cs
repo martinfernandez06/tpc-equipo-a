@@ -52,10 +52,9 @@ namespace Negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("UPDATE FORMAS_ENTREGA SET Descripcion = @Descripcion, RequiereDireccion = @RequiereDireccion, Activa = @Activa WHERE Id = @Id");
+                datos.setearConsulta("UPDATE FORMAS_ENTREGA SET Descripcion = @Descripcion, RequiereDireccion = @RequiereDireccion WHERE Id = @Id");
                 datos.setearParametro("@Descripcion", modificado.Descripcion);
                 datos.setearParametro("@RequiereDireccion", modificado.RequiereDireccion);
-                datos.setearParametro("@Activa", modificado.Activa);
                 datos.setearParametro("@Id", modificado.Id);
                 datos.ejecutarAccion();
             }

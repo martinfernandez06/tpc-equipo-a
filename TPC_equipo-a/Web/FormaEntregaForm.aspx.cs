@@ -15,26 +15,43 @@ namespace Web
         {
             if (!IsPostBack)
             {
-                if (Request.QueryString["id"] != null)
-                {
-                    int id = int.Parse(Request.QueryString["id"].ToString());
-                    FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+                string idParam = Request.QueryString["id"];
 
+                if (!string.IsNullOrEmpty(idParam) && int.TryParse(idParam, out int id))
+                {
+                    FormaEntregaNegocio negocio = new FormaEntregaNegocio();
                     List<FormaEntrega> lista = negocio.Listar();
                     FormaEntrega seleccionada = lista.Find(x => x.Id == id);
 
-                    if (seleccionada != null)
+                    if (seleccionada == null)
                     {
-                        txtDescripcion.Text = seleccionada.Descripcion;
-                        chkRequiereDireccion.Checked = seleccionada.RequiereDireccion;
-                        chkActiva.Checked = seleccionada.Activa;
+                        Response.Redirect("AdminFormasEntrega.aspx", false);
+                        return;
+                    }
 
-                        lblTitulo.Text = "Modificar Forma de Entrega";
+                    txtDescripcion.Text = seleccionada.Descripcion;
+                    chkRequiereDireccion.Checked = seleccionada.RequiereDireccion;
+
+                    lblTitulo.Text = "Modificar forma de entrega";
+                    btnGuardar.Text = "Modificar";
+
+                    lblEstado.Text = "Activa";
+                    lblEstado.CssClass = "badge bg-success";
+
+                    if (!seleccionada.Activa)
+                    {
+                        btnEstado.Text = "Activar";
+                        lblEstado.Text = "Inactiva";
+                        lblEstado.CssClass = "badge bg-secondary";
+                        btnEstado.CssClass = "btn btn-admin-secundario ms-auto";
                     }
                 }
                 else
                 {
-                    lblTitulo.Text = "Nueva Forma de Entrega";
+                    lblTitulo.Text = "Nueva forma de entrega";
+                    btnGuardar.Text = "Crear";
+                    lblEstado.Visible = false;
+                    btnEstado.Visible = false;
                 }
             }
         }
@@ -43,41 +60,99 @@ namespace Web
         {
             try
             {
+                lblError.Visible = false;
+                lblError.Text = "";
+
                 Page.Validate();
                 if (!Page.IsValid)
                     return;
 
-                FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+                string descripcion = txtDescripcion.Text.Trim();
                 int id = Request.QueryString["id"] != null ? int.Parse(Request.QueryString["id"]) : 0;
 
-                if (negocio.existeDescripcion(txtDescripcion.Text, id))
+                FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+
+                if (negocio.existeDescripcion(descripcion, id))
                 {
                     lblError.Text = "Ya existe una forma de entrega con esa descripción.";
                     lblError.Visible = true;
                     return;
                 }
 
-                FormaEntrega nueva = new FormaEntrega();
-                nueva.Descripcion = txtDescripcion.Text;
-                nueva.RequiereDireccion = chkRequiereDireccion.Checked;
-                nueva.Activa = chkActiva.Checked;
-                lblError.Visible = false;
+                FormaEntrega formaEntrega = new FormaEntrega();
+                formaEntrega.Descripcion = descripcion;
+                formaEntrega.RequiereDireccion = chkRequiereDireccion.Checked;
 
                 if (id != 0)
                 {
-                    nueva.Id = id;
-                    negocio.Modificar(nueva);
+                    formaEntrega.Id = id;
+                    negocio.Modificar(formaEntrega);
                 }
                 else
                 {
-                    negocio.Agregar(nueva);
+                    formaEntrega.Activa = true;
+                    negocio.Agregar(formaEntrega);
                 }
 
                 Response.Redirect("AdminFormasEntrega.aspx", false);
             }
             catch (Exception ex)
             {
-                throw ex;
+                lblError.Text = "No se pudo guardar la forma de entrega: " + ex.Message;
+                lblError.Visible = true;
+            }
+        }
+
+        protected void btnEstado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (btnEstado.Text == "Desactivar")
+                {
+                    pnlConfirmar.Visible = true;
+                    pnlBotones.Visible = false;
+                    return;
+                }
+
+                if (Request.QueryString["id"] != null)
+                {
+                    int id = int.Parse(Request.QueryString["id"]);
+                    FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+                    negocio.CambiarEstado(id, true);
+
+                    Response.Redirect("AdminFormasEntrega.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "No se pudo cambiar el estado: " + ex.Message;
+                lblError.Visible = true;
+            }
+        }
+
+        protected void btnNoDesactivar_Click(object sender, EventArgs e)
+        {
+            pnlConfirmar.Visible = false;
+            pnlBotones.Visible = true;
+        }
+
+        protected void btnSiDesactivar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Request.QueryString["id"] != null)
+                {
+                    int id = int.Parse(Request.QueryString["id"]);
+                    FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+                    negocio.CambiarEstado(id, false);
+
+                    Response.Redirect("AdminFormasEntrega.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "No se pudo desactivar la forma de entrega: " + ex.Message;
+                lblError.Visible = true;
             }
         }
     }
