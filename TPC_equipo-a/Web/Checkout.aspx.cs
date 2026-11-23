@@ -1,5 +1,4 @@
-
-using Dominio;
+﻿using Dominio;
 using Negocio;
 using System;
 using System.Collections.Generic;
@@ -151,16 +150,18 @@ namespace Web
         {
             rptResumen.DataSource = carrito.Items;
             rptResumen.DataBind();
+            lblResumenSubtotal.Text = carrito.Total.ToString("C");
             lblResumenTotal.Text = carrito.Total.ToString("C");
         }
 
         private void ActualizarPanelEntregaYResumen()
         {
-            // Forma de entrega y visibilidad del bloque de direcciones.
+            // Forma de entrega, costo de envío y visibilidad del bloque de direcciones.
             FormaEntrega entregaSeleccionada = ObtenerFormaEntregaSeleccionada();
             if (entregaSeleccionada != null)
             {
                 lblResumenEntrega.Text = entregaSeleccionada.Descripcion;
+                lblResumenEnvio.Text = entregaSeleccionada.RequiereDireccion ? "Gratis" : "Sin costo";
                 pnlDirecciones.Visible = entregaSeleccionada.RequiereDireccion;
                 liResumenDireccion.Visible = entregaSeleccionada.RequiereDireccion;
 
@@ -179,6 +180,7 @@ namespace Web
             else
             {
                 lblResumenEntrega.Text = "Sin seleccionar";
+                lblResumenEnvio.Text = "Sin costo";
                 pnlDirecciones.Visible = false;
                 liResumenDireccion.Visible = false;
             }
@@ -250,6 +252,8 @@ namespace Web
 
             if (Session["usuario"] == null)
             {
+                Session["mensajeCheckout"] = true;
+                Session["volverAlCheckout"] = true;
                 Response.Redirect("Login.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
                 return;
@@ -320,6 +324,8 @@ namespace Web
 
             if (Session["usuario"] == null)
             {
+                Session["mensajeCheckout"] = true;
+                Session["volverAlCheckout"] = true;
                 Response.Redirect("Login.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
                 return;
@@ -400,14 +406,25 @@ namespace Web
 
                     if (productoDb == null || !productoDb.Activo)
                     {
-                        lblError.Text = $"El producto \"{itemCarrito.Producto.Nombre}\" ya no está disponible. Volvé al carrito para quitarlo.";
+                        itemCarrito.Producto.Activo = false;
+                        itemCarrito.Producto.Stock = 0;
+                        lblError.Text = $"El producto \"{itemCarrito.Producto.Nombre}\" ya no está disponible. Volvé al carrito para quitarlo y continuar.";
+                        lblError.Visible = true;
+                        return;
+                    }
+
+                    if (productoDb.Stock <= 0)
+                    {
+                        itemCarrito.Producto.Stock = 0;
+                        lblError.Text = $"El producto \"{productoDb.Nombre}\" se quedó sin stock. Volvé al carrito para quitarlo y continuar.";
                         lblError.Visible = true;
                         return;
                     }
 
                     if (itemCarrito.Cantidad <= 0 || itemCarrito.Cantidad > productoDb.Stock)
                     {
-                        lblError.Text = $"No hay stock suficiente de \"{productoDb.Nombre}\". Stock disponible actual: {productoDb.Stock}.";
+                        itemCarrito.Producto.Stock = productoDb.Stock;
+                        lblError.Text = $"No hay stock suficiente para la cantidad elegida de \"{productoDb.Nombre}\". Volvé al carrito para bajar la cantidad o quitarlo.";
                         lblError.Visible = true;
                         return;
                     }

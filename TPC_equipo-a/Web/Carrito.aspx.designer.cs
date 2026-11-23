@@ -78,6 +78,15 @@ namespace Web
         protected global::System.Web.UI.WebControls.Label lblTotalResumen;
 
         /// <summary>
+        /// lblAvisoStock control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblAvisoStock;
+
+        /// <summary>
         /// btnCheckout control.
         /// </summary>
         /// <remarks>
