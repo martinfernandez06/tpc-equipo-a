@@ -14,9 +14,9 @@ namespace Web
     {
         protected global::System.Web.UI.WebControls.TextBox txtCodigo;
         protected global::System.Web.UI.WebControls.Label lblError;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-
             if (!IsPostBack)
             {
                 // leo el id de la url, si no vino queda vacio
@@ -24,7 +24,7 @@ namespace Web
 
                 CategoriaNegocio catNegocio = new CategoriaNegocio();
 
-                // LIMPIAMOS ANTES DE CARGAR PARA QUE NO SE ACUMULEN
+                // limpiamos antes de cargar para que no se acumulen
                 ddlCategoria.Items.Clear();
 
                 // traigo las categorias activas y las guardo para usarlas abajo al modificar
@@ -34,18 +34,22 @@ namespace Web
                 ddlCategoria.DataValueField = "Id";
                 ddlCategoria.DataBind();
 
-                // 2. Agregamos el ítem por defecto al inicio
-                ddlCategoria.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccione una categoría...", "0"));
+                ddlCategoria.Items.Insert(0, new ListItem("Seleccione una categoría...", "0"));
 
                 if (id != "")
                 {
                     // traigo todos los productos y busco el que tiene el id de la url
                     ProductoNegocio negocio = new ProductoNegocio();
                     List<Producto> lista = negocio.Listar();
-                    // el id viene como texto, lo paso a int para compararlo con el id del producto
                     Producto seleccionado = lista.Find(x => x.Id == int.Parse(id));
 
-                    // Cargamos el código si estamos modificando
+                    if (seleccionado == null)
+                    {
+                        Response.Redirect("AdminProductos.aspx", false);
+                        return;
+                    }
+
+                    // precargo los datos
                     if (txtCodigo != null) txtCodigo.Text = seleccionado.Codigo;
                     txtNombre.Text = seleccionado.Nombre;
                     txtDescripcion.Text = seleccionado.Descripcion;
@@ -53,15 +57,36 @@ namespace Web
                     txtPrecio.Text = seleccionado.PrecioVenta.ToString("0.00", CultureInfo.InvariantCulture);
                     txtStock.Text = seleccionado.Stock.ToString();
                     txtImagenUrl.Text = seleccionado.ImagenUrl;
-                    // busco la categoria del producto entre las activas
+
+                    // si la categoria del producto fue desactivada, la agrego marcada para que se pueda guardar sin cambiarla
                     Categoria categoriaActiva = activas.Find(x => x.Id == seleccionado.Categoria.Id);
-                    // si no esta es porque la desactivaron, la agrego marcada para que se pueda guardar sin cambiarla
                     if (categoriaActiva == null)
                     {
-                        // agrega una opción al final del DropDownList
                         ddlCategoria.Items.Add(new ListItem(seleccionado.Categoria.Nombre + " (inactiva)", seleccionado.Categoria.Id.ToString()));
                     }
                     ddlCategoria.SelectedValue = seleccionado.Categoria.Id.ToString();
+
+                    lblTitulo.Text = "Modificar producto";
+                    btnAceptar.Text = "Modificar";
+
+                    // estado y boton de baja/alta logica 
+                    lblEstado.Text = "Activo";
+                    lblEstado.CssClass = "badge bg-success";
+                    if (!seleccionado.Activo)
+                    {
+                        btnEstado.Text = "Activar";
+                        lblEstado.Text = "Inactivo";
+                        lblEstado.CssClass = "badge bg-secondary";
+                        btnEstado.CssClass = "btn btn-admin-secundario ms-auto";
+                    }
+                }
+                else
+                {
+                    // en el alta no hay estado para mostrar ni para cambiar
+                    lblTitulo.Text = "Nuevo producto";
+                    btnAceptar.Text = "Crear";
+                    lblEstado.Visible = false;
+                    btnEstado.Visible = false;
                 }
             }
         }
@@ -75,16 +100,14 @@ namespace Web
                 if (!Page.IsValid)
                     return;
 
-                // los validadores ya revisaron el precio y el stock, aca solo los paso a numero
                 // el precio viene con punto del campo numerico, lo leo en formato neutro
                 decimal precio = decimal.Parse(txtPrecio.Text, NumberStyles.Number, CultureInfo.InvariantCulture);
                 int stock = int.Parse(txtStock.Text);
 
-                // Si todas las validaciones son correctas, armo el objeto Producto
                 Producto producto = new Producto();
                 producto.Categoria = new Categoria();
 
-                // Pasamos el código propio (o nulo para autogenerar)
+                // pasamos el codigo propio (o nulo para autogenerar)
                 producto.Codigo = (txtCodigo != null && !string.IsNullOrWhiteSpace(txtCodigo.Text)) ? txtCodigo.Text.Trim() : null;
                 producto.Nombre = txtNombre.Text.Trim();
                 producto.Descripcion = txtDescripcion.Text.Trim();
@@ -95,25 +118,20 @@ namespace Web
 
                 ProductoNegocio negocio = new ProductoNegocio();
 
-                // Si vino el id en la url es una modificacion
                 if (Request.QueryString["id"] != null)
                 {
-                    // el id viene como texto, lo parseo a int 
                     producto.Id = int.Parse(Request.QueryString["id"]);
                     negocio.Modificar(producto);
                 }
-                // Si no vino un id es un producto nuevo
                 else
                 {
                     negocio.Agregar(producto);
                 }
 
-                // Redirijo al panel de administracion
                 Response.Redirect("AdminProductos.aspx", false);
             }
             catch (Exception ex)
             {
-                // Buscamos palabras clave en minúsculas para ignorar comillas, puntos o saltos de línea ocultos de SQL
                 if (ex.Message.ToLower().Contains("ya existe") || ex.Message.ToLower().Contains("código"))
                 {
                     lblError.Text = "Este código ya está en uso. Elegí otro o dejalo vacío.";
@@ -121,10 +139,64 @@ namespace Web
                 }
                 else
                 {
-                    // Mostramos el error real en pantalla en lugar de romper la página.
                     lblError.Text = "Error de base de datos: " + ex.Message;
                     lblError.Visible = true;
                 }
+            }
+        }
+
+        protected void btnEstado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // si va a desactivar primero muestro el recuadro para confirmar y corto aca
+                // si dice activar sigue de largo y lo reactiva directo
+                if (btnEstado.Text == "Desactivar")
+                {
+                    pnlConfirmar.Visible = true;
+                    pnlBotones.Visible = false;
+                    return;
+                }
+
+                if (Request.QueryString["id"] != null)
+                {
+                    int id = int.Parse(Request.QueryString["id"]);
+                    ProductoNegocio negocio = new ProductoNegocio();
+                    negocio.eliminarLogico(id);
+
+                    Response.Redirect("AdminProductos.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "No se pudo cambiar el estado del producto: " + ex.Message;
+                lblError.Visible = true;
+            }
+        }
+
+        protected void btnNoDesactivar_Click(object sender, EventArgs e)
+        {
+            pnlConfirmar.Visible = false;
+            pnlBotones.Visible = true;
+        }
+
+        protected void btnSiDesactivar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Request.QueryString["id"] != null)
+                {
+                    int id = int.Parse(Request.QueryString["id"]);
+                    ProductoNegocio negocio = new ProductoNegocio();
+                    negocio.eliminarLogico(id);
+
+                    Response.Redirect("AdminProductos.aspx", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "No se pudo desactivar el producto: " + ex.Message;
+                lblError.Visible = true;
             }
         }
     }
