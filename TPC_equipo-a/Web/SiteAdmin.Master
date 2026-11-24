@@ -1,5 +1,4 @@
-﻿```aspx
-<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SiteAdmin.master.cs" Inherits="Web.SiteAdmin" %>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SiteAdmin.master.cs" Inherits="Web.SiteAdmin" %>
 
 <!DOCTYPE html>
 
@@ -138,4 +137,3 @@
 
 </body>
 </html>
-```

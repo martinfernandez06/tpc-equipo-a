@@ -16,7 +16,7 @@ namespace Negocio
 
             try
             {
-                datos.setearConsulta("SELECT Id, Descripcion, Activa FROM FORMAS_PAGO");
+                datos.setearConsulta("SELECT Id, Descripcion, Activa, RequiereComprobante FROM FORMAS_PAGO");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -25,6 +25,7 @@ namespace Negocio
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Activa = (bool)datos.Lector["Activa"];
+                    aux.RequiereComprobante = (bool)datos.Lector["RequiereComprobante"];
 
                     lista.Add(aux);
                 }
@@ -45,9 +46,10 @@ namespace Negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("INSERT INTO FORMAS_PAGO (Descripcion, Activa) VALUES (@Descripcion, @Activa)");
+                datos.setearConsulta("INSERT INTO FORMAS_PAGO (Descripcion, Activa, RequiereComprobante) VALUES (@Descripcion, @Activa, @RequiereComprobante)");
                 datos.setearParametro("@Descripcion", nuevo.Descripcion);
                 datos.setearParametro("@Activa", nuevo.Activa);
+                datos.setearParametro("@RequiereComprobante", nuevo.RequiereComprobante);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -59,14 +61,15 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
         public void Modificar(FormaPago modificado)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("UPDATE FORMAS_PAGO SET Descripcion = @Descripcion, Activa = @Activa WHERE Id = @Id");
+                datos.setearConsulta("UPDATE FORMAS_PAGO SET Descripcion = @Descripcion, RequiereComprobante = @RequiereComprobante WHERE Id = @Id");
                 datos.setearParametro("@Descripcion", modificado.Descripcion);
-                datos.setearParametro("@Activa", modificado.Activa);
+                datos.setearParametro("@RequiereComprobante", modificado.RequiereComprobante);
                 datos.setearParametro("@Id", modificado.Id);
                 datos.ejecutarAccion();
             }
@@ -79,6 +82,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
         public void CambiarEstado(int id, bool activa)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -98,6 +102,7 @@ namespace Negocio
                 datos.cerrarLectura();
             }
         }
+
         public bool existeDescripcion(string descripcion, int id)
         {
             AccesoDatos datos = new AccesoDatos();

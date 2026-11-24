@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Dominio;
+using Negocio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Negocio;
 
 namespace Web
 {
@@ -18,29 +19,18 @@ namespace Web
             }
         }
 
-        protected void btnAgregar_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("FormaEntregaForm.aspx", false);
-        }
-
-        protected void dgvFormasEntrega_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string id = dgvFormasEntrega.SelectedDataKey.Value.ToString();
-            Response.Redirect("FormaEntregaForm.aspx?id=" + id, false);
-        }
-
         private void CargarGrilla()
         {
             FormaEntregaNegocio negocio = new FormaEntregaNegocio();
-            System.Collections.Generic.List<Dominio.FormaEntrega> lista = negocio.Listar();
+            List<FormaEntrega> lista = negocio.Listar();
 
             if (ddlFiltro.SelectedValue == "Activos")
             {
-                lista = lista.FindAll(x => x.Activa == true);
+                lista = lista.FindAll(x => x.Activa);
             }
             else if (ddlFiltro.SelectedValue == "Inactivos")
             {
-                lista = lista.FindAll(x => x.Activa == false);
+                lista = lista.FindAll(x => !x.Activa);
             }
 
             dgvFormasEntrega.DataSource = lista;

@@ -107,6 +107,7 @@ namespace Negocio
         datos.setearParametro("@Stock", prod.Stock);
         datos.setearParametro("@IdCategoria", prod.Categoria.Id);
         datos.setearParametro("@ImagenUrl", prod.ImagenUrl);
+        datos.setearParametro("@CodigoPropio", string.IsNullOrEmpty(prod.Codigo) ? (object)DBNull.Value : prod.Codigo);
         datos.ejecutarAccion();
     }
    
