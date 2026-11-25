@@ -146,6 +146,11 @@ namespace Web
                 // Pasamos el pedido a Pagado (IdEstado = 2) y registramos el cambio en HISTORIAL_ESTADOS
                 negocio.CambiarEstado(pedido.Id, EstadoPagado, usuario.Id, null, null);
 
+                // le avisamos al cliente que el pago entro
+                // si el mail falla el pago ya quedo guardado y la pantalla muestra pagado igual
+                MailPedido mail = new MailPedido();
+                mail.Enviar(pedido.Id, "pagado");
+
                 lblPedidoPagadoId.Text = pedido.Id.ToString();
                 lblTotalPagado.Text = pedido.Total.ToString("C");
                 pnlPagado.Visible = true;
