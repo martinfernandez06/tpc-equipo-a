@@ -13,25 +13,32 @@ namespace Web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
             if (!IsPostBack)
             {
-                // Cargamos las categorías en el desplegable
-                CategoriaNegocio catNegocio = new CategoriaNegocio();
-                ddlCategorias.DataSource = catNegocio.listarActivas();
-                ddlCategorias.DataTextField = "Nombre";
-                ddlCategorias.DataValueField = "Id";
-                ddlCategorias.DataBind();
-                ddlCategorias.Items.Insert(0, new ListItem("Todas las categorías...", "0"));
-
-                // si viene de las migas del detalle con ?categoria=id abro el catalogo ya filtrado por esa categoria
-                string idCategoria = Request.QueryString["categoria"];
-                if (!string.IsNullOrEmpty(idCategoria) && ddlCategorias.Items.FindByValue(idCategoria) != null)
+                try
                 {
-                    ddlCategorias.SelectedValue = idCategoria;
+                    // Cargamos las categorías en el desplegable
+                    CategoriaNegocio catNegocio = new CategoriaNegocio();
+                    ddlCategorias.DataSource = catNegocio.listarActivas();
+                    ddlCategorias.DataTextField = "Nombre";
+                    ddlCategorias.DataValueField = "Id";
+                    ddlCategorias.DataBind();
+                    ddlCategorias.Items.Insert(0, new ListItem("Todas las categorías...", "0"));
+
+                    // si viene de las migas de pan del detalle con ?categoria=id abro el catalogo ya filtrado por esa categoria
+                    string idCategoria = Request.QueryString["categoria"];
+                    if (!string.IsNullOrEmpty(idCategoria) && ddlCategorias.Items.FindByValue(idCategoria) != null)
+                    {
+                        ddlCategorias.SelectedValue = idCategoria;
+                    }
+                    // Reemplazamos la lógica directa por el llamado a la función que la contiene
+                    CargarCatalogo();
                 }
-                // Reemplazamos la lógica directa por el llamado a la función que la contiene
-                CargarCatalogo();
+                catch (Exception)
+                {
+                    Session.Add("error", "No pudimos cargar el catálogo. Probá de nuevo en unos minutos.");
+                    Response.Redirect("Error.aspx", false);
+                }
             }
         }
 

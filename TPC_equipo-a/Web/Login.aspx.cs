@@ -168,8 +168,9 @@ namespace Web
             }
             catch (Exception ex)
             {
-                lblError.Text = "No fue posible iniciar sesión. Intentá nuevamente: " + ex.Message;
-                lblError.Visible = true;
+                // si se cae la bd no le mostramos el error tecnico a la persona
+                Session.Add("error", "No pudimos procesar el ingreso. Intentá de nuevo más tarde.");
+                Response.Redirect("Error.aspx", false);
             }
         }
 
