@@ -70,8 +70,8 @@ namespace Web
 
                             <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden;'>
 
-                                <div style='background:#0d6efd; padding:25px; text-align:center;'>
-                                    <h1 style='color:#ffffff; margin:0;'>FinishBack</h1>
+                                <div style='background:#512BD4; padding:25px; text-align:center;'>
+                                    <h1 style='color:#ffffff; margin:0;'>Magva</h1>
                                 </div>
 
                                 <div style='padding:35px; color:#333333;'>
@@ -80,7 +80,7 @@ namespace Web
 
                                     <p style='font-size:15px; line-height:1.6;'>
                                         Recibimos una solicitud para restablecer la contraseña
-                                        de tu cuenta de FinishBack.
+                                        de tu cuenta de Magva.
                                     </p>
 
                                     <p style='font-size:15px; line-height:1.6;'>
@@ -90,7 +90,7 @@ namespace Web
                                     <div style='text-align:center; margin:30px 0;'>
 
                                         <a href='" + urlSegura + @"'
-                                           style='display:inline-block; padding:14px 28px; background:#0d6efd; color:#ffffff; text-decoration:none; border-radius:7px; font-weight:bold;'>
+                                           style='display:inline-block; padding:14px 28px; background:#512BD4; color:#ffffff; text-decoration:none; border-radius:7px; font-weight:bold;'>
 
                                             Restablecer mi contraseña
 
@@ -120,7 +120,7 @@ namespace Web
 
                                 <div style='background:#f4f6f9; padding:18px; text-align:center; color:#888888; font-size:12px;'>
 
-                                    © FinishBack - Todos los derechos reservados.
+                                    © Magva - Todos los derechos reservados.
 
                                 </div>
 

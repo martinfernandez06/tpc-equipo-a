@@ -109,28 +109,28 @@ namespace Web
                     <body style='margin:0; padding:30px; background-color:#f4f6f9; font-family:Arial,sans-serif;'>
                         <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:12px; overflow:hidden;'>
                             
-                            <div style='background:#0d6efd; padding:25px; text-align:center;'>
-                                <h1 style='color:#ffffff; margin:0;'>FinishBack</h1>
+                            <div style='background:#512BD4; padding:25px; text-align:center;'>
+                                <h1 style='color:#ffffff; margin:0;'>Magva</h1>
                             </div>
 
                             <div style='padding:35px; color:#333333;'>
                                 <h2>¡Hola, " + nombreSeguro + @"!</h2>
 
                                 <p style='font-size:15px; line-height:1.6;'>
-                                    Gracias por registrarte en FinishBack.
+                                    Gracias por registrarte en Magva.
                                     Para completar la creación de tu cuenta, necesitamos que confirmes tu dirección de correo electrónico.
                                 </p>
 
                                 <div style='text-align:center; margin:30px 0;'>
                                     <a href='" + urlSegura + @"'
-                                       style='display:inline-block; padding:14px 28px; background:#0d6efd; color:#ffffff; text-decoration:none; border-radius:7px; font-weight:bold;'>
+                                       style='display:inline-block; padding:14px 28px; background:#512BD4; color:#ffffff; text-decoration:none; border-radius:7px; font-weight:bold;'>
                                         Confirmar mi correo
                                     </a>
                                 </div>
 
                                 <p style='font-size:13px; color:#666666; line-height:1.6;'>
                                     Este enlace tiene una validez de 24 horas.
-                                    Si no creaste una cuenta en FinishBack, podés ignorar este mensaje.
+                                    Si no creaste una cuenta en Magva, podés ignorar este mensaje.
                                 </p>
 
                                 <p style='font-size:12px; color:#888888;'>
@@ -143,7 +143,7 @@ namespace Web
                             </div>
 
                             <div style='background:#f4f6f9; padding:18px; text-align:center; color:#888888; font-size:12px;'>
-                                © FinishBack - Todos los derechos reservados.
+                                © Magva  - Todos los derechos reservados.
                             </div>
 
                         </div>

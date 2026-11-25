@@ -19,8 +19,8 @@ namespace Negocio
             email.To.Add(destino);
 
             email.From = new MailAddress(
-                "no-reply@finishback.com",
-                "FinishBack"
+                "noresponder@magva.com.ar",
+                "Magva"
             );
 
             email.Subject = asunto;
