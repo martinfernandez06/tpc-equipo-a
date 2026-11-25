@@ -23,10 +23,22 @@ namespace Web
                     ProductoNegocio negocio = new ProductoNegocio();
 
                     // Traemos la lista y buscamos el producto específico
-                    List<Producto> lista = negocio.Listar();
+                    List<Producto> lista;
+                    try
+                    {
+                        lista = negocio.Listar();
+                    }
+                    catch (Exception)
+                    {
+                        Session.Add("error", "No pudimos cargar el producto. Probá de nuevo en unos minutos.");
+                        Response.Redirect("Error.aspx", false);
+                        return;
+                    }
+
                     Producto seleccionado = lista.Find(x => x.Id == idProducto);
 
-                    if (seleccionado != null)
+                    // los inactivos no se muestran igual que en el catalogo
+                    if (seleccionado != null && seleccionado.Activo)
                     {
                         // Inyectamos los datos reales en las etiquetas del HTML
                         lblNombre.Text = seleccionado.Nombre;
@@ -68,14 +80,16 @@ namespace Web
                     }
                     else
                     {
-                        // Si mandan un ID que no existe en la base, los devolvemos al catálogo
-                        Response.Redirect("Default.aspx", false);
+                        // el id no existe en la bd o el producto esta inactivo
+                        Session.Add("error", "El producto que buscás no existe o ya no está disponible.");
+                        Response.Redirect("Error.aspx", false);
                     }
                 }
                 else
                 {
-                    // Si entran directo a la página sin un ID válido en la URL, los devolvemos al catálogo
-                    Response.Redirect("Default.aspx", false);
+                    // entraron sin un id valido en la url
+                    Session.Add("error", "El producto que buscás no existe o ya no está disponible.");
+                    Response.Redirect("Error.aspx", false);
                 }
             }
         }

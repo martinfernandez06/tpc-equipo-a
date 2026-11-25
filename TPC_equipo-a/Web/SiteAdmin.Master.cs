@@ -12,15 +12,18 @@ namespace Web
         {
             Usuario usuario = Session["usuario"] as Usuario;
 
-            // Verificar que el usuario esté autenticado
-            // y que tenga perfil de Administrador.
-            if (usuario == null ||
-                usuario.Perfil == null ||
-                usuario.Perfil.Id != 1)
+            // sin sesion no hay usuario para preguntar si es admin asi que va primero
+            if (usuario == null)
             {
-                Response.Redirect("~/Default.aspx", false);
-                Context.ApplicationInstance.CompleteRequest();
-                return;
+                Session.Add("error", "Tenés que ingresar para ver esta pantalla.");
+                Response.Redirect("~/Error.aspx");
+            }
+
+            // logueado pero sin perfil de administrador
+            if (usuario.Perfil == null || usuario.Perfil.Id != 1)
+            {
+                Session.Add("error", "Necesitás ser administrador para entrar a esta pantalla.");
+                Response.Redirect("~/Error.aspx");
             }
 
             // Mostrar el nombre del administrador.

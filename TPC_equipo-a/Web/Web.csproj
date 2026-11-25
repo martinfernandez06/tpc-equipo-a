@@ -127,6 +127,8 @@
     <Content Include="Default.aspx" />
     <Content Include="DetallePedido.aspx" />
     <Content Include="DetalleProducto.aspx" />
+    <Content Include="Error.aspx" />
+    <Content Include="Exito.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="FormaEntregaForm.aspx" />
     <Content Include="FormaPagoForm.aspx" />
@@ -285,6 +287,20 @@
     </Compile>
     <Compile Include="DetalleProducto.aspx.designer.cs">
       <DependentUpon>DetalleProducto.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Error.aspx.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Error.aspx.designer.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Exito.aspx.cs">
+      <DependentUpon>Exito.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Exito.aspx.designer.cs">
+      <DependentUpon>Exito.aspx</DependentUpon>
     </Compile>
     <Compile Include="FormaEntregaForm.aspx.cs">
       <DependentUpon>FormaEntregaForm.aspx</DependentUpon>
