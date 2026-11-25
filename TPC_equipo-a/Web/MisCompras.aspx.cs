@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
+using System.Configuration;
 namespace Web
 {
     public partial class MisCompras : System.Web.UI.Page
@@ -184,6 +184,40 @@ namespace Web
             return $"{d.Calle} {d.Numero}, {d.Localidad}, {d.Provincia} (CP {d.CodigoPostal})";
         }
 
+        // dice en que caso esta el comprobante de cada pedido asi los avisos y el chip saben si se muestran
+        protected string CasoComprobante(object dato)
+        {
+            Pedido pedido = (Pedido)dato;
+
+            // si no es transferencia no lleva comprobante y no se muestra nada
+            if (!pedido.FormaPago.RequiereComprobante)
+                return "";
+
+            // el cancelado va primero porque el 6 tambien es mayor que 2
+            if (pedido.Estado.Id == 6)
+            {
+                if (pedido.EstuvoPagado)
+                    return "devolucion";
+                return "";
+            }
+
+            if (pedido.Estado.Id >= 2)
+                return "confirmado";
+
+            // de aca para abajo el pedido sigue pendiente de pago
+            if (pedido.EstadoComprobante == null)
+                return "pagar";
+            if (pedido.EstadoComprobante == "Pendiente")
+                return "revision";
+            return "rechazado";
+        }
+
+        // trae del web config los datos de la cuenta para transferir
+        protected string DatoTransferencia(string clave)
+        {
+            return ConfigurationManager.AppSettings[clave];
+        }
+
         protected void btnFiltrar_Click(object sender, EventArgs e)
         {
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
@@ -209,6 +243,19 @@ namespace Web
             LinkButton boton = (LinkButton)sender;
             ViewState["pestana"] = boton.CommandArgument;
             CargarPedidos();
+        }
+
+        // el boton de enviar hace un postback completo porque el del updatepanel no lleva archivos
+        protected void rptPedidos_ItemCreated(object sender, RepeaterItemEventArgs e)
+        {
+            Button boton = (Button)e.Item.FindControl("btnEnviarComprobante");
+            if (boton != null)
+                ScriptManager.GetCurrent(this).RegisterPostBackControl(boton);
+        }
+
+        protected void btnEnviarComprobante_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
