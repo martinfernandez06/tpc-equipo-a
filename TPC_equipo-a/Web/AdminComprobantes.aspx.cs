@@ -1,4 +1,5 @@
-﻿using Negocio;
+﻿using Dominio;
+using Negocio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,22 @@ namespace Web
             dgvComprobantes.DataSource = negocio.ListarComprobantesPendientes();
             dgvComprobantes.DataBind();
         }
+
+
+        // devuelve el id del admin logueado asi el historial guarda quien hizo cada cambio
+        // si la sesion se vencio con la pantalla abierta lo mando al login y devuelve 0
+        private int IdAdminLogueado()
+        {
+            if (Session["usuario"] == null)
+            {
+                Response.Redirect("~/Login.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return 0;
+            }
+            Usuario admin = (Usuario)Session["usuario"];
+            return admin.Id;
+        }
+
         // true si el comprobante es un pdf, el tolower es por si viene como .PDF
         protected bool EsPdf(object url)
         {
@@ -79,11 +96,17 @@ namespace Web
             {
                 return;
             }
+
+
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
+
             try
             {
                 int idPedido = int.Parse(hfIdPedido.Value);
                 PedidoNegocio negocio = new PedidoNegocio();
-                negocio.AceptarComprobante(idPedido, 1);
+                negocio.AceptarComprobante(idPedido, idAdmin);
                 lblMensaje.CssClass = "alert alert-success d-block";
                 lblMensaje.Text = $"Comprobante del pedido #{idPedido} aceptado. El pedido pasó a Pagado.";
                 lblMensaje.Visible = true;
@@ -119,11 +142,16 @@ namespace Web
             {
                 return;
             }
+
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
+
             try
             {
                 int idPedido = int.Parse(hfIdPedido.Value);
                 PedidoNegocio negocio = new PedidoNegocio();
-                negocio.RechazarComprobante(idPedido, 1, txtMotivo.Text);
+                negocio.RechazarComprobante(idPedido, idAdmin, txtMotivo.Text);
                 lblMensaje.CssClass = "alert alert-success d-block";
                 lblMensaje.Text = $"Comprobante del pedido #{idPedido} rechazado. El pedido sigue pendiente de pago.";
                 lblMensaje.Visible = true;
