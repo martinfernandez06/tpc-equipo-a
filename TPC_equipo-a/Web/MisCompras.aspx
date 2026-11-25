@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Mis Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="MisCompras.aspx.cs" Inherits="Web.MisCompras" %>
+﻿<%@ Page Title="Mis Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="MisCompras.aspx.cs" Inherits="Web.MisCompras" MaintainScrollPositionOnPostBack="true" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <%-- el updatepanel recarga solo esta parte al filtrar --%>
@@ -60,10 +60,10 @@
             </asp:Panel>
 
             <%-- en el celu cada pedido es una card, en la compu una fila con columnas --%>
-            <asp:Repeater ID="rptPedidos" runat="server">
+            <asp:Repeater ID="rptPedidos" runat="server" OnItemCreated="rptPedidos_ItemCreated">
                 <ItemTemplate>
                     <div class='pedido-compra estado-<%# Eval("Estado.Id") %>'>
-                        <a class="fila-pedido" data-bs-toggle="collapse" href='#pedido-<%# Eval("Id") %>'>
+                        <a class="fila-pedido" data-bs-toggle="collapse" href='#pedido-<%# Eval("Id") %>' aria-expanded='<%# FlechaAbierta(Eval("Id")) %>'>
                             <div class="row g-2 align-items-center">
                                 <div class="col-6 col-lg-2 order-lg-1">
                                     <div class="numero-pedido">Pedido #<%# Eval("Id") %></div>
@@ -71,6 +71,9 @@
                                 </div>
                                 <div class="col-6 col-lg-2 order-lg-5 text-end text-lg-start ps-lg-4">
                                     <span class='<%# ClaseEstado(Eval("Estado.Id")) %>'><%# Eval("Estado.Descripcion") %></span>
+                                    <%-- avisa sin abrir el pedido que tiene que mandar el comprobante --%>
+                                    <asp:Label ID="lblChipFalta" runat="server" CssClass="chip-comprobante" Text="Falta el comprobante" Visible='<%# CasoComprobante(Container.DataItem) == "pagar" %>' />
+                                    <asp:Label ID="lblChipRechazado" runat="server" CssClass="chip-comprobante chip-rechazado" Text="Comprobante rechazado" Visible='<%# CasoComprobante(Container.DataItem) == "rechazado" %>' />
                                 </div>
                                 <div class="col-12 col-lg-3 order-lg-2 d-flex align-items-center gap-2">
                                     <%-- repeater adentro del otro, hasta 3 fotitos por pedido --%>
@@ -95,10 +98,10 @@
                             </div>
                         </a>
                         <%-- detalle que se abre al tocar la fila, el id es el mismo que el href del link --%>
-                        <div class="collapse" id='pedido-<%# Eval("Id") %>'>
+                        <div class='<%# ClaseAbierto(Eval("Id")) %>' id='pedido-<%# Eval("Id") %>'>
                             <div class="detalle-pedido">
                                 <div class="row g-4">
-                                    <div class="col-12 col-lg-5">
+                                    <div class="col-12 col-lg-7">
                                         <div class="titulo-campo">Productos</div>
                                         <asp:Repeater ID="rptItems" runat="server" DataSource='<%# Eval("Items") %>'>
                                             <ItemTemplate>
@@ -117,13 +120,69 @@
                                             <span class="total-pedido"><%# Eval("Total", "{0:C}") %></span>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-lg-3">
+                                    <div class="col-12 col-lg-5">
                                         <div class="titulo-campo">Entrega</div>
                                         <div><%# Eval("FormaEntrega.Descripcion") %></div>
                                         <div class="dato-chico"><%# TextoDireccion(Eval("Direccion")) %></div>
                                         <div class="titulo-campo mt-3">Pago</div>
                                         <div><%# Eval("FormaPago.Descripcion") %></div>
                                     </div>
+                                    <%-- comprobante de la transferencia segun el caso que dice CasoComprobante --%>
+                                    <asp:Panel ID="pnlComprobante" runat="server" CssClass="col-12" Visible='<%# CasoComprobante(Container.DataItem) != "" %>'>
+                                        <div class="titulo-campo">Comprobante</div>
+
+                                        <%-- se lo rechazaron y tiene que mandar otro --%>
+                                        <asp:Panel ID="pnlRechazado" runat="server" CssClass="aviso-comprobante aviso-rechazado" Visible='<%# CasoComprobante(Container.DataItem) == "rechazado" %>'>
+                                            <div class="fw-semibold">La tienda rechazó tu comprobante</div>
+                                            <div>Motivo: <%#: Eval("MotivoRechazoComprobante") %></div>
+                                            <div>Revisalo y mandá uno nuevo.</div>
+                                        </asp:Panel>
+
+                                        <%-- los datos para transferir y para subir el comprobante solo cuando todavia tiene que pagar --%>
+                                        <%-- en la compu van uno al lado del otro y en el celu uno abajo del otro --%>
+                                        <asp:Panel ID="pnlDatosTransferencia" runat="server" CssClass="row g-3" Visible='<%# CasoComprobante(Container.DataItem) == "pagar" || CasoComprobante(Container.DataItem) == "rechazado" %>'>
+                                            <div class="col-12 col-md-6">
+                                                <div class="datos-transferencia">
+                                                    <div class="mb-2">Transferí <span class="fw-semibold"><%# Eval("Total", "{0:C}") %></span> a esta cuenta</div>
+                                                    <div class="dato-cuenta"><span class="dato-chico">Alias</span><span class="fw-semibold"><%# DatoTransferencia("TransferenciaAlias") %></span></div>
+                                                    <div class="dato-cuenta"><span class="dato-chico">CBU</span><span class="fw-semibold"><%# DatoTransferencia("TransferenciaCbu") %></span></div>
+                                                    <div class="dato-cuenta"><span class="dato-chico">Titular</span><span><%# DatoTransferencia("TransferenciaTitular") %></span></div>
+                                                    <div class="dato-cuenta"><span class="dato-chico">Banco</span><span><%# DatoTransferencia("TransferenciaBanco") %></span></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <%-- el archivo solo viaja al tocar enviar asi que si se equivoco elige otro y listo --%>
+                                                <div class="subir-comprobante">
+                                                    <div class="titulo-campo">Subí el comprobante</div>
+                                                    <input type="file" id="fuComprobante" runat="server" accept=".jpg,.jpeg,.png,.pdf" class="form-control mw-100" />
+                                                    <div class="dato-chico mt-1">JPG, PNG o PDF de hasta 5 MB</div>
+                                                    <div class="dato-chico mt-2">Revisá que sea el comprobante correcto. Una vez enviado la tienda lo revisa y no lo vas a poder cambiar hasta que te respondan.</div>
+                                                    <asp:Button ID="btnEnviarComprobante" runat="server" Text="Enviar comprobante" CssClass="btn btn-ecommerce-primario w-100 mw-100 mt-2" CommandArgument='<%# Eval("Id") %>' OnClick="btnEnviarComprobante_Click" />
+                                                    <%-- el error de lo que eligio solo se ve en el pedido donde toco enviar --%>
+                                                    <asp:Label ID="lblErrorComprobante" runat="server" CssClass="error-comprobante" Text='<%# mensajeComprobante %>' Visible='<%# MostrarError(Eval("Id")) %>' />
+                                                </div>
+                                            </div>
+                                        </asp:Panel>
+
+                                        <%-- ya mando el comprobante y espera la respuesta de la tienda --%>
+                                        <asp:Panel ID="pnlRevision" runat="server" CssClass="aviso-comprobante" Visible='<%# CasoComprobante(Container.DataItem) == "revision" %>'>
+                                            <div class="fw-semibold">Recibimos tu comprobante</div>
+                                            <div>La tienda lo está revisando. Cuando lo confirme tu pedido pasa a Pagado.</div>
+                                            <asp:HyperLink ID="lnkVerRevision" runat="server" NavigateUrl='<%# Eval("ComprobanteUrl") %>' Target="_blank" CssClass="link-comprobante" Text="Ver el que mandaste" />
+                                        </asp:Panel>
+
+                                        <%-- ya pago y la tienda lo confirmo --%>
+                                        <asp:Panel ID="pnlConfirmado" runat="server" CssClass="aviso-comprobante aviso-confirmado" Visible='<%# CasoComprobante(Container.DataItem) == "confirmado" %>'>
+                                            <div class="fw-semibold">Pago confirmado</div>
+                                            <asp:HyperLink ID="lnkVerConfirmado" runat="server" NavigateUrl='<%# Eval("ComprobanteUrl") %>' Target="_blank" CssClass="link-comprobante" Text="Ver comprobante" Visible='<%# Eval("ComprobanteUrl") != null %>' />
+                                        </asp:Panel>
+
+                                        <%-- se cancelo despues de que pago asi que le toca la devolucion --%>
+                                        <asp:Panel ID="pnlDevolucion" runat="server" CssClass="aviso-comprobante" Visible='<%# CasoComprobante(Container.DataItem) == "devolucion" %>'>
+                                            <div class="fw-semibold">Este pedido se canceló después de que pagaste</div>
+                                            <div>La tienda se va a comunicar con vos para devolverte la plata.</div>
+                                        </asp:Panel>
+                                    </asp:Panel>
                                 </div>
                             </div>
                         </div>

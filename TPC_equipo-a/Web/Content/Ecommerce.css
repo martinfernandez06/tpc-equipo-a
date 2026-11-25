@@ -16,6 +16,8 @@
     --color-stock-ok: #15803D;
     --color-stock-pocos: #C2410C;
     --color-stock-sin: #71717A;
+    --color-rechazo: #B91C1C;
+    --color-rechazo-fondo: #FEF2F2;
     --fuente-texto: "Mooli", system-ui, sans-serif;
 }
 
@@ -51,6 +53,82 @@ body {
         --bs-dropdown-link-hover-bg: transparent;
         --bs-dropdown-border-radius: 0;
     }
+
+
+/* avisos del comprobante en el detalle del pedido */
+.aviso-comprobante {
+    background-color: var(--color-lila-fondo);
+    border: 1px solid var(--color-borde-claro);
+    border-left: 3px solid var(--color-boton-primario);
+    color: var(--color-fondo-oscuro);
+    padding: 12px 14px;
+}
+
+/* rojo cuando le rechazaron el comprobante y tiene que mandar otro */
+.aviso-rechazado {
+    background-color: var(--color-rechazo-fondo);
+    border-left-color: var(--color-rechazo);
+    margin-bottom: 12px;
+}
+
+    .aviso-rechazado .fw-semibold {
+        color: var(--color-rechazo);
+    }
+
+/* verde cuando la tienda ya confirmo el pago */
+.aviso-confirmado {
+    border-left-color: var(--color-stock-ok);
+}
+
+.datos-transferencia {
+    border: 1px solid var(--color-borde-claro);
+    padding: 12px 14px;
+    height: 100%; /* asi queda igual de alta que la caja de subir */
+}
+
+/* cada dato en un renglon con el nombre a la izquierda y el valor a la derecha */
+.dato-cuenta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--color-borde-claro);
+}
+
+    .dato-cuenta:last-child {
+        border-bottom: none;
+    }
+
+    /* el cbu es largo y en el celu se corta en vez de salirse del cuadro */
+    .dato-cuenta span:last-child {
+        text-align: right;
+        word-break: break-all;
+    }
+
+.link-comprobante {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--color-boton-primario);
+    font-weight: 600;
+}
+
+/* caja para subir el archivo al lado de los datos de la cuenta */
+.subir-comprobante {
+    background-color: var(--color-lila-fondo);
+    border: 1px solid var(--color-borde-claro);
+    padding: 12px 14px;
+    height: 100%;
+}
+
+
+/* error al lado del boton cuando el archivo no sirve */
+.error-comprobante {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-rechazo);
+}
 
 /* botones */
 .btn-ecommerce-primario {
@@ -517,6 +595,27 @@ body {
 .badge-cancelado {
     background-color: var(--color-stock-sin);
     color: #fff;
+}
+
+
+/* aviso al lado del estado cuando el cliente tiene que mandar el comprobante */
+.chip-comprobante {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    margin-top: 4px;
+    white-space: nowrap;
+    color: var(--color-stock-pocos);
+    border: 1px solid var(--color-stock-pocos);
+    background-color: #fff;
+}
+
+/* en rojo cuando se lo rechazaron */
+.chip-rechazado {
+    color: var(--color-rechazo);
+    border-color: var(--color-rechazo);
+    background-color: var(--color-rechazo-fondo);
 }
 
 /* detalle del pedido abierto */

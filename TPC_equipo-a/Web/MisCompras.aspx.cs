@@ -2,15 +2,22 @@
 using Negocio;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
-
 namespace Web
 {
     public partial class MisCompras : System.Web.UI.Page
     {
+
+        // el pedido que vuelve abierto despues de tocar enviar y el error que se muestra ahi
+        protected int idPedidoAbierto = 0;
+        protected string mensajeComprobante = "";
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // el max hace que el calendario no deje elegir dias despues de hoy
@@ -184,6 +191,63 @@ namespace Web
             return $"{d.Calle} {d.Numero}, {d.Localidad}, {d.Provincia} (CP {d.CodigoPostal})";
         }
 
+        // dice en que caso esta el comprobante de cada pedido asi los avisos y el chip saben si se muestran
+        protected string CasoComprobante(object dato)
+        {
+            Pedido pedido = (Pedido)dato;
+
+            // si no es transferencia no lleva comprobante y no se muestra nada
+            if (!pedido.FormaPago.RequiereComprobante)
+                return "";
+
+            // el cancelado va primero porque el 6 tambien es mayor que 2
+            if (pedido.Estado.Id == 6)
+            {
+                if (pedido.EstuvoPagado)
+                    return "devolucion";
+                return "";
+            }
+
+            if (pedido.Estado.Id >= 2)
+                return "confirmado";
+
+            // de aca para abajo el pedido sigue pendiente de pago
+            if (pedido.EstadoComprobante == null)
+                return "pagar";
+            if (pedido.EstadoComprobante == "Pendiente")
+                return "revision";
+            return "rechazado";
+        }
+
+        // trae del web config los datos de la cuenta para transferir
+        protected string DatoTransferencia(string clave)
+        {
+            return ConfigurationManager.AppSettings[clave];
+        }
+
+
+        // el pedido donde toco enviar vuelve abierto asi ve como salio
+        protected string ClaseAbierto(object id)
+        {
+            if ((int)id == idPedidoAbierto)
+                return "collapse show";
+            return "collapse";
+        }
+
+        // la flecha queda para arriba si el pedido vuelve abierto
+        protected string FlechaAbierta(object id)
+        {
+            if ((int)id == idPedidoAbierto)
+                return "true";
+            return "false";
+        }
+
+        // el error solo aparece en el pedido donde toco enviar
+        protected bool MostrarError(object id)
+        {
+            return (int)id == idPedidoAbierto && mensajeComprobante != "";
+        }
+
         protected void btnFiltrar_Click(object sender, EventArgs e)
         {
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
@@ -208,6 +272,75 @@ namespace Web
                 return;
             LinkButton boton = (LinkButton)sender;
             ViewState["pestana"] = boton.CommandArgument;
+            CargarPedidos();
+        }
+
+        // el boton de enviar hace un postback completo porque el del updatepanel no lleva archivos
+        protected void rptPedidos_ItemCreated(object sender, RepeaterItemEventArgs e)
+        {
+            Button boton = (Button)e.Item.FindControl("btnEnviarComprobante");
+            if (boton != null)
+                ScriptManager.GetCurrent(this).RegisterPostBackControl(boton);
+        }
+
+        protected void btnEnviarComprobante_Click(object sender, EventArgs e)
+        {
+            // el page_load lo manda al login pero el click igual se ejecuta asi que corto aca
+            if (Session["usuario"] == null)
+                return;
+
+            Usuario usuario = (Usuario)Session["usuario"];
+            Button boton = (Button)sender;
+            int idPedido = int.Parse(boton.CommandArgument);
+            HtmlInputFile archivo = (HtmlInputFile)boton.NamingContainer.FindControl("fuComprobante");
+
+            // pase lo que pase el pedido vuelve abierto con el resultado
+            idPedidoAbierto = idPedido;
+
+            // el accept del input se saltea facil asi que el tipo y el peso se controlan aca
+            string extension = "";
+            if (archivo.PostedFile != null)
+                extension = Path.GetExtension(archivo.PostedFile.FileName).ToLower();
+
+            string error = "";
+            if (archivo.PostedFile == null || archivo.PostedFile.ContentLength == 0)
+                error = "Elegí el comprobante antes de enviarlo.";
+            else if (extension != ".jpg" && extension != ".jpeg" && extension != ".png" && extension != ".pdf")
+                error = "Solo se aceptan archivos JPG, PNG o PDF.";
+            else if (archivo.PostedFile.ContentLength > 5 * 1024 * 1024)
+                error = "El comprobante no puede pesar más de 5 MB.";
+
+            if (error != "")
+            {
+                mensajeComprobante = error;
+                CargarPedidos();
+                return;
+            }
+
+            // git no sube carpetas vacias asi que si no esta la creo
+            string carpeta = Server.MapPath("~/Comprobantes/");
+            if (!Directory.Exists(carpeta))
+                Directory.CreateDirectory(carpeta);
+
+            // el nombre lo armo yo con el pedido y la hora asi no se pisa con otro ni trae nombres raros
+            string nombre = $"comprobante-{idPedido}-{DateTime.Now:yyyyMMddHHmmss}{extension}";
+            string ruta = carpeta + nombre;
+
+            try
+            {
+                archivo.PostedFile.SaveAs(ruta);
+                PedidoNegocio negocio = new PedidoNegocio();
+                negocio.SubirComprobante(idPedido, usuario.Id, "~/Comprobantes/" + nombre);
+            }
+            catch (Exception ex)
+            {
+                // si el sp no lo dejo borro el archivo asi no quedan sueltos en la carpeta
+                if (File.Exists(ruta))
+                    File.Delete(ruta);
+                mensajeComprobante = ex.Message;
+            }
+
+            // si salio bien el pedido vuelve abierto con el aviso de que lo estan revisando
             CargarPedidos();
         }
     }
