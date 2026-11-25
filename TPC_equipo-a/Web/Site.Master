@@ -1,5 +1,4 @@
-﻿
-<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web.SiteMaster" %>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web.SiteMaster" %>
 
 <!DOCTYPE html>
 
@@ -41,7 +40,7 @@
                 <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
                 <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
                 <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
-                
+
             </Scripts>
         </asp:ScriptManager>
 
@@ -50,95 +49,66 @@
 
                 <a class="navbar-brand" runat="server" href="~/">Magva</a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <%-- el carrito queda afuera del menu asi en el celu se ve siempre al lado de la hamburguesa --%>
+                <a class="carrito-nav ms-auto ms-lg-3 order-lg-last" runat="server" href="~/Carrito" title="Carrito" aria-label="Carrito">
+                    <i class="bi bi-cart3"></i>
+                    <asp:UpdatePanel ID="updBadgeCarrito" runat="server" UpdateMode="Always" RenderMode="Inline">
+                        <ContentTemplate>
+                            <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger contador-carrito" Visible="false"></asp:Label>
+                        </ContentTemplate>
+                    </asp:UpdatePanel>
+                </a>
+
+                <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    <%-- Izquierda: lo general --%>
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
                         <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/">Catálogo</a>
+                            <a class="nav-link" runat="server" href="~/"><i class="bi bi-shop me-1"></i>Catálogo</a>
                         </li>
-
-                        <% if (Session["usuario"] != null &&
-                               ((Dominio.Usuario)Session["usuario"]).Perfil != null &&
-                               ((Dominio.Usuario)Session["usuario"]).Perfil.Id == 1) { %>
-
-                            <li class="nav-item">
-                                <a class="nav-link" runat="server" href="~/AdminProductos">Admin</a>
-                            </li>
-
-                        <% } %>
-
                     </ul>
 
-                    <%-- Derecha opciones del usuario --%>
                     <ul class="navbar-nav mb-2 mb-lg-0">
+                        <% if (Session["usuario"] != null)
+                            { %>
 
-                       <% if (Session["usuario"] != null) { %>
-
-                        <li class="nav-item">
-
-                            <span class="nav-link">
-
-                                Hola, <%: ((Dominio.Usuario)Session["usuario"]).Nombre %>
-
-                            </span>
-
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/MiPerfil">
-                                <i class="bi bi-person-circle me-1"></i>
-                                Mi perfil
+                        <%-- en la compu es un desplegable con el nombre y en el celu las opciones quedan a la vista --%>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i><%: ((Dominio.Usuario)Session["usuario"]).Nombre %>
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" runat="server" href="~/MiPerfil"><i class="bi bi-person me-2"></i>Mi perfil</a></li>
+                                <li><a class="dropdown-item" runat="server" href="~/MisCompras"><i class="bi bi-bag me-2"></i>Mis compras</a></li>
+
+                                <% if (((Dominio.Usuario)Session["usuario"]).Perfil != null &&
+                                               ((Dominio.Usuario)Session["usuario"]).Perfil.Id == 1)
+                                    { %>
+                                <li><a class="dropdown-item" runat="server" href="~/AdminProductos"><i class="bi bi-shield-lock me-2"></i>Panel admin</a></li>
+                                <% } %>
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+                                <li><a class="dropdown-item" runat="server" href="~/CerrarSesion"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+                            </ul>
                         </li>
 
-                    <% } %>
+                        <% }
+                            else
+                            { %>
 
-                        <%-- Carrito con contador dinámico --%>
                         <li class="nav-item">
-                            <a class="nav-link position-relative" runat="server" href="~/Carrito" style="padding-left: 32px;">
-
-                                <i class="bi bi-cart3 position-absolute" style="left: 4px; top: 50%; transform: translateY(-50%); font-size: 1.15rem;"></i>
-
-                                <asp:UpdatePanel ID="updBadgeCarrito" runat="server" UpdateMode="Always" RenderMode="Inline">
-                                    <ContentTemplate>
-                                        <asp:Label ID="lblCantidadCarrito" runat="server" CssClass="badge rounded-pill bg-danger position-absolute" Style="top: 2px; left: 10px; font-size: 0.65rem;" Visible="false"></asp:Label>
-                                    </ContentTemplate>
-                                </asp:UpdatePanel>
-
-                                Carrito
-                            </a>
+                            <a class="btn btn-ecommerce-secundario w-100" runat="server" href="~/Login"><i class="bi bi-box-arrow-in-right me-1"></i>Ingresar</a>
                         </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" runat="server" href="~/MisCompras">Mis compras</a>
+                        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                            <a class="btn btn-ecommerce-primario w-100" runat="server" href="~/Registro"><i class="bi bi-person-plus me-1"></i>Registrarse</a>
                         </li>
-
-                        <% if (Session["usuario"] != null) { %>
-
-                            <li class="nav-item">
-                                <a class="btn btn-ecommerce-primario" runat="server" href="~/CerrarSesion">
-                                    Cerrar sesión
-                                </a>
-                            </li>
-
-                        <% } else { %>
-
-                            <li class="nav-item">
-                                <a class="btn btn-ecommerce-secundario" runat="server" href="~/Login">Ingresar</a>
-                            </li>
-
-                            <li class="nav-item ms-lg-2">
-                                <a class="btn btn-ecommerce-primario" runat="server" href="~/Registro">Registrarse</a>
-                            </li>
 
                         <% } %>
-
                     </ul>
                 </div>
             </div>
@@ -170,18 +140,20 @@
                         <h3 class="h6">Mi cuenta</h3>
                         <ul class="list-unstyled">
 
-                            <% if (Session["usuario"] != null) { %>
+                            <% if (Session["usuario"] != null)
+                                { %>
 
-                                <li><a runat="server" href="~/MisCompras">Mis pedidos</a></li>
-                                <li><a runat="server" href="~/CerrarSesion">Cerrar sesión</a></li>
+                            <li><a runat="server" href="~/MisCompras">Mis pedidos</a></li>
+                            <li><a runat="server" href="~/CerrarSesion">Cerrar sesión</a></li>
 
-                            <% } else { %>
+                            <% }
+                                else
+                                { %>
 
-                                <li><a runat="server" href="~/Login">Ingresar</a></li>
-                                <li><a runat="server" href="~/Registro">Registrarse</a></li>
+                            <li><a runat="server" href="~/Login">Ingresar</a></li>
+                            <li><a runat="server" href="~/Registro">Registrarse</a></li>
 
                             <% } %>
-
                         </ul>
                     </div>
 
