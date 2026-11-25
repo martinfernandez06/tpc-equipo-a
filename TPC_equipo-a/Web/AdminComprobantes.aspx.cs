@@ -34,6 +34,16 @@ namespace Web
             return admin.Id;
         }
 
+        // manda el mail al cliente y devuelve el texto que se suma al mensaje para que el admin sepa si salio
+        // el motivo solo se usa en el rechazo
+        private string AvisoMail(int idPedido, string tipo, string motivo = "")
+        {
+            MailPedido mail = new MailPedido();
+            if (mail.Enviar(idPedido, tipo, motivo))
+                return " Le avisamos al cliente por mail.";
+            return " No se pudo mandar el mail al cliente.";
+        }
+
         // true si el comprobante es un pdf, el tolower es por si viene como .PDF
         protected bool EsPdf(object url)
         {
@@ -108,7 +118,7 @@ namespace Web
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.AceptarComprobante(idPedido, idAdmin);
                 lblMensaje.CssClass = "alert alert-success d-block";
-                lblMensaje.Text = $"Comprobante del pedido #{idPedido} aceptado. El pedido pasó a Pagado.";
+                lblMensaje.Text = $"Comprobante del pedido #{idPedido} aceptado. El pedido pasó a Pagado." + AvisoMail(idPedido, "pagado");
                 lblMensaje.Visible = true;
             }
             catch (Exception ex)
@@ -153,7 +163,7 @@ namespace Web
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.RechazarComprobante(idPedido, idAdmin, txtMotivo.Text);
                 lblMensaje.CssClass = "alert alert-success d-block";
-                lblMensaje.Text = $"Comprobante del pedido #{idPedido} rechazado. El pedido sigue pendiente de pago.";
+                lblMensaje.Text = $"Comprobante del pedido #{idPedido} rechazado. El pedido sigue pendiente de pago." + AvisoMail(idPedido, "rechazado", txtMotivo.Text);
                 lblMensaje.Visible = true;
             }
             catch (Exception ex)

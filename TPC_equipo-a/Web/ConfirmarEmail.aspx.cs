@@ -42,7 +42,7 @@ namespace Web
                 if (confirmado)
                 {
                     MostrarResultado(
-                        "¡Tu correo electrónico fue confirmado correctamente! Ya podés iniciar sesión en FinishBack.",
+                        "¡Tu correo electrónico fue confirmado correctamente! Ya podés iniciar sesión en Magva.",
                         true
                     );
                 }

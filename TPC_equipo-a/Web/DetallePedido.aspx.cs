@@ -62,6 +62,15 @@ namespace Web
             return admin.Id;
         }
 
+        // manda el mail del cambio y devuelve el texto que se suma al mensaje para que el admin sepa si salio
+        private string AvisoMail(int idPedido, string tipo)
+        {
+            MailPedido mail = new MailPedido();
+            if (mail.Enviar(idPedido, tipo))
+                return " Le avisamos al cliente por mail.";
+            return " No se pudo mandar el mail al cliente.";
+        }
+
         // carga todos los datos del pedido, se llama al entrar y despues de cada cambio para refrescar
         private void CargarPedido(int id)
         {
@@ -278,7 +287,13 @@ namespace Web
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.CambiarEstado(id, elegido, idAdmin, ddlEmpresaEnvio.SelectedValue, txtCodigoSeguimiento.Text.Trim());
 
-                lblMensaje.Text = "Estado actualizado";
+                // cada estado tiene su mail asi el cliente se entera sin entrar a la pagina
+                string tipo = "pagado";
+                if (elegido == 3)
+                    tipo = "preparacion";
+                else if (elegido == 4)
+                    tipo = "enviado";
+                lblMensaje.Text = "Estado actualizado." + AvisoMail(id, tipo);
                 lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
             }
@@ -338,7 +353,7 @@ namespace Web
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.CancelarPedido(id, idAdmin, txtMotivoCancelacion.Text);
 
-                lblMensaje.Text = $"Pedido cancelado, las unidades volvieron al stock. Motivo: {txtMotivoCancelacion.Text.Trim()}";
+                lblMensaje.Text = $"Pedido cancelado, las unidades volvieron al stock. Motivo: {txtMotivoCancelacion.Text.Trim()}." + AvisoMail(id, "cancelado");
                 lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
             }
@@ -363,7 +378,7 @@ namespace Web
                 PedidoNegocio negocio = new PedidoNegocio();
                 negocio.CambiarEstado(id, 5, idAdmin, "", "");
 
-                lblMensaje.Text = "Pedido marcado como entregado";
+                lblMensaje.Text = "Pedido marcado como entregado." + AvisoMail(id, "entregado");
                 lblMensaje.CssClass = "text-success d-block my-2";
                 CargarPedido(id);
             }

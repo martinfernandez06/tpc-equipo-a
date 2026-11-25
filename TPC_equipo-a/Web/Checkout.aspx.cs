@@ -457,6 +457,11 @@ namespace Web
                 // Vaciamos el carrito una vez creado el pedido.
                 Session["Carrito"] = null;
 
+                // le mandamos al cliente el mail con su pedido y como pagarlo
+                // si el mail falla la compra sigue igual porque el pedido ya quedo guardado
+                MailPedido mail = new MailPedido();
+                mail.Enviar(idPedido, "compra");
+
                 // Si eligió Mercado Pago vamos a la pantalla de pago simulado; si no, mostramos confirmación.
                 if (formaPago.Descripcion.IndexOf("Mercado Pago", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
