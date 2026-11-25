@@ -78,6 +78,12 @@ body {
     border-color: var(--color-linea);
 }
 
+/* iconos al lado de un texto en violeta claro igual que en el footer */
+.navbar-ecommerce .nav-link i,
+.navbar-ecommerce .dropdown-item i {
+    color: var(--color-boton-secundario-oscuro);
+}
+
 /* avisos del comprobante en el detalle del pedido */
 .aviso-comprobante {
     background-color: var(--color-lila-fondo);
@@ -763,7 +769,6 @@ body {
     max-width: none;
 }
 
-
 /* footer */
 .footer-ecommerce {
     background-color: var(--color-fondo-oscuro);
@@ -773,16 +778,45 @@ body {
 
     .footer-ecommerce h3 {
         color: var(--color-texto-claro);
+        margin-bottom: 12px;
     }
 
+    /* el icono y el texto del link en la misma linea con un espacio entre los dos */
     .footer-ecommerce a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         color: var(--color-texto-suave);
         text-decoration: none;
+        padding-block: 3px;
     }
 
         .footer-ecommerce a:hover {
             color: var(--color-texto-claro);
         }
+
+        /* iconos en violeta claro para que se note la marca sin cargar el footer */
+        .footer-ecommerce a i {
+            color: var(--color-boton-secundario-oscuro);
+        }
+
+.marca-footer {
+    font-size: 1.4rem;
+    color: var(--color-texto-claro);
+    margin-bottom: 4px;
+}
+
+.frase-footer {
+    margin-bottom: 0;
+}
+
+/* linea fina arriba del año que separa el copyright de los links */
+.copy-footer {
+    border-top: 1px solid var(--color-linea);
+    font-size: 0.85rem;
+    margin: 24px 0 0;
+    padding-top: 16px;
+}
 
 /* mercado pago simulado */
 .mp-contenedor {
