@@ -470,18 +470,10 @@ namespace Web
                     return;
                 }
 
-                pnlCheckout.Visible = false;
-                pnlConfirmacion.Visible = true;
-                lblPedidoConfirmadoId.Text = idPedido.ToString();
-
-                if (formaPago.Descripcion.IndexOf("Transferencia", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    lblDetallePagoConfirmado.Text = $"Total: {totalReal:C}. Podés subir tu comprobante de transferencia desde la sección Mis compras.";
-                }
-                else
-                {
-                    lblDetallePagoConfirmado.Text = $"Total: {totalReal:C}. Forma de pago elegida: {formaPago.Descripcion}.";
-                }
+                // guardo el pedido en session y no en la url asi nadie ve pedidos de otros cambiando el numero
+                Session.Add("pedidoExito", idPedido);
+                Response.Redirect("Exito.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {

@@ -151,9 +151,10 @@ namespace Web
                 MailPedido mail = new MailPedido();
                 mail.Enviar(pedido.Id, "pagado");
 
-                lblPedidoPagadoId.Text = pedido.Id.ToString();
-                lblTotalPagado.Text = pedido.Total.ToString("C");
-                pnlPagado.Visible = true;
+                // igual que el checkout el pedido viaja en session y la pantalla de exito muestra el pago acreditado
+                Session.Add("pedidoExito", pedido.Id);
+                Response.Redirect("Exito.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
