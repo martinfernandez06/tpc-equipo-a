@@ -55,6 +55,29 @@ body {
     }
 
 
+/* carrito con el numerito arriba a la derecha del icono */
+.carrito-nav {
+    position: relative;
+    font-size: 1.3rem;
+    padding: 4px 8px;
+    color: var(--color-texto-suave);
+}
+
+    .carrito-nav:hover {
+        color: var(--color-texto-claro);
+    }
+
+.contador-carrito {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    font-size: 0.65rem;
+}
+
+.navbar-ecommerce .dropdown-divider {
+    border-color: var(--color-linea);
+}
+
 /* avisos del comprobante en el detalle del pedido */
 .aviso-comprobante {
     background-color: var(--color-lila-fondo);
