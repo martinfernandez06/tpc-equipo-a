@@ -126,6 +126,13 @@
                                         <div class="dato-chico"><%# TextoDireccion(Eval("Direccion")) %></div>
                                         <div class="titulo-campo mt-3">Pago</div>
                                         <div><%# Eval("FormaPago.Descripcion") %></div>
+                                        <%-- >>> botón para retomar pago con Mercado Pago --%>
+                                        <asp:HyperLink ID="hlPagarMP" runat="server"
+                                            Visible='<%# MostrarBotonPagarMP(Eval("Estado.Id"), Eval("FormaPago.Descripcion"), Eval("FormaPago.RequiereComprobante")) %>'
+                                            NavigateUrl='<%# "~/MercadoPagoSimulado.aspx?id=" + Eval("Id") %>'
+                                            CssClass="btn btn-sm btn-mp-primario mt-2">
+                                            <i class="bi bi-wallet2 me-1"></i>Pagar con Mercado Pago
+                                        </asp:HyperLink>
                                     </div>
                                     <%-- comprobante de la transferencia segun el caso que dice CasoComprobante --%>
                                     <asp:Panel ID="pnlComprobante" runat="server" CssClass="col-12" Visible='<%# CasoComprobante(Container.DataItem) != "" %>'>

@@ -247,6 +247,21 @@ namespace Web
         {
             return (int)id == idPedidoAbierto && mensajeComprobante != "";
         }
+        // >>> muestra el boton para retomar el pago solo si es MP pendiente
+        protected bool MostrarBotonPagarMP(object idEstado, object descripcionPago, object requiereComprobante)
+        {
+            if (idEstado == null || descripcionPago == null || requiereComprobante == null)
+                return false;
+
+            int estado = Convert.ToInt32(idEstado);
+            bool conComprobante = Convert.ToBoolean(requiereComprobante);
+            string pago = descripcionPago.ToString();
+
+            // 1 = Pendiente de pago
+            return estado == 1
+                && !conComprobante
+                && pago.IndexOf("Mercado Pago", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
 
         protected void btnFiltrar_Click(object sender, EventArgs e)
         {
