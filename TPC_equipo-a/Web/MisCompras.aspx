@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Mis Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="MisCompras.aspx.cs" Inherits="Web.MisCompras" %>
+﻿<%@ Page Title="Mis Compras" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="MisCompras.aspx.cs" Inherits="Web.MisCompras" MaintainScrollPositionOnPostBack="true" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <%-- el updatepanel recarga solo esta parte al filtrar --%>
@@ -63,7 +63,7 @@
             <asp:Repeater ID="rptPedidos" runat="server" OnItemCreated="rptPedidos_ItemCreated">
                 <ItemTemplate>
                     <div class='pedido-compra estado-<%# Eval("Estado.Id") %>'>
-                        <a class="fila-pedido" data-bs-toggle="collapse" href='#pedido-<%# Eval("Id") %>'>
+                        <a class="fila-pedido" data-bs-toggle="collapse" href='#pedido-<%# Eval("Id") %>' aria-expanded='<%# FlechaAbierta(Eval("Id")) %>'>
                             <div class="row g-2 align-items-center">
                                 <div class="col-6 col-lg-2 order-lg-1">
                                     <div class="numero-pedido">Pedido #<%# Eval("Id") %></div>
@@ -98,7 +98,7 @@
                             </div>
                         </a>
                         <%-- detalle que se abre al tocar la fila, el id es el mismo que el href del link --%>
-                        <div class="collapse" id='pedido-<%# Eval("Id") %>'>
+                        <div class='<%# ClaseAbierto(Eval("Id")) %>' id='pedido-<%# Eval("Id") %>'>
                             <div class="detalle-pedido">
                                 <div class="row g-4">
                                     <div class="col-12 col-lg-7">
@@ -158,6 +158,8 @@
                                                     <div class="dato-chico mt-1">JPG, PNG o PDF de hasta 5 MB</div>
                                                     <div class="dato-chico mt-2">Revisá que sea el comprobante correcto. Una vez enviado la tienda lo revisa y no lo vas a poder cambiar hasta que te respondan.</div>
                                                     <asp:Button ID="btnEnviarComprobante" runat="server" Text="Enviar comprobante" CssClass="btn btn-ecommerce-primario w-100 mw-100 mt-2" CommandArgument='<%# Eval("Id") %>' OnClick="btnEnviarComprobante_Click" />
+                                                    <%-- el error de lo que eligio solo se ve en el pedido donde toco enviar --%>
+                                                    <asp:Label ID="lblErrorComprobante" runat="server" CssClass="error-comprobante" Text='<%# mensajeComprobante %>' Visible='<%# MostrarError(Eval("Id")) %>' />
                                                 </div>
                                             </div>
                                         </asp:Panel>

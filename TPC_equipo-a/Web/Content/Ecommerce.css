@@ -120,6 +120,16 @@ body {
     height: 100%;
 }
 
+
+/* error al lado del boton cuando el archivo no sirve */
+.error-comprobante {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-rechazo);
+}
+
 /* botones */
 .btn-ecommerce-primario {
     --bs-btn-color: var(--color-texto-claro);
