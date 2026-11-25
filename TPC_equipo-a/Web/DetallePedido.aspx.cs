@@ -47,6 +47,21 @@ namespace Web
             }
         }
 
+
+        // devuelve el id del admin logueado asi el historial guarda quien hizo cada cambio
+        // si la sesion se vencio con la pantalla abierta lo mando al login y devuelve 0
+        private int IdAdminLogueado()
+        {
+            if (Session["usuario"] == null)
+            {
+                Response.Redirect("~/Login.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
+                return 0;
+            }
+            Usuario admin = (Usuario)Session["usuario"];
+            return admin.Id;
+        }
+
         // carga todos los datos del pedido, se llama al entrar y despues de cada cambio para refrescar
         private void CargarPedido(int id)
         {
@@ -217,6 +232,10 @@ namespace Web
 
         protected void btnAgregarObservacion_Click(object sender, EventArgs e)
         {
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
+
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
             Page.Validate("observacion");
             if (!Page.IsValid)
@@ -224,8 +243,7 @@ namespace Web
 
             int id = int.Parse(Request.QueryString["id"]);
             PedidoNegocio negocio = new PedidoNegocio();
-            // el usuario 1 es fijo hasta que este el login
-            negocio.AgregarObservacion(id, 1, txtObservacion.Text.Trim());
+            negocio.AgregarObservacion(id, idAdmin, txtObservacion.Text.Trim());
 
             txtObservacion.Text = "";
             CargarPedido(id);
@@ -233,6 +251,10 @@ namespace Web
 
         protected void btnCambiarEstado_Click(object sender, EventArgs e)
         {
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
+
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
             Page.Validate("estado");
             if (!Page.IsValid)
@@ -254,8 +276,7 @@ namespace Web
                 int elegido = int.Parse(ddlEstado.SelectedValue);
 
                 PedidoNegocio negocio = new PedidoNegocio();
-                // el usuario 1 es fijo hasta que este el login
-                negocio.CambiarEstado(id, elegido, 1, ddlEmpresaEnvio.SelectedValue, txtCodigoSeguimiento.Text.Trim());
+                negocio.CambiarEstado(id, elegido, idAdmin, ddlEmpresaEnvio.SelectedValue, txtCodigoSeguimiento.Text.Trim());
 
                 lblMensaje.Text = "Estado actualizado";
                 lblMensaje.CssClass = "text-success d-block my-2";
@@ -302,6 +323,11 @@ namespace Web
         protected void btnSiCancelar_Click(object sender, EventArgs e)
         {
             int id = int.Parse(Request.QueryString["id"]);
+
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
+
             // vuelvo a validar en el servidor por si se saltean la validacion del navegador
             Page.Validate("motivo");
             if (!Page.IsValid)
@@ -310,8 +336,7 @@ namespace Web
             try
             {
                 PedidoNegocio negocio = new PedidoNegocio();
-                // el usuario 1 es fijo hasta que este el login
-                negocio.CancelarPedido(id, 1, txtMotivoCancelacion.Text);
+                negocio.CancelarPedido(id, idAdmin, txtMotivoCancelacion.Text);
 
                 lblMensaje.Text = $"Pedido cancelado, las unidades volvieron al stock. Motivo: {txtMotivoCancelacion.Text.Trim()}";
                 lblMensaje.CssClass = "text-success d-block my-2";
@@ -329,12 +354,14 @@ namespace Web
         protected void btnSiEntregado_Click(object sender, EventArgs e)
         {
             int id = int.Parse(Request.QueryString["id"]);
+            int idAdmin = IdAdminLogueado();
+            if (idAdmin == 0)
+                return;
 
             try
             {
                 PedidoNegocio negocio = new PedidoNegocio();
-                // el usuario 1 es fijo hasta que este el login
-                negocio.CambiarEstado(id, 5, 1, "", "");
+                negocio.CambiarEstado(id, 5, idAdmin, "", "");
 
                 lblMensaje.Text = "Pedido marcado como entregado";
                 lblMensaje.CssClass = "text-success d-block my-2";
